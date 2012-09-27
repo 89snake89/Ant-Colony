@@ -51,7 +51,7 @@ private boolean reset;                  // set true if failure reaches 100 => an
 // pointer to the environment
 private Grid grid;                    	// grid
 private Configuration conf;             // configuration
-private Document [] documents;          // available data elements
+private Item [] documents;          // available data elements
 
 
 
@@ -64,7 +64,7 @@ private Document [] documents;          // available data elements
 * @param documents a vector to the document data
 * @param conf the current paramter settings
 */
-public Ant(Grid grid, int speed, Position pos, int load, Document [] documents, Configuration conf) {
+public Ant(Grid grid, int speed, Position pos, int load, Item [] documents, Configuration conf) {
 
 	this.load = load;
 	this.speed = speed;

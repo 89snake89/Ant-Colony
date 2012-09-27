@@ -1,6 +1,6 @@
 /*  
-    Copyright (C) 2004 Julia Handl
-    Email: Julia.Handl@gmx.de
+    Copyright (C) 2012 António Fonseca
+    Email: antoniofilipefonseca@gmail.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,8 +19,8 @@
 */
 
 /*****************************************************************
-	Julia Handl - 18004385
-	Monash University, 1.7.2001
+	António Fonseca
+	antoniofilipefonseca@gmail.com
 
 	File: Configuration.java
 	Package: JavaAnts
@@ -32,85 +32,19 @@
 
 package antcolony;
 
-import java.lang.*;
-import java.util.*;
-import java.awt.*;
-import java.awt.image.*;
-import java.awt.event.*;
-import javax.swing.*;
 import java.io.*;
 
-
-/**
- * Wrapping class for all essential parameter settings.<br>
- * Value- and String-based access to the following parameters is provided:
- * <p>
- * <p>
- * <b>General parameters</b>
- * <ul>
- * <li><i><b>boolean test: </b></i> Enable detailed analysis of sorting progress</li>
- * <li><i><b>boolean testData: </b></i> Enable further analysis (possible only with test data A1)</li>
- * <li><i><b>boolean blocked: </b></i> Internal use: Ensures that only one topic map at a time can be viewed</li>
- * <li><i><b>int method: </b></i> Toggle between old and new ant-algorithm, Ant-Q and the Hybrid</li>
- * <li><i><b>String browser: </b></i> Configured browser path</li>
- * </ul>
- * <p>
- * <b>Map parameters</b>
- * <ul>
- * <li><i><b>int xsize: </b></i> Map width</li>
- * <li><i><b>int ysize: </b></i> Map height</li>
- * <li><i><b>int runs: </b></i> Upper limit on number of runs for the ant-based methods</li>
- * <li><i><b>int iterations: </b></i> Number of iterations per run</li>
- * </ul>
- * <p>
- * <ul>
- * <b>Ant parameters</b>
- * <li><i><b>int nants: </b></i> Size of ant colony</li>
- * <li><i><b>int speed: </b></i> Ant speed limit</li>
- * <li><i><b>boolean homogenous: </b></i> Toggle between homogenous and inhomogenous population</li>
- * <li><i><b>int memsize: </b></i> Ant memory size</li>
- * <li><i><b>int sigma: </b></i> Size of perceived neighbourhood</li>
-  * <li><i><b>boolean adaptK: </b></i> Toggle between adaptive and non-adaptive mode for kd and kp</li>
- * <li><i><b>double kd: </b></i> Regulation of dropping probability</li>
- * <li><i><b>double kd_start: </b></i> Lower limit for kd in adaptive mode</li>
- * <li><i><b>double kd_end: </b></i> Upper limit for kd in adaptive mode</li>
- * <li><i><b>double kd_interval: </b></i> Stepwidth for kd in adaptive mode</li>
- * <li><i><b>double kp: </b></i> Regulation of picking probability</li>
- * <li><i><b>double kp_start: </b></i> Lower limit for kp in adaptive mode</li>
- * <li><i><b>double kp_end: </b></i> Upper limit for kp in adaptive mode</li>
- * <li><i><b>double kp_interval: </b></i> Stepwidth for kp in adaptive mode</li>
- * <li><i><b>boolean adaptAlpha: </b></i> Toggle between adaptive and non-adaptive mode for alpha</li>
- * <li><i><b>double alpha: </b></i> Scaling of dissimilarities</li>
- * <li><i><b>double alpha_start: </b></i> Lower limit for alpha in adaptive mode</li>
- * <li><i><b>double alpha_end: </b></i> Upper limit for alpha in adaptive mode</li>
- * <li><i><b>double alpha_interval: </b></i> Stepwidth for alpha in adaptive mode</li>
- * </ul>
- * <p>
- * <ul>
- * <b>Document parameters</b>
- * <li><i><b>int nkeys: </b></i> Dimension of document space</li>
- * <li><i><b>int ndocs: </b></i> Number of documents</li>
- * <li><i><b>double distscale: </b></i> Scaling paramter for dissimilarities</li>
- * <li><i><b>int simMeasure: </b></i> Select similarity measure (Euclidean / Cosine / Overlap)</li>
- * <li><i><b>int textMode: </b></i> Select retrieval mode (Snippets / Full-Text / META-Data)</li>
- * <li><i><b>boolean useDefaults: </b></i> Use default preprocessing?</li>
- * <li><i><b>int lowercutoff: </b></i> Lower bound cutoff frequency</li>
- * <li><i><b>int uppercutoff: </b></i> Upper bound cutoff frequency</li>
- * <li><i><b>int dim: </b></i> LSI Target dimension</li>
- * <li><i><b>int choice: </b></i> Select test distribution</li>
- * </ul>
- * <p>
-  */
 public class Configuration implements Serializable {
 
-	// General program switches
 
-	private boolean test = false;				
-	private boolean testData = false;			
-	private boolean blocked = false;			
-	private int method = 0;						
-	private String browser = "netscape";
-
+	private static final long serialVersionUID = 4843124430119352057L;
+	
+	// Datasets and Model parameters
+	
+	public enum Datasets {UNIFORM9, NORMAL4};
+	private Datasets dataset = Datasets.UNIFORM9;
+	public enum Models {MODEL1, MODEL2};
+	private Models model = Models.MODEL1;
 
 	// Map parameters
 	private int xsize = 100;
@@ -144,123 +78,31 @@ public class Configuration implements Serializable {
 
 
 
-	// Document Parameters
+	// Item Parameters
 	private double distscale;
-	private int nkeys = 2;
+	private int nkeys = 50;
+	private int maxitemsize = 10;
 	private int simMeasure = 0;					/** Select similarity measure (Euclidean / Cosine / Overlap) */
 	private int textMode = 0;					/** Select retrieval mode (Snippets / Full-Text / META-Data) */
 		
-	private boolean usedefaults = true;
-	private int lowercutoff = 2;
-	private int uppercutoff = 1000;
-	private int dim = 50;
-	
-	private int ndocs = 600;
+	private int nitems = 600;
 	private int choice = 0;
 
 
 /********** Constructor ***************************************************************************/
 	
 
-	public Configuration() {
-		
+	public Configuration() {	
 	}
 	
 	
 /********** simple manipulation functions *********************************************************/	
-	
-	// string based
-	public void setBrowser(String value) {
-		this.browser = value;
+
+	public void setDataset(Datasets value) {
+		this.dataset = value;
 	}
-	public void setLowerCutoff(String value) {
-		this.lowercutoff = new Integer(value).intValue();
-	}
-	public void setUpperCutoff(String value) {
-		this.uppercutoff = new Integer(value).intValue();
-	}
-	public void setdimension(String value) {
-		this.dim = new Integer(value).intValue();
-	}
-	public void setAlphaStart(String value) {
-		this.alpha_start = new Double(value).doubleValue();
-	}
-	public void setAlphaEnd(String value) {
-		this.alpha_end = new Double(value).doubleValue();
-	}
-	public void setAlphaInterval(String value) {
-		this.alpha_interval = new Double(value).doubleValue();
-	}
-	public void setKdStart(String value) {
-		this.kd_start = new Double(value).doubleValue();
-	}
-	public void setKdEnd(String value) {
-		this.kd_end = new Double(value).doubleValue();
-	}
-	public void setKdInterval(String value) {
-		this.kd_interval = new Double(value).doubleValue();
-	}
-	public void setKpStart(String value) {
-		this.kp_start = new Double(value).doubleValue();
-	}
-	public void setKpEnd(String value) {
-		this.kp_end = new Double(value).doubleValue();
-	}
-	public void setKpInterval(String value) {
-		this.kp_interval = new Double(value).doubleValue();
-	}
-	public void setxsize(String value) {
-	    this.xsize = new Integer(value).intValue();
-	}
-	public void setysize(String value) {
-		this.ysize = new Integer(value).intValue();
-	}
-	public void setruns(String value) {
-		this.runs = new Integer(value).intValue();
-	}
-	public void setnants(String value) {
-		this.nants = new Integer(value).intValue();
-	}
-	public void setndocs(String value) {
-		this.ndocs = new Integer(value).intValue();
-	}
-	public void setnkeys(String value) {
-		this.nkeys = new Integer(value).intValue();
-	}
-	public void setspeed(String value) {
-		this.speed =  new Integer(value).intValue();
-	}
-	public void setmemsize(String value) {
-		this.memsize = new Integer(value).intValue();
-	}
-	public void setkd(String value) {
-		this.kd = new Double(value).doubleValue();
-	}
-	public void setkp(String value) {
-		this.kp = new Double(value).doubleValue();
-	}
-	public void setalpha(String value) {
-		this.alpha = new Double(value).doubleValue();
-	}
-	public void setsigma(String value) {
-		this.sigma = new Integer(value).intValue();
-	}
-	
-	// value based
-	public void setLowerCutoff(int value) {
-		this.lowercutoff = value;
-	}
-	public void setUpperCutoff(int value) {
-		this.uppercutoff = value;
-	}
-	public void setdimension(int value) {
-		this.dim = value;
-	}
-	public void setUseDefaults(boolean value) {
-		this.usedefaults = value;
-	}
-	public void setMethod(int value) {
-		this.method = value;
+	public void setModel(Models value) {
+		this.model = value;
 	}
 	public void setAlphaStart(int value) {
 		this.alpha_start = value;
@@ -289,12 +131,6 @@ public class Configuration implements Serializable {
 	public void setKpInterval(int value) {
 		this.kp_interval = value;
 	}
-	public void setTest(boolean value) {
-		this.test = value;
-	}
-	public void setTestData(boolean value) {
-		this.testData = value;
-	}
 	public void setAdaptAlpha(boolean value) {
 		this.adaptAlpha = value;
 	}
@@ -316,11 +152,14 @@ public class Configuration implements Serializable {
     public void setiterations(int its) {
 		this.iterations = its;
 	}
-    public void setndocs(int value) {
-		this.ndocs = value;
+    public void setnitems(int value) {
+		this.nitems = value;
 	}
 	public void setnkeys(int value) {
 		this.nkeys = value;
+	}	
+	public void setMaxitemsize(int value) {
+		this.maxitemsize = value;
 	}
 	public void setalpha(double value) {
 		this.alpha = value;
@@ -337,35 +176,17 @@ public class Configuration implements Serializable {
 	public void setkp(double value) {
 		this.kp = value;
 	}
-	public void setBlocked(boolean value) {
-		this.blocked = value;
-	}
+
 	
 	
 /********** simple access functions ********************************************************************/	
 	
-	// value based
-	public String getbrowser() {
-		return this.browser;
-	}
 
-	public int getLowerCutoff() {
-		return this.lowercutoff;
+	public Datasets getDataset() {
+		return this.dataset;
 	}
-	public int getUpperCutoff() {
-		return this.uppercutoff;
-	}
-	public int getDimension() {
-		return this.dim;
-	}
-	public boolean getUseDefaults() {
-		return this.usedefaults;
-	}
-	public boolean getBlocked() {
-		return this.blocked;
-	}
-	public int getMethod() {
-		return this.method;
+	public Models getModel() {
+		return this.model;
 	}
 	public double getalphastart() {
 		return this.alpha_start;
@@ -394,13 +215,6 @@ public class Configuration implements Serializable {
 	public double getkpinterval() {
 		return this.kp_interval;
 	}
-
-	public boolean getTest() {
-		return this.test;
-	}
-	public boolean getTestData() {
-		return this.testData;
-	}
 	public boolean getadaptalpha() {
 		//if (method == 2) return false;
 		return this.adaptAlpha;
@@ -427,13 +241,16 @@ public class Configuration implements Serializable {
 		return this.runs;
 	}
 	public int getndocs() {
-		return this.ndocs;
+		return this.nitems;
 	}
 	public int getnants() {
 		return this.nants;
 	}
 	public int getnkeys() {
 		return this.nkeys;
+	}
+	public int getMaxitemsize(){
+		return this.maxitemsize;
 	}
 	public double getkd() {
 		return this.kd;
@@ -464,123 +281,13 @@ public class Configuration implements Serializable {
 		return this.choice;
 	}
 
-
-    // String based
-    	public String getsLowerCutoff() {
-		return (new Integer(this.lowercutoff)).toString();
-	}
-	public String getsUpperCutoff() {
-		return (new Integer(this.uppercutoff)).toString();
-	}
-	public String getsDimension() {
-		return (new Integer(this.dim)).toString();
-	}
-	public String getsUseDefaults() {
-		return (new Boolean(this.usedefaults)).toString();
-	}
-	public String getsalphastart() {
-		return (new Double(this.alpha_start)).toString();
-	}
-	public String getsalphaend() {
-		return (new Double(this.alpha_end)).toString();
-	}
-	public String getsalphainterval() {
-		return (new Double(this.alpha_interval)).toString();
-	}
-	public String getskpstart() {
-		return (new Double(this.kp_start)).toString();
-	}
-	public String getskpend() {
-		return (new Double(this.kp_end)).toString();
-	}
-	public String getskpinterval() {
-		return (new Double(this.kp_interval)).toString();
-	}
-	public String getskdstart() {
-		return (new Double(this.kd_start)).toString();
-	}
-	public String getskdend() {
-		return (new Double(this.kd_end)).toString();
-	}
-	public String getskdinterval() {
-		return (new Double(this.kd_interval)).toString();
-	}
-	public String getsxsize() {
-		return (new Integer(this.xsize)).toString();
-	}
-	public String getsysize() {
-		return (new Integer(this.ysize)).toString();
-	}
-	public String getsruns() {
-		return (new Integer(this.runs)).toString();
-	}
-	public String getsndocs() {
-		return (new Integer(this.ndocs)).toString();
-	}
-	public String getsnants() {
-		return (new Integer(this.nants)).toString();
-	}
-	public String getsnkeys() {
-		return (new Integer(this.nkeys)).toString();
-	}
-	public String getskd() {
-		return (new Double(this.kd)).toString();
-	}
-	public String getskp() {
-		return (new Double(this.kp)).toString();
-	}
-	public String getssigma() {
-		return (new Integer(this.sigma)).toString();
-	}
-	public String getsalpha() {
-		return (new Double(this.alpha)).toString();
-	}
-	public String getsmemsize() {
-		return (new Integer(this.memsize)).toString();
-	}
-	public String getsspeed() {
-		return (new Integer(this.speed)).toString();
-	}
 	
 		
 /********** Miscellaneous ********************************************************************/
-	
 
-	
-	// bring up an interface to save current configuration (plus resulting map as gif)
-	public void write(String filename) throws IOException {
-
-			JDialog dialog = new JDialog();
-			dialog.setTitle("Description");
-			dialog.setSize(300, 300);
-			dialog.getContentPane().setLayout(new BorderLayout());
-			JLabel label = new JLabel("Please enter file description");
-			dialog.getContentPane().add(label, BorderLayout.NORTH);
-			JTextArea description = new JTextArea();
-			description.setFont(new Font("Serif", Font.ITALIC, 16));
-			description.setLineWrap(true);
-			description.setWrapStyleWord(true);
-
-			JScrollPane areaScrollPane = new JScrollPane(description);
-			areaScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-			areaScrollPane.setPreferredSize(new Dimension(250, 250));
-		
-			dialog.getContentPane().add(areaScrollPane, BorderLayout.CENTER);
-			JButton button = new JButton("OK");
-			
-			// an new SaveConf Object handles the storage process
-			button.addActionListener(new SaveConf(dialog, description, this, filename));
-			
-			Panel buttonbox = new Panel();
-			buttonbox.setLayout(new BorderLayout());
-			buttonbox.add(button, BorderLayout.EAST);
-			dialog.getContentPane().add(buttonbox, BorderLayout.SOUTH);
-			dialog.show();
-	}
-
-	public void save() {
+	public void save(String file) {
 		try {
-			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream("System.conf"));
+			ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(file));
 			out.writeObject(this);
 			out.flush();
 			out.close();
@@ -588,11 +295,11 @@ public class Configuration implements Serializable {
 		}
 	}
 
-	public Configuration read() {
+	public Configuration read(String file) {
 		Configuration newconf = null;
 		ObjectInputStream in;
 		try {
-			in = new ObjectInputStream(new FileInputStream("System.conf"));
+			in = new ObjectInputStream(new FileInputStream(file));
 		} catch (Exception e) {
 			return null;
 		}
