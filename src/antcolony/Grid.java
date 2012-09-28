@@ -49,13 +49,15 @@
 package antcolony;
 
 import java.util.*;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.io.*;
 import javax.swing.JPanel;
 
 /**  Represents the grid underlying a topic map, provides functions
 	*	  for access and manipulation
 	*/
-public class Grid extends JPanel implements Serializable{
+public class Grid extends JPanel implements Runnable{
 
 
 	private static final long serialVersionUID = -6894027807371164326L;
@@ -63,6 +65,9 @@ public class Grid extends JPanel implements Serializable{
 	private Configuration conf;			// Current configuration
 	private Item [] items;				// Current document collection
 	private int [][] cells;				// Cell matrix
+	private int []   colors;
+	private boolean  original = true;
+	private boolean threadSuspended;
 	private DistanceMatrix distance;	// Precomputed distance matrix
 	private boolean antMode = true;		// Switch Ant-Mode / MDS-Mode
 	private double scaleFactor = 0;     // scale factor
@@ -71,27 +76,36 @@ public class Grid extends JPanel implements Serializable{
 	
 	/**** Constructor and Initialisation **************************************************************/
 
-	/** Constructor
+	
+
+	
+	/** Default constructor
+	*
+	*/
+	public Grid(){
+	}
+	
+	/** Updater
 	* @param conf the current parameter settings
 	* @param documents the current document data
-	* @param antMode switch between the four different mapping modes
 	*/
-	public Grid(Configuration conf, Item [] items) {
+	public void update(Configuration c, Data d) {
 
 		// store provided information
-		this.items = items;
-		this.conf = conf;
+		this.conf = c;
+		this.colors = conf.getColors();
+		this.items = d.getItems();
 		this.cells = new int[this.conf.getysize()][this.conf.getxsize()];
 				
 		// initialize base matrix (item id "-1" signifies "not occupied")
-		for (int i=0; i < conf.getysize(); i++)
-			for (int j=0; j< conf.getxsize(); j++)
+		for (int i=0; i < conf.getxsize(); i++)
+			for (int j=0; j< conf.getysize(); j++)
 				this.cells[i][j] = -1;
 
 		this.distance = new DistanceMatrix(items, conf);
  		
 		// generate starting distribution
-		scatterDocuments();
+		scatterItems();
 	}
 
 
@@ -101,68 +115,39 @@ public class Grid extends JPanel implements Serializable{
 	* Advise random position on the grid to all document in ant-mode
 	* Or advise MDS positions in MDS mode
 	*/
-	public void scatterDocuments() {
-	
+	public void scatterItems() {
 		int x, y;
 		
-		for (int i = 0; i < this.conf.getndocs(); i++) {
-			
-			posIndex[i] = new Position();
-
-			/// advise random and distinct positions if operating with ants
-			if ((antMode == true)  && (conf.getMethod() != 2)) {
-				while (true) {
-					x = (int)Math.floor(this.conf.getxsize() * Math.random());
-					y = (int)Math.floor(this.conf.getysize() * Math.random());
-					pos = new Position(y, x);
-					
-					// one document only per grid cell	
-					if ( free(pos) ) {
-					
-						// store information in grid
-						set(pos, i);
-						
-						// advose position to document
-						documents[i].setPosition(pos);
-						
-						// update position index
-						posIndex[i].set(pos);
-						
-						// go on with next document
+		for (int i = 0; i < this.items.length; i++) {
+			while (true) {
+				x = (int)Math.floor(this.conf.getxsize() * Math.random());
+				y = (int)Math.floor(this.conf.getysize() * Math.random());
+					if ( this.cells[x][y]==-1) {
+						this.cells[x][y] = items[i].id;
+						items[i].setXY(x, y);
 						break;
 					}
 				}
-			}
-			// otherwise advise positions computed by MDS
-			else {
-				// retrieve information
-				pos = documents[i].getPosition();
-				
-				if (free(pos) != true) nextFree(pos);
-				
-				
-				// store information in grid
-				set(pos, i);
-				
-								
-				// update position index
-				posIndex[i].set(pos);
-				
-				
-			}
 		}
 	}
 	
 
 	/**** simple access functions *********************************************************/
 	 
-
+	/**
+	* Get the display flag
+	*/
+	
+	public boolean getOriginal() {
+		return this.original;
+	}
+/*
 
 	/**
 	* Get the document position for a given document number
 	* @param i the provided document number
 	* @param pos storage space for the corresponding position
-	*/
+
 	public void getPos(int i, Position pos) {
 		pos.set(this.posIndex[i]);
 		return;
@@ -172,7 +157,7 @@ public class Grid extends JPanel implements Serializable{
 	/** Get the document number for a given grid position
 	* @param pos the provided grid position
 	* @return the document number or -1 if empty
-	*/
+
 	public int at(Position pos) {
 		return occupied[pos.getY()][pos.getX()];
 	}
@@ -181,7 +166,7 @@ public class Grid extends JPanel implements Serializable{
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
 	* @return the document number or -1 if empty
-	*/
+
 	public int at(int y, int x) {
 		return occupied[y][x];
 	}
@@ -190,7 +175,7 @@ public class Grid extends JPanel implements Serializable{
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
 	* @return the document number or 0 if empty
-	*/
+
 	public int getColor(int y, int x) {
 		int doc = occupied[y][x];
 		if  ( doc!= -1) {
@@ -202,7 +187,7 @@ public class Grid extends JPanel implements Serializable{
 	/** Check whether a position on the grid occupied
 	* @param pos the provided grid position
 	* @return the true if occupied, false otherwise
-	*/
+
 	public boolean free(Position pos) {
 		return (occupied[pos.getY()][pos.getX()] == -1);
 	}
@@ -211,14 +196,14 @@ public class Grid extends JPanel implements Serializable{
 	* @param x th provided grid x-coordinate
 	* @param y the provided grid y-coordinate
 	* @return the true if occupied, false otherwise
-	*/
+
 	public boolean free(int y, int x) {
 		return (occupied[y][x] == -1);
 	}
 	
 	/** Return the mean dissimilarity computed for the current document data
 	* @return the mean dissimilarity of the document collection
-	*/
+
 	public double getScaleFactor() {
 		return conf.getdistscale();
 	}
@@ -228,7 +213,7 @@ public class Grid extends JPanel implements Serializable{
 	* @param i a first document
 	* @param j a second document
 	* @return the distance betweeen these documents in document space
-	*/
+
 	public double distance(int i, int j) {
 		return distance.get(i,j);
 	}
@@ -238,11 +223,26 @@ public class Grid extends JPanel implements Serializable{
 
 	/**** simple manipulation *******************************************************/
 	
+	/** Update the display flag
+	* @param the flag
+	*/
+
+	public void setOriginal(boolean f) {
+		this.original = f;
+	}
+	
+	/** Update the display flag
+	* @param the flag
+	*/
+
+	public void setSuspend(boolean f) {
+		this.threadSuspended = f;
+	}
 	
 	/** Update position Index (store the new position for document i)
 	* @param i the document number
 	* @param pos the new position of this document
-	*/
+
 	public void setPos(Position pos, int i) {
 		this.posIndex[i].set(pos);
 	}
@@ -250,14 +250,14 @@ public class Grid extends JPanel implements Serializable{
 	/** Place a document (number provided) at a given position on the grid
 	* @param ant the document number
 	* @param pos the document position on the grid
-	*/
+
 	public void set(Position pos, int ant) {
 		occupied[pos.getY()][pos.getX()] = ant;
 	}
 	
 	/** Remove document at a given position from the grid
 	* @param pos the document position on the grid
-	*/
+
 	public void remove(Position pos) {
 		occupied[pos.getY()][pos.getX()] = -1;
 	}
@@ -273,7 +273,7 @@ public class Grid extends JPanel implements Serializable{
 	* @param pos the ant's grid position
 	* @param speed the ant's speed
 	* @param a pointer to the ant's memory
-	*/
+
 	public void move(Position pos, int speed, Memory memory) {
 
 		Position target = new Position();
@@ -355,7 +355,7 @@ public class Grid extends JPanel implements Serializable{
 	* @param pos the considered position
 	* @param speed the speed of the ant judging
 	* @return the similarity and density f
-	*/
+
     public double densityAt(int docnbr, Position pos, int speed) {
 	
              	int xsize = this.conf.getxsize();
@@ -407,7 +407,7 @@ public class Grid extends JPanel implements Serializable{
 	
 	/** Moves an ant from its current (already occupied) position to the next free one
 	* @param pos the current ant position, the new position is also stored in here
-	*/
+
 	public void nextFree(Position pos) {	
 		int xlow, ylow, xhigh, yhigh, i, j;
 		int xsize = this.conf.getxsize();
@@ -451,7 +451,7 @@ public class Grid extends JPanel implements Serializable{
 	* Find the document closest to a provided position
 	* @param x the provided x coordinate
 	* @param y the provided y coordinate
-	*/
+
 	public int nextOccupied(int y, int x) {
 		int xsize = this.conf.getxsize();
 		int ysize = this.conf.getysize();
@@ -470,10 +470,43 @@ public class Grid extends JPanel implements Serializable{
 		}
 	}
 		
-	
-	
+	/**
+	* Paint the Grid
+	*/
+	  public void paint(Graphics g){
+	      super.paint(g);
+	      if (items != null)
+	    	  for (int i=0; i<this.items.length; i++){
+	    		  if (this.original)
+	    			  g.fillOval(this.items[i].getinitX(),this.items[i].getinitY(), 10, 10);
+	    		  else
+	    			  g.fillOval(this.items[i].getX(),this.items[i].getY(), 10, 10);
+	    		  g.setColor(new Color(colors[items[i].getType()]));
+	    	  }
+	  }
 
 
+	  public void run(){
+	        while (true) {
+	            try {            	
+	            	Thread.currentThread().sleep(100);
+	            	this.repaint();
+	            	if (threadSuspended) {
+	            		synchronized(this) {
+	            			while (threadSuspended)
+	            				wait();
+	            		}
+	            	}
+	            } catch (InterruptedException e){
+	            }
+		  scatterItems();
+	  }
+	  }
+	  
+	  public void stop(){
+		  Thread thisThread = Thread.currentThread();
+		  thisThread = null;
+	  }
 	/**
 	* Compute the eucclidean distance between two map positions A and B
 	* @param i1 y coordinate for position A
@@ -481,7 +514,7 @@ public class Grid extends JPanel implements Serializable{
 	* @param i2 y coordinate for position B
 	* @param j2 x coordinate for position B
 	* @return return the Euclidean distance
-	*/
+
 	private double euclidean(int i1, int j1, int i2, int j2) {
 		double temp1 = (i1-i2);
 		temp1 *= temp1;
@@ -489,7 +522,7 @@ public class Grid extends JPanel implements Serializable{
 		temp2 *= temp2;
 		return Math.sqrt(temp1+temp2);
 	}
-		
+		*/
 }
 
 

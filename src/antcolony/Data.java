@@ -41,6 +41,7 @@ import antcolony.Configuration.Datasets;
 */
 public class Data implements Serializable {
 	
+	private Configuration conf;
 	private Item [] items;          // document collection
 	private String [] keys;
 	
@@ -55,9 +56,10 @@ public class Data implements Serializable {
     /** 
     * Create new document collection from provided data */
     
-	public Data(int nkeys, int nitems, Datasets d , Configuration c) {
-		generate_keys(nkeys);
-		generate_items(nitems, d, c);
+	public Data(Configuration c) {
+		this.conf = c;
+		generate_keys();
+		generate_items();
 	}
 
     /** get the dimensionality of the document space */
@@ -84,45 +86,47 @@ public class Data implements Serializable {
 * @return the generated test data
 */
 
-private void generate_items(int n, Datasets d, Configuration c) {
+private void generate_items() {
 
+		int n = this.conf.getnitems();
+		Datasets d = this.conf.getDataset();
 		Random generator = new Random();
-		int [][] centers = new int[9][];
+		int [][] centers = new int[9][2];
 	
 		switch (d) {
 	
 		// Hard-coded test distribution (Uniform Distribution)
 	
 		case UNIFORM9 :	items = new Item[n];											
-						centers[0][0] = c.getxsize()/6; centers[0][1] = c.getysize()/6;
-						centers[1][0] = c.getxsize()/2; centers[1][1] = c.getysize()/6;
-						centers[2][0] = c.getxsize()/6 * 5; centers[2][1] = c.getysize()/6;
-						centers[3][0] = c.getxsize()/6; centers[3][1] = c.getysize()/2;
-						centers[4][0] = c.getxsize()/2; centers[4][1] = c.getysize()/2;
-						centers[5][0] = c.getxsize()/6 * 5; centers[5][1] = c.getysize()/2;
-						centers[6][0] = c.getxsize()/6; centers[6][1] = c.getysize()/6 * 5;
-						centers[7][0] = c.getxsize()/2; centers[7][1] = c.getysize()/6 * 5;
-						centers[8][0] = c.getxsize()/6 * 5; centers[8][1] = c.getysize()/6 * 5;
+						centers[0][0] = this.conf.getxsize()/6; centers[0][1] = this.conf.getysize()/6;
+						centers[1][0] = this.conf.getxsize()/2; centers[1][1] = this.conf.getysize()/6;
+						centers[2][0] = this.conf.getxsize()/6 * 5; centers[2][1] = this.conf.getysize()/6;
+						centers[3][0] = this.conf.getxsize()/6; centers[3][1] = this.conf.getysize()/2;
+						centers[4][0] = this.conf.getxsize()/2; centers[4][1] = this.conf.getysize()/2;
+						centers[5][0] = this.conf.getxsize()/6 * 5; centers[5][1] = this.conf.getysize()/2;
+						centers[6][0] = this.conf.getxsize()/6; centers[6][1] = this.conf.getysize()/6 * 5;
+						centers[7][0] = this.conf.getxsize()/2; centers[7][1] = this.conf.getysize()/6 * 5;
+						centers[8][0] = this.conf.getxsize()/6 * 5; centers[8][1] = this.conf.getysize()/6 * 5;
 						for (int i=0; i<n; i++){
-							int type = i%9;
-							int x = centers[type][0]+(int)(generator.nextDouble()- 0.5)* c.getxsize()/12;
-							int y = centers[type][1]+(int)(generator.nextDouble()- 0.5)* c.getysize()/12;
-							items[i]= new Item(i,c,x,y,type,generate_map(keys,generator.nextInt(c.getMaxitemsize())));
+							int type = (i+1)%9;
+							int x = centers[type][0]+(int)((generator.nextDouble()- 0.5)* this.conf.getxsize()/6);
+							int y = centers[type][1]+(int)((generator.nextDouble()- 0.5)* this.conf.getysize()/6);
+							items[i]= new Item(i,this.conf,x,y,type,generate_map(keys,generator.nextInt(this.conf.getMaxitemsize())));
 						}
 						break;
 									
 		// Hard-coded test distribution (Normal Distribution)
 									
 		case NORMAL4 :	items = new Item[n];
-						centers[0][0] = c.getxsize()/6; centers[0][1] = c.getysize()/6;
-						centers[1][0] = c.getxsize()/2; centers[1][1] = c.getysize()/6;
-						centers[2][0] = c.getxsize()/6 * 5; centers[2][1] = c.getysize()/6;
-						centers[3][0] = c.getxsize()/6; centers[3][1] = c.getysize()/2;
+						centers[0][0] = this.conf.getxsize()/4; centers[0][1] = this.conf.getysize()/4;
+						centers[1][0] = this.conf.getxsize()/4 * 3; centers[1][1] = this.conf.getysize()/4;
+						centers[2][0] = this.conf.getxsize()/4; centers[2][1] = this.conf.getysize()/4 * 3;
+						centers[3][0] = this.conf.getxsize()/4 * 3; centers[3][1] = this.conf.getysize()/ 4 * 3;
 						for (int i=0; i<n; i++){
-						int type = i%4;
-						int x = centers[type][0]+(int)(generator.nextGaussian()* c.getxsize()/12);
-						int y = centers[type][1]+(int)(generator.nextGaussian()* c.getysize()/12);
-						items[i]= new Item(i,c,x,y,type,generate_map(keys,generator.nextInt(c.getMaxitemsize())));
+						int type = (i+1)%4;
+						int x = centers[type][0]+(int)(generator.nextGaussian()* this.conf.getxsize()/12);
+						int y = centers[type][1]+(int)(generator.nextGaussian()* this.conf.getysize()/12);
+						items[i]= new Item(i,this.conf,x,y,type,generate_map(keys,generator.nextInt(this.conf.getMaxitemsize())));
 						}
 						break;
 		}
@@ -135,7 +139,8 @@ private HashMap<Integer,String> generate_map(String [] k, int l){
 	return m;
 }
 
-private void generate_keys(int l){
+private void generate_keys(){
+	this.keys = new String[this.conf.getnkeys()];
 	Random generator = new Random();
 	String[] dictionary = new String[]{"Lorem","ipsum","dolor","sit","amet","consectetur","adipiscing",
 			"elit","Integer","in","ipsum","eu","libero","rhoncus","dapibus","Praesent","cursus","mi",
@@ -186,7 +191,7 @@ private void generate_keys(int l){
 			"nibh","volutpat","sed","lacinia","sit","amet","ornare","a","magna","Nulla","rhoncus","cursus",
 			"luctus","Pellentesque","euismod","dolor","ac","tincidunt","vehicula","tellus","lorem","consectetur",
 			"dolor","suscipit","adipiscing","est","mauris","eu","diam"};
-	for (int i=0; i<l; i++) this.keys[i]=dictionary[generator.nextInt(i%dictionary.length)];
+	for (int i=0; i<keys.length; i++) this.keys[i]=dictionary[generator.nextInt(keys.length %dictionary.length)];
 }
 
 }

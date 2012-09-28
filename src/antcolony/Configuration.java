@@ -39,20 +39,31 @@ public class Configuration implements Serializable {
 
 	private static final long serialVersionUID = 4843124430119352057L;
 	
-	// Datasets and Model parameters
+	// Datasets parameters
 	
 	public enum Datasets {UNIFORM9, NORMAL4};
 	private Datasets dataset = Datasets.UNIFORM9;
-	public enum Models {MODEL1, MODEL2};
-	private Models model = Models.MODEL1;
-
+	private int nitems = 600;
+	private int dmeasure = 0;
+	
+	// Item Parameters
+	private double distscale;
+	private int nkeys = 50;
+	private int maxitemsize = 10;
+	
+	
 	// Map parameters
-	private int xsize = 100;
-	private int ysize = 100;
+	private int xsize = 600;
+	private int ysize = 600;
+	private int[] colors = new int[]{0,255,65280,16711680,16776960,16711935,65535,16753920,16729344};
 	private int iterations = 10000;
 	private int runs = 50;
 	
-		
+	// Model parameters
+	
+	public enum Models {LUMERFAIETA, MODEL2};
+	private Models model = Models.LUMERFAIETA;
+	
 	// Ant parameters
 	private int nants = 20;
 	private int speed = 50;
@@ -67,27 +78,12 @@ public class Configuration implements Serializable {
 	private double kp_end = 0.01;
 	private double kp_start = 0.1;
 	private double kp_interval = 0.001;
-
-
 	private boolean adaptK = false;				/** Toggle between adaptive and non-adaptive mode*/
 	private boolean adaptAlpha = true;			/** Toggle between adaptive and non-adaptive mode*/
 	private double alpha_end = 1.0;
 	private double alpha_start = 0.1;
 	private double alpha_interval = 0.01;
 	private double alpha = 1.0;
-
-
-
-	// Item Parameters
-	private double distscale;
-	private int nkeys = 50;
-	private int maxitemsize = 10;
-	private int simMeasure = 0;					/** Select similarity measure (Euclidean / Cosine / Overlap) */
-	private int textMode = 0;					/** Select retrieval mode (Snippets / Full-Text / META-Data) */
-		
-	private int nitems = 600;
-	private int choice = 0;
-
 
 /********** Constructor ***************************************************************************/
 	
@@ -100,6 +96,9 @@ public class Configuration implements Serializable {
 
 	public void setDataset(Datasets value) {
 		this.dataset = value;
+	}
+	public void setDMeasure(int value) {
+		this.dmeasure = value;
 	}
 	public void setModel(Models value) {
 		this.model = value;
@@ -137,23 +136,14 @@ public class Configuration implements Serializable {
 	public void setAdaptK(boolean value) {
 		this.adaptK = value;
 	}
-	public void setTextMode(int value) {
-		this.textMode = value;
-	}
-	public void setSimMeasure(int value) {
-		this.simMeasure = value;
-	}	
 	public void sethomogenous(boolean value) {
 		this.homogenous = value;
-	}
-	public void setchoice(int choice) {
-		this.choice = choice;
 	}
     public void setiterations(int its) {
 		this.iterations = its;
 	}
     public void setnitems(int value) {
-		this.nitems = value;
+    	this.nitems = value;
 	}
 	public void setnkeys(int value) {
 		this.nkeys = value;
@@ -184,6 +174,9 @@ public class Configuration implements Serializable {
 
 	public Datasets getDataset() {
 		return this.dataset;
+	}	
+	public int getDMeasure(){
+		return this.dmeasure;
 	}
 	public Models getModel() {
 		return this.model;
@@ -222,17 +215,14 @@ public class Configuration implements Serializable {
 	public boolean getadaptk() {
 		return this.adaptK;
 	}
-	public int getSimMeasure() {
-		return this.simMeasure;
-	}
-	public int getTextMode() {
-		return this.textMode;
-	}	
 	public int getxsize() {
 		return this.xsize;
 	}
 	public int getysize() {
 		return this.ysize;
+	}
+	public int[] getColors() {
+		return this.colors;
 	}
 	public int getiterations() {
 		return this.iterations;
@@ -240,7 +230,7 @@ public class Configuration implements Serializable {
 	public int getruns() {
 		return this.runs;
 	}
-	public int getndocs() {
+	public int getnitems() {
 		return this.nitems;
 	}
 	public int getnants() {
@@ -276,9 +266,6 @@ public class Configuration implements Serializable {
 	}
 	public double getdistscale() {
 		return this.distscale * this.alpha;
-	}
-	public int getchoice() {
-		return this.choice;
 	}
 
 	

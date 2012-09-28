@@ -27,9 +27,6 @@ Description:
 
 package antcolony;
 
-import javaants.Document;
-import javaants.Position;
-import javaants.Configuration;
 
 import java.lang.*;
 import java.io.*;
@@ -39,9 +36,9 @@ public class Ant implements Serializable {
 
 // individual information
 private int load;				// number of the carried document
-private Position pos;			// current grid position of ant
+//private Position pos;			// current grid position of ant
 private int speed;       		// speed of this particuar ant
-private Memory memory;          // memory of this partocular ant
+
 	
 // Extension to prevent the algorithm from stagnation
 private int fail;			// count number of failed dropping attempts (in a row)
@@ -64,13 +61,12 @@ private Item [] documents;          // available data elements
 * @param documents a vector to the document data
 * @param conf the current paramter settings
 */
-public Ant(Grid grid, int speed, Position pos, int load, Item [] documents, Configuration conf) {
+public Ant(Grid grid, int speed, int x, int y, int load, Item [] documents, Configuration conf) {
 
 	this.load = load;
 	this.speed = speed;
-	this.pos = new Position();
-	this.pos.set(pos);
-	this.memory = new Memory(conf.getmemsize(), documents, grid, conf);
+//	this.pos = new Position();
+//	this.pos.set(pos);
 	
 	this.fail = 0;
 	this.reset = false;
@@ -102,7 +98,7 @@ public int getSpeed() {
 
 /** Where am I?
 * @param pos the current position will be stored in this paramter
-*/
+
 public void getPosition(Position pos) {
 	pos.set(this.pos);
 	return;
@@ -128,7 +124,7 @@ public void setSpeed(int speed) {
 }
 /** store my new position
 * @param pos new position of this ant
-*/
+
 public void setPosition(Position pos) {
 	this.pos.set(pos);
 }
@@ -155,7 +151,7 @@ private double pdrop(double f) {
 
 /** Try to pick up a document
 * @return report on the success of pickup operation
-*/
+
 public boolean pick() {
 
 	if ( !grid.free(this.pos) ) {											// Check whether document found
@@ -173,7 +169,7 @@ public boolean pick() {
 
 /** Drop a document
 * @return report on the success of drop operation
-*/
+
 public boolean drop() {
 	double f = grid.densityAt(this.load, this.pos, this.speed);   		// Compute local density/similarity
 	f = pdrop(f);                                                           // Compute probability
@@ -202,7 +198,7 @@ public boolean drop() {
 }
 
 /** Drop document at best remembered position when the sorting process is halted
-*/
+
 public void finish() {
 	if (this.load == -1) return;
 	this.memory.getBestMatchPosition(this.load, this.pos);
@@ -212,7 +208,7 @@ public void finish() {
 }
 
 /** Pick your document again if the sorting process is resumed
-*/
+
 public void resume() {
 	this.grid.remove(this.pos);
 }
@@ -220,6 +216,6 @@ public void resume() {
 
 /** Do one random step on the grid */
 public void step() {
-	grid.move(this.pos, this.speed, this.memory);   			// let the environment do the work for you...
+//	grid.move(this.pos, this.speed, this.memory);   			// let the environment do the work for you...
 }
 }

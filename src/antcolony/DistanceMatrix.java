@@ -25,24 +25,21 @@ public class DistanceMatrix implements java.io.Serializable {
 
 
 	private static final long serialVersionUID = 9154777272953272544L;
-
-	int N;
-	double [][] matrix;
+	private double [][] matrix;
 
 	public DistanceMatrix(Item [] items, Configuration conf) {
-		this.N = items.length;
-		matrix = new double[this.N][];
+		matrix = new double[items.length][items.length];
 
-		for (int i=0; i<this.N; i++) matrix[i] = new double[i+1];
+		for (int i=0; i<items.length; i++) matrix[i] = new double[i+1];
 		double scaleFactor = 0;
-		for (int i=1; i<=this.N; i++) {
+		for (int i=1; i<=items.length; i++) {
 			for (int j=0; j<i; j++) {
-				matrix[i-1][j] = (double)items[i].distance(items[j],conf.getMethod());
+				matrix[i-1][j] = (double)items[i-1].distance(items[j],conf.getDMeasure());
 				scaleFactor += matrix[i-1][j];
 			}
 		}
 		// compute the scale factor (average over all inter-item distances)
-		scaleFactor /= 0.5*(double)(this.N*(this.N-1));
+		scaleFactor /= 0.5*(double)(items.length*(items.length - 1));
 		conf.setdistscale(scaleFactor);
 	}
 
