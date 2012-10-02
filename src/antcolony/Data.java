@@ -29,7 +29,6 @@
 
 package antcolony;
 
-import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -39,19 +38,12 @@ import antcolony.Configuration.Datasets;
 /**
 * Super Class for the Representation of Document Collections
 */
-public class Data implements Serializable {
+public class Data {
 	
 	private Configuration conf;
 	private Item [] items;          // document collection
 	private String [] keys;
 	
-
-	/** 
-	* Create a new empty document dollection */
-	public Data(){
-		this.items = null;
-		this.keys = null;
-	}
 
     /** 
     * Create new document collection from provided data */

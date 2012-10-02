@@ -34,16 +34,13 @@
 
 package antcolony;
 
-import java.io.Serializable;
 import java.util.HashMap;
 
 /** Stores the data for an individual document
 	using compressed storage format for sparse document vectors
 	 */
 
-public class Item implements Serializable {
-	
-	private static final long serialVersionUID = 5648057451271458855L;
+public class Item {
 	
 	public int id;
 	private int x,y;						// position on the grid

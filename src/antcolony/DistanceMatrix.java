@@ -21,17 +21,18 @@
 package antcolony;
 
 
-public class DistanceMatrix implements java.io.Serializable {
+public class DistanceMatrix {
 
-
-	private static final long serialVersionUID = 9154777272953272544L;
+	private double scaleFactor;
+	private Item[] items;
 	private double [][] matrix;
 
-	public DistanceMatrix(Item [] items, Configuration conf) {
+	public DistanceMatrix(Data data, Configuration conf) {
+		items = data.getItems();
 		matrix = new double[items.length][items.length];
 
 		for (int i=0; i<items.length; i++) matrix[i] = new double[i+1];
-		double scaleFactor = 0;
+		scaleFactor = 0;
 		for (int i=1; i<=items.length; i++) {
 			for (int j=0; j<i; j++) {
 				matrix[i-1][j] = (double)items[i-1].distance(items[j],conf.getDMeasure());
@@ -40,9 +41,12 @@ public class DistanceMatrix implements java.io.Serializable {
 		}
 		// compute the scale factor (average over all inter-item distances)
 		scaleFactor /= 0.5*(double)(items.length*(items.length - 1));
-		conf.setdistscale(scaleFactor);
 	}
 
+	public double getScaleFactor(){
+		return scaleFactor;
+	}
+	
 	public double get(int i, int j) {
 		if (i==j) return 0;
 		if (i < j) return matrix[j-1][i];

@@ -5,11 +5,11 @@ Email: antoniofilipefonseca@gmail.com
 */
 
 /*****************************************************************
-António Fonseca
+Antonio Fonseca
 antoniofilipefonseca@gmail.com
 
 File: Ant.java
-Package: antclust
+Package: antcolony
 
 Description:
 
@@ -17,8 +17,6 @@ Description:
 * Stores all essential information
 	- Current Position
 	- Current Load
-	- Memory
-	- Speed
 * Stores pointer to the environment
 * Environment provides all necessary information (e.g. density)
 	
@@ -28,28 +26,19 @@ Description:
 package antcolony;
 
 
-import java.lang.*;
-import java.io.*;
-
 /** Ant Model - Represents an individual agent */
-public class Ant implements Serializable {
+public class Ant {
 
-// individual information
-private int load;				// number of the carried document
-//private Position pos;			// current grid position of ant
-private int speed;       		// speed of this particuar ant
 
-	
-// Extension to prevent the algorithm from stagnation
-private int fail;			// count number of failed dropping attempts (in a row)
-private boolean reset;                  // set true if failure reaches 100 => ant drops document and tries a new one
-				
-
-// pointer to the environment
-private Grid grid;                    	// grid
-private Configuration conf;             // configuration
-private Item [] documents;          // available data elements
-
+private Item load;
+private int x,y;
+private int xsize, ysize;
+private double kd;
+private double kp;
+private int fail;
+private Grid grid;
+private Configuration conf;
+private Configuration.Models model;
 
 
 /******** Constructor **********************************************************************************************/
@@ -59,74 +48,39 @@ private Item [] documents;          // available data elements
 * @param speed the speed value associated with this ant
 * @param pos the position of this ant
 * @param documents a vector to the document data
-* @param conf the current paramter settings
+* @param conf the current parameter settings
 */
-public Ant(Grid grid, int speed, int x, int y, int load, Item [] documents, Configuration conf) {
-
-	this.load = load;
-	this.speed = speed;
-//	this.pos = new Position();
-//	this.pos.set(pos);
-	
-	this.fail = 0;
-	this.reset = false;
+public Ant(Grid grid, Configuration conf) {
 
 	this.grid = grid;
-	this.documents = documents;
 	this.conf = conf;
+	this.model = conf.getModel();
+	this.x = (int)Math.random()*conf.getxsize();
+	this.y = (int)Math.random()*conf.getysize();
+	this.nextOccupied(true, model);
+	this.load = grid.getItemAt(this.x,this.y);
+	grid.remove(this.x,this.y);
+	this.fail = 0;
+	this.kd = conf.getKd();
+	this.kp = conf.getKp();
+	this.xsize = this.conf.getxsize();
+	this.ysize = this.conf.getysize();
 }
 
-/******** small access functions ************************************************************************************/		
+/******** access functions ************************************************************************************/		
 
-/** Tell whether ant should give up with its current data element (i.e. drop it) and reset
-* @return truth value corresponding to the state of the reset flag
-*/
-public boolean getReset() {
-	if (reset == true) {
-		reset = false;
-			return true;
-		}
-	return false;
-}
 
-/** How fast am I allowed to crawl?
-* @return current ant speed
-*/
-public int getSpeed() {
-	return this.speed;
-}
-
-/** Where am I?
-* @param pos the current position will be stored in this paramter
-
-public void getPosition(Position pos) {
-	pos.set(this.pos);
-	return;
-}
 
 /** What do I currently carry?
 * @return document number of currently carried document or -1
 */
-public int getLoad() {
+public Item getLoad() {
 	return this.load;
 }
 
-
-
-
-/******** small modification functions ******************************************************************************/	
-
-/** Store my maximum speed
-* @param speed speed associated with this ant
-*/
-public void setSpeed(int speed) {
-	this.speed = speed;
-}
-/** store my new position
-* @param pos new position of this ant
-
-public void setPosition(Position pos) {
-	this.pos.set(pos);
+public void setXY(int x, int y) {
+	this.x = x;
+	this.y = y;
 }
 
 
@@ -137,59 +91,56 @@ public void setPosition(Position pos) {
 * @return the resulting probability
 */
 private double ppick(double f) {
-	double p = (this.conf.getkp() / (this.conf.getkp() + f));
-	return p*p;
+	return Math.pow((kp / (kp + f)) , 2);
 }
 /** Compute drop-probability given the density value
 * @param f the local density and similarity f
 * @return the resulting probability
 */
 private double pdrop(double f) {
-	double p = (f / (this.conf.getkd() + f));
-	return p*p;
+	return Math.pow((f / (kd + f)) , 2);
 }
 
-/** Try to pick up a document
+/** Try to pick up a item
 * @return report on the success of pickup operation
+* */
 
 public boolean pick() {
 
-	if ( !grid.free(this.pos) ) {											// Check whether document found
-        	double f = grid.densityAt(grid.at(pos), pos, this.speed);		// Compute local density/similarity
+	if (grid.occupied(this.x,this.y)) {										// Check whether document found
+         double f = grid.densityAt(this.x,this.y);							// Compute local density/similarity
 		if (Math.random() < ppick(f)) {										// Compute probability -> Decision
-			this.load = grid.at(this.pos);									// Pick up
-			documents[this.load].setPicked(true);
-			grid.remove(this.pos);											// Mark grid position as free
-			this.memory.orient(this.load);          		                // Try to remember the last similiar document + position
+			this.load = grid.getItemAt(this.x,this.y);						// Pick up
+			this.load.setPicked(true);
+			grid.remove(this.x,this.y);										// Mark grid position as free
 			return true;													// report success
 		}
 	}
 	return false;
 }
 
-/** Drop a document
+
+/** Drop a item
 * @return report on the success of drop operation
+*/
 
 public boolean drop() {
-	double f = grid.densityAt(this.load, this.pos, this.speed);   		// Compute local density/similarity
-	f = pdrop(f);                                                           // Compute probability
+	double f = grid.densityAt(this.x,this.y);
+	f = pdrop(f);
 	
-	if ((fail == 100) || (Math.random() < f)) {       					// Decision (always drop after 100 failures)
-		if (fail == 100) reset = true;
-		fail = 0;                                                       // reset failure counter after each successful dropping
-		if ( grid.free(this.pos) ) {       								// Check whether the current grid cell is free
-			grid.set(this.pos, this.load);                          	// manipulate environment
-			documents[this.load].setPicked(false);
-			this.memory.store(this.load, this.pos);                 	// update memory
-			this.load = -1;                                         	// update myself
+	if ((fail == 100) || (Math.random() < f)) {
+		fail = 0;
+		if (!grid.occupied(this.x,this.y)) {
+			this.load.setPicked(false);
+			grid.set(this.x, this.y, this.load);
+			this.load = null;
 			return true;
 		}
-		else {                                                           // I have to look for another spot...
-			grid.nextFree(this.pos);                                 	// ...that is still free
-			grid.set(this.pos, this.load);                           	//...
-			documents[this.load].setPicked(false);
-			this.memory.store(this.load, this.pos);
-			this.load = -1;
+		else { 
+			this.load.setPicked(false);
+			this.nextOccupied(false , this.model);
+			grid.set(this.x, this.y, this.load);
+			this.load = null;
 			return true;
 		}
 	}
@@ -197,25 +148,68 @@ public boolean drop() {
 	return false;
 }
 
-/** Drop document at best remembered position when the sorting process is halted
+/** Drop a item
+* @return report on the success of drop operation
+*/
 
-public void finish() {
-	if (this.load == -1) return;
-	this.memory.getBestMatchPosition(this.load, this.pos);
-	this.grid.nextFree(this.pos);
-	this.grid.set(this.pos, this.load);
-	this.documents[this.load].setPosition(this.pos);
+public void fdrop() {
+	if (!grid.occupied(x,y)) this.nextOccupied(false , this.model);
+	this.load.setPicked(false);
+	grid.set(this.x, this.y, this.load);
+	this.load = null;
 }
 
-/** Pick your document again if the sorting process is resumed
+/** Moves an ant from its current (already occupied) position to the next free one
+* @param x, y the current ant position, the new position is also stored in here
+*/
+    
+public void nextOccupied(boolean f, Configuration.Models m) {	
+	
+	boolean loop = true;
+	
+	switch (m) {
+	
+	case LUMERFAIETA : while (loop) {
+							int x_coor = (int)Math.random()*conf.getxsize();
+							int	y_coor = (int)Math.random()*conf.getysize();
+							if (grid.occupied(x_coor,y_coor) == f) {
+								this.x = x_coor;
+								this.y = y_coor;
+								loop = false;
+							}
+						}
+						break;
+		
+	case MODEL2 : 	int step = 1;
+					while (loop) {
+						for (int i = 0; i< 5; i++) {
+							int xpart = (int)Math.round(step * Math.random());
+							int ypart = step - xpart;
+												
+							if ( Math.random() < 0.5) xpart = -xpart;
+							if (Math.random() < 0.5) ypart = -ypart;
+												
+							int x_coor = this.x + xpart;
+							int	y_coor = this.y + ypart;
+							if (x_coor < 0) x = xsize + x_coor % xsize;
+							if (x_coor >= xsize) x = x_coor % xsize;
+							if (y_coor < 0) y = ysize + y_coor % ysize;
+							if (y_coor >= ysize) y_coor = y_coor % ysize;
 
-public void resume() {
-	this.grid.remove(this.pos);
+							if (grid.occupied(x_coor,y_coor) == f) {
+								this.x = x_coor;
+								this.y = y_coor;
+								loop = false;
+							}
+				
+						}
+						step++;
+					}
+					break;
+	}
+
+}
+
 }
 
 
-/** Do one random step on the grid */
-public void step() {
-//	grid.move(this.pos, this.speed, this.memory);   			// let the environment do the work for you...
-}
-}

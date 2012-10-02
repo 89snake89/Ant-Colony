@@ -1,6 +1,6 @@
 /*  
     Copyright (C) 2012 Antonio Fonseca
-    Email: Julia.Handl@gmx.de
+    Email: antoniofilipefonseca@gmail.com
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -48,82 +48,57 @@
 
 package antcolony;
 
-import java.util.*;
-import java.awt.Color;
-import java.awt.Graphics;
-import java.io.*;
-import javax.swing.JPanel;
 
 /**  Represents the grid underlying a topic map, provides functions
 	*	  for access and manipulation
 	*/
-public class Grid extends JPanel implements Runnable{
 
 
-	private static final long serialVersionUID = -6894027807371164326L;
-	
+public class Grid {
+
 	private Configuration conf;			// Current configuration
-	private Item [] items;				// Current document collection
-	private int [][] cells;				// Cell matrix
-	private int []   colors;
-	private boolean  original = true;
-	private boolean threadSuspended;
+	private Item[] items;				// Current document collection
+	private Item[][] cells;				// Cell matrix
 	private DistanceMatrix distance;	// Precomputed distance matrix
-	private boolean antMode = true;		// Switch Ant-Mode / MDS-Mode
-	private double scaleFactor = 0;     // scale factor
-	private Vector labels = null;
 
 	
 	/**** Constructor and Initialisation **************************************************************/
 
-	
-
-	
-	/** Default constructor
-	*
-	*/
-	public Grid(){
-	}
-	
-	/** Updater
+	/** Constructor
 	* @param conf the current parameter settings
 	* @param documents the current document data
 	*/
-	public void update(Configuration c, Data d) {
+	public Grid(Configuration conf, Data data) {
 
 		// store provided information
-		this.conf = c;
-		this.colors = conf.getColors();
-		this.items = d.getItems();
-		this.cells = new int[this.conf.getysize()][this.conf.getxsize()];
+		this.conf = conf;
+		this.items = data.getItems();
+		this.cells = new Item[this.conf.getysize()][this.conf.getxsize()];
 				
 		// initialize base matrix (item id "-1" signifies "not occupied")
 		for (int i=0; i < conf.getxsize(); i++)
 			for (int j=0; j< conf.getysize(); j++)
-				this.cells[i][j] = -1;
+				this.cells[i][j] = null;
 
-		this.distance = new DistanceMatrix(items, conf);
+		this.distance = new DistanceMatrix(data, conf);
  		
 		// generate starting distribution
 		scatterItems();
 	}
 
-
-
 	
 	/**
-	* Advise random position on the grid to all document in ant-mode
-	* Or advise MDS positions in MDS mode
+	* Advise random position on the grid to all items
 	*/
 	public void scatterItems() {
 		int x, y;
-		
+		clear();
 		for (int i = 0; i < this.items.length; i++) {
 			while (true) {
 				x = (int)Math.floor(this.conf.getxsize() * Math.random());
 				y = (int)Math.floor(this.conf.getysize() * Math.random());
-					if ( this.cells[x][y]==-1) {
-						this.cells[x][y] = items[i].id;
+					if ( this.cells[x][y]==null) {
+						this.cells[x][y] = this.items[i];
 						items[i].setXY(x, y);
 						break;
 					}
@@ -131,269 +106,133 @@ public class Grid extends JPanel implements Runnable{
 		}
 	}
 	
+	
+	
+	/**
+	* Clear the grid
+	*/
+	public void clear() {
+		for (int i=0; i<conf.getxsize(); i++)
+			for (int j=0; j<conf.getxsize(); j++)
+				this.cells[i][j]=null;
+	}
 
 	/**** simple access functions *********************************************************/
 	 
-	/**
-	* Get the display flag
-	*/
-	
-	public boolean getOriginal() {
-		return this.original;
-	}
-/*
 
 	/**
-	* Get the document position for a given document number
+	* Get the distance matrix
 	* @param i the provided document number
 	* @param pos storage space for the corresponding position
-
-	public void getPos(int i, Position pos) {
-		pos.set(this.posIndex[i]);
-		return;
+	*/
+	
+	public DistanceMatrix getDistanceMatrix() {
+		return this.distance;
 	}
 
-
-	/** Get the document number for a given grid position
-	* @param pos the provided grid position
-	* @return the document number or -1 if empty
-
-	public int at(Position pos) {
-		return occupied[pos.getY()][pos.getX()];
+	/** Get the Item for a given grid position
+	* @param x the provided grid x-coordinate
+	* @param y the provided grid y-coordinate
+	* @return the document null if empty
+	*/
+	public Item getItemAt(int x, int y) {
+		Item i = null;
+		if (occupied(x,y)) i=this.cells[x][y];
+		return i;
 	}
 
-	/** Get the document number for a given grid position
+	/** Check if a cell is occupied
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
 	* @return the document number or -1 if empty
+	*/
 
-	public int at(int y, int x) {
-		return occupied[y][x];
+	public boolean occupied(int y, int x) {
+		return (this.cells[y][x] != null);
+	}
+
+	/** Get the item number by id
+	* @param x the provided grid x-coordinate
+	* @param y the provided grid y-coordinate
+	* @return the document number or -1 if empty
+	*/
+
+	public Item getById(int id) {
+		Item r = null;
+		for (int i=0; i< this.items.length; i++)
+			if (this.items[i].id == id) r = this.items[i];
+		return r;
 	}
 
 	/** Get the document colour for a given grid position
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
 	* @return the document number or 0 if empty
-
-	public int getColor(int y, int x) {
-		int doc = occupied[y][x];
-		if  ( doc!= -1) {
-			return documents[doc].getColor();
-		}
-		else return 0;
+	*/
+	public Item[] getItems() {
+		return this.items;
 	}
-
-	/** Check whether a position on the grid occupied
-	* @param pos the provided grid position
-	* @return the true if occupied, false otherwise
-
-	public boolean free(Position pos) {
-		return (occupied[pos.getY()][pos.getX()] == -1);
-	}
-  
-    /** Check whether a position on the grid occupied
-	* @param x th provided grid x-coordinate
-	* @param y the provided grid y-coordinate
-	* @return the true if occupied, false otherwise
-
-	public boolean free(int y, int x) {
-		return (occupied[y][x] == -1);
-	}
-	
-	/** Return the mean dissimilarity computed for the current document data
-	* @return the mean dissimilarity of the document collection
-
-	public double getScaleFactor() {
-		return conf.getdistscale();
-	}
-	
-	/**
-	* Access to precomputed matrix if inter-document distances
-	* @param i a first document
-	* @param j a second document
-	* @return the distance betweeen these documents in document space
-
-	public double distance(int i, int j) {
-		return distance.get(i,j);
-	}
-
-
 	
 
 	/**** simple manipulation *******************************************************/
 	
-	/** Update the display flag
-	* @param the flag
+	
+	/** Place a item at a given position on the grid
+	* @param x, y the position of the item
+	* @param item the Item
 	*/
-
-	public void setOriginal(boolean f) {
-		this.original = f;
+	
+	public void set(int x, int y, Item item) {
+		cells[x][y] = item;
 	}
 	
-	/** Update the display flag
-	* @param the flag
+	/** Remove item at a given position from the grid
+	* @param x, y the document position on the grid
 	*/
-
-	public void setSuspend(boolean f) {
-		this.threadSuspended = f;
+	
+	public void remove(int x, int y) {
+		this.cells[x][y] = null;
 	}
-	
-	/** Update position Index (store the new position for document i)
-	* @param i the document number
-	* @param pos the new position of this document
-
-	public void setPos(Position pos, int i) {
-		this.posIndex[i].set(pos);
-	}
-	
-	/** Place a document (number provided) at a given position on the grid
-	* @param ant the document number
-	* @param pos the document position on the grid
-
-	public void set(Position pos, int ant) {
-		occupied[pos.getY()][pos.getX()] = ant;
-	}
-	
-	/** Remove document at a given position from the grid
-	* @param pos the document position on the grid
-
-	public void remove(Position pos) {
-		occupied[pos.getY()][pos.getX()] = -1;
-	}
-	
-	
-
-
-
-	/**** functions for ants *********************************************************************/
 
 	
-	/** Move an ants one step in dependence of its speed and memory
-	* @param pos the ant's grid position
-	* @param speed the ant's speed
-	* @param a pointer to the ant's memory
+	/**** measures on the grid *******************************************************/
+	
+	/** Informs ant about the density and similarity  of items in a neighborhood of cells
+	* @param x, y the cell coordinates
+	* @return the density 
+	* */
 
-	public void move(Position pos, int speed, Memory memory) {
-
-		Position target = new Position();
-		int xsize = this.conf.getxsize();
+    public double densityAt(int x, int y) {
+	
+        Item it = this.getItemAt(x, y);
+    	int xsize = this.conf.getxsize();
 		int ysize = this.conf.getysize();
-	
-
-		// check whether the memory is activated, keep using memory non-deterministic
-		
-		// walk with use of memory
-		if ( ( memory.isOriented() )  && (Math.random() < 0.6) ) {
-		
-			// get the best matching memory position
-			memory.targetPos(target);
-			
-			// compute the resulting direction			
-			double y = target.getY() - pos.getY();
-			double x = target.getX() - pos.getX();
-			double dist = (int)Math.sqrt(x*x+y*y);
-
-			// take shortest way: ants are walking on a torus!
-			if (y > conf.getysize()/2) y = -(conf.getysize()-y);
-			if (x > conf.getxsize()/2) x = -(conf.getxsize()-x);
-
-			// go one step (stepsize defined by speed) or
-			// (if it closer than one step) directly to the memory position
-			if (dist > speed) {
-				if (dist != 0) x /= dist;
-				if (dist != 0) y /= dist;
-		
-				y = pos.getY() + (double)speed*y;
-				x = pos.getX() + (double)speed*x;
-			}
-			else {
-				y = pos.getY() + y;
-				x = pos.getX() + x;
-				memory.setOriented(false);
-			}
-			
-			// keep ant on the torus
-			if (x < 0) x = xsize + x%xsize;
-			if (x >= xsize) x = x%xsize;
-			if (y < 0) y = ysize + y%ysize;
-			if (y >= ysize) y = y%ysize;
-			
-			// advise new position		
-			pos.set((int) y, (int) x);
-			return;
-		}
-		
-		// walk without use of memory
-		else {
-			// compute random x and y direction
-			int xpart = (int)Math.round(speed * Math.random());
-			int ypart = speed - xpart;
-		
-			// take shortest way: ants are walking on a torus!
-			if ( Math.random() < 0.5) xpart = -xpart;
-			if (Math.random() < 0.5) ypart = -ypart;
-
-			// compute new position
-			int x = pos.getX() + xpart;
-			int y = pos.getY() + ypart;
-
-			// keep on torus
-			if (x < 0) x = xsize + x%xsize;
-			if (x >= xsize) x = x%xsize;
-			if (y < 0) y = ysize + y%ysize;
-			if (y >= ysize) y = y%ysize;
-					
-			// advise new position
-			pos.set((int) y, (int) x);
-                        return;
-		}
-	}
-
-	/** Informs ant about the density and similarity  f of documents (relative to the considered document) at a given position
-	* @param docnbr the considered document
-	* @param pos the considered position
-	* @param speed the speed of the ant judging
-	* @return the similarity and density f
-
-    public double densityAt(int docnbr, Position pos, int speed) {
-	
-             	int xsize = this.conf.getxsize();
-		int ysize = this.conf.getysize();
-	
-		int xhigh = pos.getX()+this.conf.getsigma();
-		int yhigh = pos.getY()+this.conf.getsigma();
-		int xlow = pos.getX()-this.conf.getsigma();
-		int ylow = pos.getY()-this.conf.getsigma();
+		int sigma = this.conf.getsigma();
+		int xhigh = x + sigma;
+		int yhigh = y + sigma;
+		int xlow = x - sigma;
+		int ylow = y - sigma;
 		
 		int ih, jh;
 		double sum = 0;
 
-                // look at local neigbourhood (size defined by sigma)
 		for (int i = ylow; i <= yhigh; i++) {
 			for (int j = xlow; j <= xhigh; j++) {
 				ih = i;
 				jh = j;
 				
-				// at the borders: implement torus
 				if (jh < 0) jh = xsize + jh%xsize;
 				if (jh >= xsize) jh = jh%xsize;
 				if (ih < 0) ih = ysize + ih%ysize;
 				if (ih >= ysize) ih = ih%ysize;
 		
-				// consider all other documents yu find in that area
-				if ((occupied[ih][jh] != -1) && (occupied[ih][jh] != docnbr)) {
-				    	
-				    // make selectivity speed-dependent
-					double div = this.conf.getdistscale()+this.conf.getdistscale()*((speed-1)/conf.getspeed());
-					
-					// distance scale factor
-					//double div =  this.conf.getdistscale();
-					
-					// compute the density-simlarity measure
-					// for each occupied grid cell reward is in [-1, 1]
-					sum += (1 - distance.get(docnbr,occupied[ih][jh])/div);
+				double div =  this.distance.getScaleFactor();
+				
+				if ( occupied(jh,ih) && (jh != x || ih != y) ){
+					Item it1 = this.getItemAt(jh, ih);
+					sum += (1 - distance.get(it.id,it1.id)/div);
 				}
+					
 			}
 		}	
 		
@@ -403,126 +242,8 @@ public class Grid extends JPanel implements Runnable{
 		size -= 1;
 			
 		return Math.max(0, sum/size);
-	}
-	
-	/** Moves an ant from its current (already occupied) position to the next free one
-	* @param pos the current ant position, the new position is also stored in here
+	}	
 
-	public void nextFree(Position pos) {	
-		int xlow, ylow, xhigh, yhigh, i, j;
-		int xsize = this.conf.getxsize();
-		int ysize = this.conf.getysize();
-		int step = 1;
-	
-		// try until you find a free position (increase searching radius over time)
-		while (true) {
-
-			// try five times with each radius
-			for (i = 0; i< 5; i++) {
-				
-				// make a step with current radius
-				int xpart = (int)Math.round(step * Math.random());
-				int ypart = step - xpart;
-		
-				if ( Math.random() < 0.5) xpart = -xpart;
-				if (Math.random() < 0.5) ypart = -ypart;
-
-				int x = pos.getX() + xpart;
-				int y = pos.getY() + ypart;
-
-				if (x < 0) x = xsize + x%xsize;
-				if (x >= xsize) x = x%xsize;
-				if (y < 0) y = ysize + y%ysize;
-				if (y >= ysize) y = y%ysize;
-
-				pos.set(y, x);
-				
-				// finish, if the position is free, otherwise try further
-				if ( free(pos) ) return;
-				
-			}
-                step++;
-		}
-	}
-	
-
-
-	/**
-	* Find the document closest to a provided position
-	* @param x the provided x coordinate
-	* @param y the provided y coordinate
-
-	public int nextOccupied(int y, int x) {
-		int xsize = this.conf.getxsize();
-		int ysize = this.conf.getysize();
-		int step = 0;
-	
-		// try until you find an occupied position (increase searching radius over time)
-		while (true) {
-			for (int i=Math.max(0, y-step); i<=Math.min(ysize-1,y+step); i++) {
-				for (int j=Math.max(0, x-step); j<=Math.min(xsize-1,x+step); j++) {
-					if ((occupied[i][j] != -1)) {
-						return occupied[i][j];
-					}
-				}
-			}
-			step++;
-		}
-	}
-		
-	/**
-	* Paint the Grid
-	*/
-	  public void paint(Graphics g){
-	      super.paint(g);
-	      if (items != null)
-	    	  for (int i=0; i<this.items.length; i++){
-	    		  if (this.original)
-	    			  g.fillOval(this.items[i].getinitX(),this.items[i].getinitY(), 10, 10);
-	    		  else
-	    			  g.fillOval(this.items[i].getX(),this.items[i].getY(), 10, 10);
-	    		  g.setColor(new Color(colors[items[i].getType()]));
-	    	  }
-	  }
-
-
-	  public void run(){
-	        while (true) {
-	            try {            	
-	            	Thread.currentThread().sleep(100);
-	            	this.repaint();
-	            	if (threadSuspended) {
-	            		synchronized(this) {
-	            			while (threadSuspended)
-	            				wait();
-	            		}
-	            	}
-	            } catch (InterruptedException e){
-	            }
-		  scatterItems();
-	  }
-	  }
-	  
-	  public void stop(){
-		  Thread thisThread = Thread.currentThread();
-		  thisThread = null;
-	  }
-	/**
-	* Compute the eucclidean distance between two map positions A and B
-	* @param i1 y coordinate for position A
-	* @param j1 x coordinate for position A
-	* @param i2 y coordinate for position B
-	* @param j2 x coordinate for position B
-	* @return return the Euclidean distance
-
-	private double euclidean(int i1, int j1, int i2, int j2) {
-		double temp1 = (i1-i2);
-		temp1 *= temp1;
-		double temp2 = (j1-j2);
-		temp2 *= temp2;
-		return Math.sqrt(temp1+temp2);
-	}
-		*/
 }
 
 
