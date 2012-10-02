@@ -37,7 +37,6 @@
 package antcolony;
 
 import java.awt.Graphics;
-
 import javax.swing.JPanel;
 
 
@@ -59,6 +58,10 @@ public class Simulation extends JPanel implements Runnable  {
 		
 /********************** Constructor **************************************************************/
 
+	public Simulation() {
+	
+	}
+	
 	/** Constructor
 	* @param conf the current parameter settings
 	* @param keywords the keywords spanning document space

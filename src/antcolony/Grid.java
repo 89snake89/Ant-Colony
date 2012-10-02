@@ -64,6 +64,12 @@ public class Grid {
 	
 	/**** Constructor and Initialisation **************************************************************/
 
+	
+	public Grid(){
+		
+	}
+	
+	
 	/** Constructor
 	* @param conf the current parameter settings
 	* @param documents the current document data
