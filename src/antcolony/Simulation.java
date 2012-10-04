@@ -36,7 +36,16 @@
 
 package antcolony;
 
+import java.awt.Color;
 import java.awt.Graphics;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import javax.swing.JPanel;
 
 
@@ -46,21 +55,24 @@ import javax.swing.JPanel;
 public class Simulation extends JPanel implements Runnable  {
 
 	private Configuration conf;	
-	private Data data;
 	private AntColony antColony;
+	private Clustering clustering;
 	private Grid grid;
 	private String [] symbols;
+	private int[] colors;
 	private boolean  original = true;
 	private double scale;
 	private boolean stop;
 	private boolean interrupted;
+	private int tick;
+	private String[] measures;
+	private double[][] record;
+	private PrintWriter out;
+	private boolean rec;
 
 		
 /********************** Constructor **************************************************************/
 
-	public Simulation() {
-	
-	}
 	
 	/** Constructor
 	* @param conf the current parameter settings
@@ -69,14 +81,19 @@ public class Simulation extends JPanel implements Runnable  {
 	* @param grid the current underlying grid
 	* @param colony the current antColony
 	*/
-	public Simulation(Configuration conf, Data data) {
+	public Simulation(Configuration conf, Data data, Clustering clt) {
 		
 		this.conf = conf;
 		this.grid = new Grid(conf,data);
 		this.symbols = conf.getSymbols();
+		this.colors = conf.getColors();
 		this.scale = 1;
 		this.original = true;
-		this.antColony = new AntColony(conf, this.grid);
+		this.antColony = new AntColony(conf, grid);
+		this.clustering = clt;
+		this.measures = new String[]{"Pearson","Entropy"};
+		this.record = new double[2][10000];
+		this.rec = false;
 	
 	}
 	
@@ -84,7 +101,8 @@ public class Simulation extends JPanel implements Runnable  {
 		
 		this.conf = conf;
 		this.grid = new Grid(conf,data);
-		this.antColony = new AntColony(conf, this.grid);
+		this.scale = 1.0;
+		this.antColony = new AntColony(conf, grid);
 	
 	}
 
@@ -136,7 +154,20 @@ public class Simulation extends JPanel implements Runnable  {
 		this.stop = false;
 	}
 	
+	/** Set record flag
+	* @param the flag
+	*/
 
+	public void setRec(boolean f) {
+		this.rec = f;
+	}
+	
+	/** Return the underlying grid
+	* @return the current record flag
+	*/
+	public boolean getRec() {
+		return this.rec;
+	}
 
 
 /************ action ..... *********************************************************************/
@@ -156,12 +187,24 @@ public class Simulation extends JPanel implements Runnable  {
 	public void run() {
 		
 	   	stop = false;
+	   	tick = 0;
 		long start = System.currentTimeMillis();
+		double pearson;
+		double entropy;
         while (!stop) {
             try {            	
-            	Thread.currentThread().sleep(100);
             	this.antColony.sort();
             	this.repaint();
+            	pearson = computePearson(false);
+            	entropy = computeEntropy();
+            	this.clustering.setPearsons(pearson);
+            	this.clustering.setEntropy(entropy);
+            	this.clustering.setTick(tick);
+            	if (this.rec && tick < 10000){
+            		this.record[0][tick]=pearson;
+            		this.record[1][tick]=entropy;
+            	}
+            	tick++;
             	if (interrupted) {
             		synchronized(this) {
             			while (interrupted)
@@ -174,7 +217,7 @@ public class Simulation extends JPanel implements Runnable  {
         }
 
 		interrupted = true;
-//		this.antColony.finish();	
+		this.antColony.finish();	
 		long end = System.currentTimeMillis();
 		System.out.println("Evaluation took " + (end - start) + " milliseconds");
 	
@@ -201,11 +244,53 @@ public class Simulation extends JPanel implements Runnable  {
 	      if (it != null)
 	    	  for (int i=0; i<it.length; i++){
 	    		  if (this.original)
-	    			  g.drawString(symbols[it[i].getType()],(int)(it[i].getinitX()*this.scale), (int)(it[i].getinitY()*this.scale));
+//	    			  g.drawString(symbols[it[i].getType()],(int)(it[i].getinitX()*this.scale), (int)(it[i].getinitY()*this.scale));
+	    		      g.fillOval((int)(it[i].getinitX()*this.scale), (int)(it[i].getinitY()*this.scale),5,5);
 	    		  else
-    		  		  g.drawString(symbols[it[i].getType()], (int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale));
+//    		  		  g.drawString(symbols[it[i].getType()], (int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale));
+	    		      g.fillOval((int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale),5,5);
+	    		  g.setColor(new Color(colors[it[i].getType()]));
 	    	  }
 	  }
+
+	  
+	  
+	  /**
+	   * Record the running
+	   */
+	  
+	  public void writeRecord(String filename){
+		  try {
+			  if (out == null) {
+				  FileWriter outFile = new FileWriter(filename);
+				  out = new PrintWriter(outFile);
+				  DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+				  Date date = new Date();
+				  out.println("********************************************************\n");
+				  out.println("Date : " + dateFormat.format(date)+"\n");
+				  out.println("Parameters:\n");
+				  HashMap<String,Double> map = this.conf.getParameters();
+				  for (Map.Entry<String,Double> entry : map.entrySet())
+					  out.println(entry.getKey()+" : "+entry.getValue().toString());
+				  out.println("Data:\n");
+				  out.println("********************************************************\n");
+				  out.print("Tick "+'\t');
+				  for(String s: this.measures)
+					  out.print(s + '\t');
+				  out.println();
+				  for (int i=0; i< this.tick;i++){
+					  out.print(Integer.toString(i) +'\t');
+					  for (int j=0; j< this.measures.length; j++)
+						  out.print(Double.toString(this.record[j][i])+'\t');
+					  out.println();
+					  }
+				  out.close();
+				  out = null;
+			  }
+			  } catch (IOException e){
+				  e.printStackTrace();
+			  }
+		  }
 
 	  
 /************ Measurements & Plots ******************************************************/
@@ -213,41 +298,61 @@ public class Simulation extends JPanel implements Runnable  {
 
 	/** Compute Pearson correlation
 	* @return Pearson correlation computed for the entire grid
-	* @param ignore the positions of documents that are currently picked up
+	* @param ignore the positions of items that are currently picked up
 	*/
 	public double computePearson(boolean ignore) {
 		double xsum = 0;
 		double ysum = 0;
 		double xysum = 0;
-		double diff = 0;
 		double xsquaresum = 0;
 		double ysquaresum = 0;
 		double N = 0;
 		Item[] items =this.grid.getItems();
+		DistanceMatrix d = this.grid.getDistanceMatrix();
 		
 		
 		for (int i=0; i < conf.getnitems(); i++) {
-			if (ignore == true) {
-				if (items[i].isPicked() == true) continue;
-			}
+			if (ignore && items[i].isPicked()) continue;
 			for (int j=0; j < i; j++) {
-				if (ignore == true) {
-					if (items[j].isPicked() == true) continue;
-				}
+				if (ignore && items[j].isPicked()) continue;
 				N++;
-/*				double x = Math.abs(grid.distance(i,j));
-				double y = Math.abs(items[i].currentDistance(items[j], conf.getysize(), conf.getxsize()));
+				double x = Math.abs(d.get(i, j));
+				double y = Math.abs(items[i].distance(items[j], 1));
 				xsum += x;
 				xsquaresum += (x*x);
 				ysum += y;
 				ysquaresum += (y*y);
 				xysum += (x*y);
-*/			}
+			}
 		}
 		double num = xysum - xsum*ysum/N;
 		double denom = Math.sqrt((xsquaresum - xsum*xsum/N)*(ysquaresum-ysum*ysum/N));
 		if (denom == 0) return 0;
 		return num / denom ;
+	}
+	
+	/** Compute Entropy
+	* @return Entropy computed for the entire grid
+	*/
+	public double computeEntropy() {
+		int xdim = (int)Math.floor(conf.getxsize()/10);
+		int ydim = (int)Math.floor(conf.getysize()/10);
+		double[][] bins = new double[xdim][ydim];
+		Item[] items =this.grid.getItems();
+		double count = 0;
+		for (int i=0; i<items.length;i++) {
+			if(items[i].isPicked()) continue;
+			bins[(int)Math.floor(items[i].getX()/10)][(int)Math.floor(items[i].getY()/10)]++;
+			count++;
+		}
+		double sum = 0;
+		double log2 = Math.log(2);
+		for (int i=0; i < xdim; i++) 
+			for (int j=0; j < ydim; j++) {
+				double p = bins[i][j]/count;
+				if (p > 0) sum += p * Math.log(p)/log2;
+			}
+		return -sum;
 	}
 
 }

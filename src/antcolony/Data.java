@@ -45,6 +45,7 @@ public class Data {
 	private String [] keys;
 	
 
+	
     /** 
     * Create new document collection from provided data */
     
@@ -125,7 +126,7 @@ private void generate_items() {
 }
 
 private HashMap<Integer,String> generate_map(String [] k, int l){
-	HashMap<Integer,String> m = new HashMap();
+	HashMap<Integer,String> m = new HashMap<Integer,String>();
 	Random generator = new Random();
 	for (int i=0; i<l; i++) m.put(i, k[generator.nextInt(k.length)]);
 	return m;

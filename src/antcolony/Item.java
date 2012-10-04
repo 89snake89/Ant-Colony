@@ -88,17 +88,20 @@ public class Item {
 		double d = 0;
 		
 		switch (measure){
-		
-		// Euclidean Grid-Distance
 
-		case 0 : 		double xdiff = Math.abs(i.getX() - this.x);
+		case 0 : 		double xdiff = Math.abs(i.getinitX() - this.x_init);
 						xdiff = Math.min(xdiff, xsize-xdiff);
-						double ydiff = Math.abs(i.getY() - this.y);
+						double ydiff = Math.abs(i.getinitY() - this.y_init);
 						ydiff = Math.min(ydiff, ysize-ydiff);
 						d = Math.sqrt(xdiff*xdiff + ydiff*ydiff);
 						break;
 						
-		default : 		break;
+		case 1 : 		xdiff = Math.abs(i.getX() - this.x);
+						xdiff = Math.min(xdiff, xsize-xdiff);
+						ydiff = Math.abs(i.getY() - this.y);
+						ydiff = Math.min(ydiff, ysize-ydiff);
+						d = Math.sqrt(xdiff*xdiff + ydiff*ydiff);
+						break;
 		
 		}
 		

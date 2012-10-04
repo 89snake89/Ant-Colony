@@ -60,15 +60,12 @@ public class Grid {
 	private Item[] items;				// Current document collection
 	private Item[][] cells;				// Cell matrix
 	private DistanceMatrix distance;	// Precomputed distance matrix
+	private Configuration.Models model;
 
 	
 	/**** Constructor and Initialisation **************************************************************/
 
-	
-	public Grid(){
-		
-	}
-	
+
 	
 	/** Constructor
 	* @param conf the current parameter settings
@@ -78,8 +75,9 @@ public class Grid {
 
 		// store provided information
 		this.conf = conf;
+		this.model = conf.getModel();
 		this.items = data.getItems();
-		this.cells = new Item[this.conf.getysize()][this.conf.getxsize()];
+		this.cells = new Item[this.conf.getxsize()][this.conf.getysize()];
 				
 		// initialize base matrix (item id "-1" signifies "not occupied")
 		for (int i=0; i < conf.getxsize(); i++)
@@ -119,7 +117,7 @@ public class Grid {
 	*/
 	public void clear() {
 		for (int i=0; i<conf.getxsize(); i++)
-			for (int j=0; j<conf.getxsize(); j++)
+			for (int j=0; j<conf.getysize(); j++)
 				this.cells[i][j]=null;
 	}
 
@@ -142,9 +140,7 @@ public class Grid {
 	* @return the document null if empty
 	*/
 	public Item getItemAt(int x, int y) {
-		Item i = null;
-		if (occupied(x,y)) i=this.cells[x][y];
-		return i;
+		return this.cells[x][y];
 	}
 
 	/** Check if a cell is occupied
@@ -153,8 +149,8 @@ public class Grid {
 	* @return the document number or -1 if empty
 	*/
 
-	public boolean occupied(int y, int x) {
-		return (this.cells[y][x] != null);
+	public boolean occupied(int x, int y) {
+		return (this.cells[x][y] != null);
 	}
 
 	/** Get the item number by id
@@ -179,6 +175,20 @@ public class Grid {
 		return this.items;
 	}
 	
+	public void printStats(){
+		int sum1=0;
+		int sum2=0;
+		int sum3=0;
+		for (int i=0; i< conf.getxsize();i++)
+			for (int j=0; j< conf.getxsize();j++)
+				if (occupied(i,j)) sum1++;
+		for (int i=0; i < items.length; i++){
+			if (items[i]!= null) sum2++;
+			if (items[i].isPicked()) sum3++;
+		}
+
+		System.out.println("Cells occupied: "+ sum1+" N Items: "+ sum2 + " N items picked: "+sum3);
+	}
 
 	/**** simple manipulation *******************************************************/
 	
@@ -189,7 +199,8 @@ public class Grid {
 	*/
 	
 	public void set(int x, int y, Item item) {
-		cells[x][y] = item;
+		this.cells[x][y] = item;
+		items[item.id].setXY(x, y);
 	}
 	
 	/** Remove item at a given position from the grid
@@ -197,9 +208,19 @@ public class Grid {
 	*/
 	
 	public void remove(int x, int y) {
+		this.cells[x][y].setXY(-1, -1);
 		this.cells[x][y] = null;
+
 	}
 
+	
+	public int getNOccupied(){
+		int sum = 0;
+		for (int i=0; i< conf.getxsize(); i++)
+			for (int j=0; j< conf.getysize(); j++)
+				if (this.occupied(i,j)) sum++;
+		return sum;
+	}
 	
 	/**** measures on the grid *******************************************************/
 	
@@ -208,16 +229,19 @@ public class Grid {
 	* @return the density 
 	* */
 
-    public double densityAt(int x, int y) {
+    public double densityAt(int x, int y , Item it) {
 	
-        Item it = this.getItemAt(x, y);
     	int xsize = this.conf.getxsize();
 		int ysize = this.conf.getysize();
-		int sigma = this.conf.getsigma();
+		int sigma = this.conf.getSigma();
 		int xhigh = x + sigma;
 		int yhigh = y + sigma;
 		int xlow = x - sigma;
 		int ylow = y - sigma;
+		
+		double r = 0;
+		
+
 		
 		int ih, jh;
 		double sum = 0;
@@ -235,19 +259,18 @@ public class Grid {
 				double div =  this.distance.getScaleFactor();
 				
 				if ( occupied(jh,ih) && (jh != x || ih != y) ){
-					Item it1 = this.getItemAt(jh, ih);
-					sum += (1 - distance.get(it.id,it1.id)/div);
+				Item it1 = this.getItemAt(jh, ih);
+				sum += (1 - distance.get(it.id,it1.id)/div);
 				}
 					
 			}
 		}	
 		
-		// divide by area size
-		int size = this.conf.getsigma()*2+1;
+		int size = this.conf.getSigma()*2+1;
 		size *= size;
 		size -= 1;
-			
 		return Math.max(0, sum/size);
+
 	}	
 
 }

@@ -1,3 +1,41 @@
+/*  
+    Copyright (C) 2012 Antonio Fonseca
+    Email: antoniofilipefonseca@gmail.com
+
+    This program is free software; you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation; either version 2 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program; if not, write to the Free Software
+    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+*/
+
+/*****************************************************************
+	Antonio Fonseca
+	antoniofilipefonseca@gmail.com
+
+	File: Clustering.java
+	Package: antcolony
+
+	Description:
+
+	* Represents the entire ant colony
+	* Contains an array of ants
+	* Stores pointer to the environment
+	* Environment provides all necessary information (e.g. density)
+	* Ant provides their own actions
+		
+                                                                                                                        	
+*****************************************************************/
+
 package antcolony;
 
 import java.awt.Color;
@@ -6,6 +44,8 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -20,9 +60,14 @@ import javax.swing.JToggleButton;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 import antcolony.Configuration.Datasets;
 import antcolony.Configuration.Models;
+import javax.swing.border.BevelBorder;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 
 
 public class Clustering {
@@ -30,10 +75,12 @@ public class Clustering {
 	private Data data;
 	private Configuration conf;
 	private Simulation simul;
-	public  JFrame frame;
+	private JFrame frame;
 	private JTextField textField_1;
 	private JButton btnStop;
 	private Thread runner;
+	private JTable table, table_1;
+	private JLabel lblNewLabel;
 
 	/**
 	 * Launch the application.
@@ -42,7 +89,7 @@ public class Clustering {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
-					Main window = new Main();
+					Clustering window = new Clustering();
 					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
@@ -64,7 +111,8 @@ public class Clustering {
 	private void initialize() {
 		conf = new Configuration();
 		data = new Data(conf);
-		simul = new Simulation(conf,data);
+		simul = new Simulation(conf,data,this);
+		simul.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		frame = new JFrame();
 		frame.setBounds(100, 100, 980, 614);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -94,14 +142,12 @@ public class Clustering {
 					if (runner == null) {
 						simul.setInterrupted(false);
 						runner = new Thread(simul);
-						System.out.println("1");
 						runner.start();
 					}
 					else {
 						synchronized (simul){
 						simul.setInterrupted(false);
 						simul.notify();
-						System.out.println("2");
 						}
 					}
 				}
@@ -111,65 +157,62 @@ public class Clustering {
 					simul.notify();
 					}
 					btnStop.setText("Restart");
-					System.out.println("3");
 				}
 			}
 		});
 		tglbtnStart.setFont(new Font("Tahoma", Font.BOLD, 11));
-		tglbtnStart.setBounds(24, 106, 91, 23);
+		tglbtnStart.setBounds(34, 105, 91, 23);
 		frame.getContentPane().add(tglbtnStart);
 		
-		btnStop = new JButton("");
-		btnStop.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if (btnStop.getText()=="Restart"){
-					if (runner == null){	
-					synchronized (simul) {
-						simul.update(conf,data);
-						simul.repaint();
-						}
-					System.out.println("4");
-					}
-					else {
-						//runner.stop();
-						runner = null;
-						synchronized (simul) {
-							simul.update(conf,data);
-							simul.repaint();
-							}
-						System.out.println("5");
-					}
+		JToggleButton tglbtnRecord = new JToggleButton("Record");
+		tglbtnRecord.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JToggleButton bt = (JToggleButton)arg0.getSource();
+				if (bt.isSelected()){
+					bt.setForeground(Color.RED);
+					textField_1.setText(conf.getFilename());
+					textField_1.setForeground(Color.BLUE);
+					simul.setRec(true);
+				}
+				else{
+					bt.setForeground(Color.BLACK);
+					simul.setRec(false);
 				}
 			}
 		});
-		btnStop.setToolTipText("Reset or Pause the simulation");
-		btnStop.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnStop.setBounds(146, 105, 91, 23);
-		frame.getContentPane().add(btnStop);
-		
-		JToggleButton tglbtnRecord = new JToggleButton("Record");
 		tglbtnRecord.setFont(new Font("Tahoma", Font.BOLD, 11));
 		tglbtnRecord.setBounds(24, 537, 76, 23);
 		frame.getContentPane().add(tglbtnRecord);
 		
 		textField_1 = new JTextField();
+		textField_1.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				JTextField txt = (JTextField)arg0.getSource();
+				if (arg0.getKeyCode() == 10) {
+					txt.setForeground(Color.BLUE);
+					conf.setFilename(txt.getText()+".txt");
+				}
+				else txt.setForeground(Color.BLACK);
+			}
+		});
 		textField_1.setBounds(24, 506, 340, 20);
 		frame.getContentPane().add(textField_1);
 		textField_1.setColumns(10);
 		
-		JLabel lblFilename = new JLabel("Filename");
+		JLabel lblFilename = new JLabel("Filename (without extension, press ENTER to check)");
 		lblFilename.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblFilename.setBounds(24, 481, 67, 14);
+		lblFilename.setBounds(24, 481, 340, 14);
 		frame.getContentPane().add(lblFilename);
 		
 		JLabel lblVariables = new JLabel("Measures");
-		lblVariables.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblVariables.setBounds(24, 296, 76, 14);
+		lblVariables.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblVariables.setBounds(24, 361, 76, 14);
 		frame.getContentPane().add(lblVariables);
 		
 		JLabel lblParameters = new JLabel("Model Parameters");
-		lblParameters.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblParameters.setBounds(24, 139, 116, 14);
+		lblParameters.setFont(new Font("Tahoma", Font.BOLD, 14));
+		lblParameters.setBounds(24, 136, 154, 14);
 		frame.getContentPane().add(lblParameters);
 		
 		JLabel lblModel = new JLabel("Model");
@@ -178,11 +221,37 @@ public class Clustering {
 		lblModel.setBounds(158, 11, 46, 14);
 		frame.getContentPane().add(lblModel);
 		
+		table = new JTable();
+		table.setCellSelectionEnabled(true);
+		table.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		table.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+			},
+			new String[] {
+				"Parameter", "Value"
+			}
+		) );
+		table.setBounds(25, 162, 340, 187);
+		frame.getContentPane().add(table);
+		
 		JComboBox comboBox_1 = new JComboBox();
 		comboBox_1.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				JComboBox cb = (JComboBox)arg0.getSource();
 				conf.setModel((Models)cb.getSelectedItem());
+				simul.update(conf,data);
+				HashMap<String,Double> h = conf.getParameters();
+				table.setModel(toTableModel(h));			
 			}
 		});
 		comboBox_1.setModel(new DefaultComboBoxModel(Models.values()));
@@ -198,12 +267,46 @@ public class Clustering {
 				data = new Data(conf);
 				simul.update(conf,data);
 				simul.repaint();
+				HashMap<String,Double> h = conf.getParameters();
+				table.setModel(toTableModel(h));
 			}
 		});
 		comboBox.setModel(new DefaultComboBoxModel(Datasets.values()));
 		comboBox.setToolTipText("Datasets to be clustered");
 		comboBox.setBounds(24, 37, 123, 22);
 		frame.getContentPane().add(comboBox);
+		
+		btnStop = new JButton("");
+		btnStop.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (btnStop.getText()=="Restart"){
+					if (runner == null){	
+					synchronized (simul) {
+						data = new Data(conf);
+						simul.update(conf,data);
+						simul.repaint();
+						}
+					}
+					else {
+						//runner.stop();
+						runner = null;
+						synchronized (simul) {
+							data = new Data(conf);
+							simul.update(conf,data);
+							simul.repaint();
+							}
+					}
+					lblNewLabel.setText("Tick : 0");
+					if (simul.getRec()) simul.writeRecord(conf.getFilename());
+				}
+				HashMap<String,Double> h = conf.getParameters();
+				table.setModel(toTableModel(h));
+			}
+		});
+		btnStop.setToolTipText("Reset the simulation Conditions");
+		btnStop.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnStop.setBounds(146, 105, 91, 23);
+		frame.getContentPane().add(btnStop);
 		
 		JCheckBox chckbxDisplyOriginalSet = new JCheckBox("Display original set");
 		chckbxDisplyOriginalSet.addChangeListener(new ChangeListener() {
@@ -248,8 +351,77 @@ public class Clustering {
 		lblZoom.setFont(new Font("Tahoma", Font.BOLD, 11));
 		lblZoom.setBounds(344, 9, 46, 14);
 		frame.getContentPane().add(lblZoom);
+		
+
+
+		table_1 = new JTable();
+		table_1.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
+		table_1.setModel(new DefaultTableModel(
+			new Object[][] {
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+			},
+			new String[]{"Measure", "Value"}));
+		
+		table_1.setValueAt("Pearson's Correlation", 0, 0);
+		table_1.setValueAt("Entropy", 1, 0);
+		
+		table_1.setBounds(24, 387, 341, 82);
+		frame.getContentPane().add(table_1);
+		
+		JButton btnNewButton_1 = new JButton("Apply");
+		btnNewButton_1.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				TableModel t = table.getModel();
+				for (int i=0; i< t.getRowCount(); i++){
+					String k = (String)t.getValueAt(i, 0);
+					double v = new Double(t.getValueAt(i, 1).toString());
+					conf.setParameters(k,v);
+					HashMap<String,Double> h = conf.getParameters();
+					table.setModel(toTableModel(h));
+				}
+			}
+		});
+		btnNewButton_1.setFont(new Font("Lucida Grande", Font.BOLD, 13));
+		btnNewButton_1.setBounds(273, 131, 91, 29);
+		frame.getContentPane().add(btnNewButton_1);
+		
+		lblNewLabel = new JLabel("Tick: 0");
+		lblNewLabel.setBounds(273, 106, 117, 16);
+		frame.getContentPane().add(lblNewLabel);
+
 
 
 		
-	}	
+	}
+	
+	public TableModel toTableModel(HashMap<String,Double> map) {
+	    DefaultTableModel model = new DefaultTableModel(
+	        new Object[] { "Parameter", "Value" }, 0
+	    );
+	    for (Map.Entry<String,Double> entry : map.entrySet()) {
+	        model.addRow(new Object[] { entry.getKey(), entry.getValue() });
+	    }
+	    return model;
+	}
+	
+	public void setPearsons(double v){
+		table_1.setValueAt(v, 0, 1);
+	}
+	
+	public void setEntropy(double v){
+		table_1.setValueAt(v, 1, 1);
+	}
+	
+	public void setTick(int v){
+		lblNewLabel.setText("Tick : "+ v);
+	}
 }

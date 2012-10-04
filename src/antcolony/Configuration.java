@@ -33,6 +33,7 @@
 package antcolony;
 
 import java.io.*;
+import java.util.HashMap;
 
 public class Configuration {
 
@@ -41,7 +42,7 @@ public class Configuration {
 	
 	public enum Datasets {UNIFORM9, NORMAL4};
 	private Datasets dataset = Datasets.UNIFORM9;
-	private int nitems = 600;
+	private int nitems = 500;
 	private int dmeasure = 0;
 	
 	// Item Parameters
@@ -52,19 +53,23 @@ public class Configuration {
 	private int xsize = 600;
 	private int ysize = 600;
 	private String[] symbols = new String[]{"X","O","*","+","&","$","#","%","="};
+	private int[] colors = new int[]{0,255,65280,16711680,16776960,16711935,65535,16753920,16729344};
 	
 	// Model parameters
-	public enum Models {LUMERFAIETA, MODEL2};
+	public enum Models {LUMERFAIETA, LUMERFAIETA_S};
 	private Models model = Models.LUMERFAIETA;
 	
 	// Ant parameters
-	private int nants = 20;
+	private int nants = 200;
 	private int speed = 50;
 	private int memsize = 20;
-	private int sigma = 2;
-	private double kd = 0.01;
-	private double kp = 0.01;
+	private int sigma = 10;
+	private double kd = 0.0001;
+	private double kp = 0.001;
 	private double alpha = 1.0;
+	
+	//file parameters
+	private String filename = "record_ant_clustering.txt";
 	
 
 /********** Constructor ***************************************************************************/
@@ -82,26 +87,26 @@ public class Configuration {
 	public void setDMeasure(int value) {
 		this.dmeasure = value;
 	}
-	public void setXsize(int value) {
+	public void setxsize(int value) {
 		this.xsize = value;
 	}
-	public void setYsize(int value) {
+	public void setysize(int value) {
 		this.ysize = value;
 	}
 	public void setModel(Models value) {
 		this.model = value;
 	}
-	public void setAlpha(int value) {
+	public void setAlpha(double value) {
 		this.alpha = value;
 	}
-	public void setKd(int value) {
+	public void setKd(double value) {
 		this.kd = value;
 	}
-	public void setKp(int value) {
+	public void setKp(double value) {
 		this.kp = value;
 	}
     public void setnitems(int value) {
-    	this.nitems = value;
+    	this.nitems = Math.max(value,nants);
 	}
 	public void setnkeys(int value) {
 		this.nkeys = value;
@@ -120,6 +125,22 @@ public class Configuration {
 	}
 	public void setMemsize(int value) {
 		this.memsize = value;
+	}
+	public void setFilename(String value) {
+		this.filename = value;
+	}
+	
+	public void setParameters(String k, double v){
+		if (k == "X size") 		this.setxsize((int)v); 
+		if (k == "Y size") 		this.setysize((int)v);
+		if (k == "N of ants") 	this.setnants((int)v);
+		if (k == "N of items")	this.setnitems((int)v);
+		if (k == "N of keys")	this.setnkeys((int)v);
+		if (k == "Sigma")		this.setSigma((int)v);
+		if (k == "Alpha")		this.setAlpha(v);
+		if (k == "Kd")			this.setKd(v);
+		if (k == "Kp")			this.setKp(v);
+		if (k == "Speed")		this.setSpeed((int)v);                                   
 	}
 	
 /********** simple access functions ********************************************************************/	
@@ -152,6 +173,9 @@ public class Configuration {
 	public String[] getSymbols() {
 		return this.symbols;
 	}
+	public int[] getColors() {
+		return this.colors;
+	}
 	public int getnitems() {
 		return this.nitems;
 	}
@@ -164,15 +188,44 @@ public class Configuration {
 	public int getMaxitemsize(){
 		return this.maxitemsize;
 	}
-	public int getsigma() {
+	public int getSigma() {
 		return this.sigma;
 	}
-	public int getspeed() {
+	public int getSpeed() {
 		return this.speed;
 	}
 	public int getmemsize() {
 		return this.memsize;
-	}	
+	}
+	public String getFilename() {
+		return this.filename;
+	}
+	public HashMap<String,Double> getParameters(){
+		HashMap<String,Double> r = new HashMap<String,Double>();
+		switch(this.model){
+		case LUMERFAIETA : r.put("X size", new Double(this.getxsize()));
+						   r.put("Y size", new Double(this.getysize()));
+						   r.put("N of ants", new Double(this.getnants()));
+						   r.put("N of items", new Double(this.getnitems()));
+						   r.put("N of keys", new Double(this.getnkeys()));
+						   r.put("Sigma", new Double(this.getSigma()));
+						   r.put("Alpha", this.getAlpha());
+						   r.put("Kd", this.getKd());
+						   r.put("Kp", this.getKp());
+						   r.put("Speed", new Double(this.getSpeed()));
+						   break;
+		case LUMERFAIETA_S : 	r.put("X size", new Double(this.getxsize()));
+		   				r.put("Y size", new Double(this.getysize()));
+		   				r.put("N of ants", new Double(this.getnants()));
+		   				r.put("N of items", new Double(this.getnitems()));
+		   				r.put("N of keys", new Double(this.getnkeys()));
+		   				r.put("Sigma", new Double(this.getSigma()));
+		   				r.put("Kd", this.getKd());
+		   				r.put("Kp", this.getKp());
+		   				break;	                                         
+		}
+		return r;
+	}
 		
 /********** Miscellaneous ********************************************************************/
 
