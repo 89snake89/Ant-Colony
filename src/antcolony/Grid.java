@@ -27,21 +27,15 @@
 
 	Description: 
 
-	* Represents the grid underlying a topic map, provides functions
+	* Represents the grid underlying a simulation, provides functions
 	  for access and manipulation
-	* Stores all essential information (ant and document positions)
-	=> Manages access in both directions:
-		- position -> document
-		- document -> position
+	* Stores all essential information (ant and item positions)
 
 	* Generates:
-		- initial random distribution for ants
-	
-
+		- initial random distribution for items
 	* Provides functions used by ants:
 		- density function
-		- next free position
-		- execution of a step
+
 
 *****************************************************************/
 
@@ -49,7 +43,7 @@
 package antcolony;
 
 
-/**  Represents the grid underlying a topic map, provides functions
+/**  Represents the grid underlying a simulation, provides functions
 	*	  for access and manipulation
 	*/
 
@@ -69,7 +63,7 @@ public class Grid {
 	
 	/** Constructor
 	* @param conf the current parameter settings
-	* @param documents the current document data
+	* @param items in the current document data
 	*/
 	public Grid(Configuration conf, Data data) {
 
@@ -126,8 +120,6 @@ public class Grid {
 
 	/**
 	* Get the distance matrix
-	* @param i the provided document number
-	* @param pos storage space for the corresponding position
 	*/
 	
 	public DistanceMatrix getDistanceMatrix() {
@@ -146,7 +138,7 @@ public class Grid {
 	/** Check if a cell is occupied
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
-	* @return the document number or -1 if empty
+	* @return the state of occupation
 	*/
 
 	public boolean occupied(int x, int y) {
@@ -156,7 +148,7 @@ public class Grid {
 	/** Get the item number by id
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
-	* @return the document number or -1 if empty
+	* @return the Item object
 	*/
 
 	public Item getById(int id) {
@@ -166,15 +158,15 @@ public class Grid {
 		return r;
 	}
 
-	/** Get the document colour for a given grid position
-	* @param x the provided grid x-coordinate
-	* @param y the provided grid y-coordinate
-	* @return the document number or 0 if empty
+	/** Get the colection of items
 	*/
 	public Item[] getItems() {
 		return this.items;
 	}
 	
+	
+	/** print short statistics about the grid
+	*/
 	public void printStats(){
 		int sum1=0;
 		int sum2=0;
@@ -213,7 +205,8 @@ public class Grid {
 
 	}
 
-	
+	/** Get the number of occupied cells
+	*/
 	public int getNOccupied(){
 		int sum = 0;
 		for (int i=0; i< conf.getxsize(); i++)
@@ -226,6 +219,7 @@ public class Grid {
 	
 	/** Informs ant about the density and similarity  of items in a neighborhood of cells
 	* @param x, y the cell coordinates
+	* @param the item to compare to
 	* @return the density 
 	* */
 

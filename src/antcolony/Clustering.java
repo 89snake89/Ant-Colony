@@ -27,11 +27,9 @@
 
 	Description:
 
-	* Represents the entire ant colony
-	* Contains an array of ants
-	* Stores pointer to the environment
-	* Environment provides all necessary information (e.g. density)
-	* Ant provides their own actions
+	* Represents the main panel for the application
+	* Stores the configuration, the data and the simulation variables
+	* Performs actions according to user commands
 		
                                                                                                                         	
 *****************************************************************/
@@ -397,11 +395,13 @@ public class Clustering {
 		lblNewLabel = new JLabel("Tick: 0");
 		lblNewLabel.setBounds(273, 106, 117, 16);
 		frame.getContentPane().add(lblNewLabel);
-
-
-
-		
+	
 	}
+	
+	
+	/*
+	 * The model for the table of parameters
+	 */
 	
 	public TableModel toTableModel(HashMap<String,Double> map) {
 	    DefaultTableModel model = new DefaultTableModel(
@@ -413,14 +413,26 @@ public class Clustering {
 	    return model;
 	}
 	
+	/************* Access Functions *****************************************************************/	
+	
+	/* Set the pearson correlation value on measure table
+	 * @param pearson value
+	 */
 	public void setPearsons(double v){
 		table_1.setValueAt(v, 0, 1);
 	}
 	
+	
+	/* Set the entropy correlation value on measure table
+	 * @param entropy
+	 */
 	public void setEntropy(double v){
 		table_1.setValueAt(v, 1, 1);
 	}
 	
+	/* Set tick value on panel
+	 * @param tick value
+	 */
 	public void setTick(int v){
 		lblNewLabel.setText("Tick : "+ v);
 	}

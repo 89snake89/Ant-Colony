@@ -18,6 +18,21 @@
 
 */
 
+
+/*****************************************************************
+	Antonio Fonseca
+	antoniofilipefonseca@gmail.com
+
+	File: DistanceMatrix.java
+	Package: antcolony
+
+	Description:
+
+	* A matrix to store the original distance between all the items
+		
+                                                                                                                        	
+*****************************************************************/
+
 package antcolony;
 
 

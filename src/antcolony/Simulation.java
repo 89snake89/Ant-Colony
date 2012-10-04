@@ -27,7 +27,7 @@
 
 	Description:
 
-	* Topic Map Visualization
+	* Simulation Visualization
 	* Uses underlying grid
 	* Provides several measurement functions
 	
@@ -76,10 +76,8 @@ public class Simulation extends JPanel implements Runnable  {
 	
 	/** Constructor
 	* @param conf the current parameter settings
-	* @param keywords the keywords spanning document space
-	* @param documents the current documents
-	* @param grid the current underlying grid
-	* @param colony the current antColony
+	* @param data is the items
+	* @param clt the current underlying main application
 	*/
 	public Simulation(Configuration conf, Data data, Clustering clt) {
 		
@@ -97,6 +95,10 @@ public class Simulation extends JPanel implements Runnable  {
 	
 	}
 	
+	/** Update the current simulation with new data and new parameters
+	* @param conf the current parameter settings
+	* @param data is the items
+	*/
 	public void update(Configuration conf, Data data) {
 		
 		this.conf = conf;
@@ -217,12 +219,6 @@ public class Simulation extends JPanel implements Runnable  {
         }
 
 		interrupted = true;
-		this.antColony.finish();	
-		long end = System.currentTimeMillis();
-		System.out.println("Evaluation took " + (end - start) + " milliseconds");
-	
-//		System.out.println("Pearson correlation: " + computePearson(false));
-		
 	}
 
 

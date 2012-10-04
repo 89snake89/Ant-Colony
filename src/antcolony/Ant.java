@@ -33,7 +33,6 @@ public class Ant {
 private Item load;
 private int x,y;
 private int xsize, ysize;
-private int speed;
 private double kd;
 private double kp;
 private int fail;
@@ -46,16 +45,12 @@ private Configuration.Models model;
 	
 /** Constructor
 * @param grid pointer to the ant's environment
-* @param speed the speed value associated with this ant
-* @param pos the position of this ant
-* @param documents a vector to the document data
-* @param conf the current parameter settings
+* @param simulation configuration
 */
-public Ant(Grid grid, Configuration conf, int s) {
+public Ant(Grid grid, Configuration conf) {
 
 	this.grid = grid;
 	this.conf = conf;
-	this.speed = s;
 	this.model = conf.getModel();
 	this.x = (int)Math.random()*conf.getxsize();
 	this.y = (int)Math.random()*conf.getysize();
@@ -80,6 +75,9 @@ public Item getLoad() {
 	return this.load;
 }
 
+/** Set the coordinates of this ant
+* @param x, y coordinates
+*/
 public void setXY(int x, int y) {
 	this.x = x;
 	this.y = y;
@@ -88,29 +86,31 @@ public void setXY(int x, int y) {
 
 /******** pick, drop & step: the three actions ********************************************************************************/
 
+
 /** Compute pickup-probability given the density value
 * @param f the local density and similarity f
 * @return the resulting probability
 */
 private double ppick(double f) {
-//	return f;
 	return Math.pow((kp / (kp + f)) , 2);
 }
+
+
 /** Compute drop-probability given the density value
 * @param f the local density and similarity f
 * @return the resulting probability
 */
 private double pdrop(double f) {
-//	return -f;
 	return Math.pow((f / (kd + f)) , 2);
 }
+
 
 /** Try to pick up a item
 * @return report on the success of pickup operation
 * */
 
 public boolean pick() {
-	//this.grid.scatterItems();
+	
 	if (grid.occupied(this.x,this.y)) {										
 		
         double f = grid.densityAt(this.x,this.y, grid.getItemAt(this.x, this.y));
@@ -126,15 +126,15 @@ public boolean pick() {
 }
 
 
-/** Drop a item
+/** Drop a item according to a probability after 100 tentatives drop
 * @return report on the success of drop operation
 */
 
 public boolean drop() {
+	
 	double f = grid.densityAt(this.x,this.y,this.load);
 	
 	if ((fail == 100) || (Math.random() < pdrop(f))) {
-//		if (fail == 100) System.out.println("alarm");
 		fail = 0;
 		if (!grid.occupied(this.x,this.y)) {
 			this.load.setPicked(false);
@@ -154,20 +154,10 @@ public boolean drop() {
 	return false;
 }
 
-/** Drop a item
-* @return report on the success of drop operation
-*/
-
-public boolean fdrop() {
-	if (!grid.occupied(x,y)) this.nextOccupied(false , this.model);
-	this.load.setPicked(false);
-	grid.set(this.x, this.y, this.load);
-	this.load = null;
-	return true;
-}
-
-/** Moves an ant from its current (already occupied) position to the next free one
-* @param x, y the current ant position, the new position is also stored in here
+/** Moves an ant from its current (already occupied) position to the next position
+* which can be free or occupied according to the boolean flag f the model parameter
+* m determines the method of searching the new position
+* @param f flag for occupied or free position, m model of moving
 */
     
 public void nextOccupied(boolean f, Configuration.Models m) {	

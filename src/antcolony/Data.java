@@ -24,7 +24,7 @@
 	"Data.java"
 	Package: JavaAnts
 	
-	Super Class for the Representation of Document Collections
+	Super Class for the Representation of Item Collections
 *****************************************************************/
 
 package antcolony;
@@ -55,18 +55,21 @@ public class Data {
 		generate_items();
 	}
 
-    /** get the dimensionality of the document space */
+    /** get the dimensionality of the itemspace */
 	public int getnkeys() {
 		return this.keys.length;
 	}
-	/** get the number of documents */
+	
+	/** get the number of items */
 	public int getnitems() {
 		return this.items.length;
 	}
-	/** retrieve all documents */
+	
+	/** retrieve all itemss */
 	public Item [] getItems() {
 		return this.items;
 	}
+	
 	/** retrieve the keyword assigned to each dimension */
 	public String [] getKeys() {
 		return this.keys;

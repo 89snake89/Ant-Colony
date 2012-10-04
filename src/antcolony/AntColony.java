@@ -54,15 +54,14 @@ public class AntColony {
 	/** Constructor
 	* @param conf the current parameter setting
 	* @param grid the colony's environment
-	* @param documents the document data in the environment
 	*/
 	public AntColony(Configuration conf, Grid grid) {
 	
 		this.conf = conf;
-		this.grid = grid;
 		this.model = conf.getModel();
+		this.grid = grid;
 		this.ants = new Ant[this.conf.getnants()];
-		for (int i = 0; i < this.conf.getnants(); i++) ants[i] = new Ant(grid,conf, 1);
+		for (int i = 0; i < this.conf.getnants(); i++) ants[i] = new Ant(grid,conf);
 		
 	}
 
@@ -79,67 +78,42 @@ public class AntColony {
 
 /************* Sorting functions *****************************************************************/		
 
-
-
-	/** Original ant-algorithm
-	 *  
+	/** The ant-algorithm 
 	 */
 	
 	public void sort() {
-		int dropctr = 0;
-		int dropctr1 = 0;
-		int pickctr = 0;
-
-		for (int a = 0; a< conf.getnants(); a++) {
-
-				if ( ants[a].getLoad() != null) {
-					dropctr1++;
-					if (ants[a].drop() == true) {
-						dropctr++;
-						ants[a].nextOccupied(true, this.model);
-					}
-				}
-				else {
-					boolean f = false;
-					while (!f){
-						f = ants[a].pick();
-						ants[a].nextOccupied(true, this.model);
-					}
-					ants[a].nextOccupied(false, this.model);
-					pickctr++;
-				}
-			}
-//		System.out.println("drop: "+dropctr);
-//		System.out.println("drop1: "+dropctr1);
-//		System.out.println("pick: "+pickctr);
-//		this.grid.printStats();
+		switch (model){
 		
+		case LUMERFAIETA : for (int a = 0; a< conf.getnants(); a++) {
+								if ( ants[a].getLoad() != null) {
+									if (ants[a].drop() == true) ants[a].nextOccupied(true, this.model);
+									}
+								else {
+									boolean f = false;
+									while (!f){
+										f = ants[a].pick();
+										ants[a].nextOccupied(true, this.model);
+									}
+									ants[a].nextOccupied(false, this.model);
+									}
+								}
+								break;
+								
+		case LUMERFAIETA_S : for (int a = 0; a< conf.getnants(); a++) {
+								if ( ants[a].getLoad() != null){
+									if (ants[a].drop() == true) ants[a].nextOccupied(true, this.model);
+									}
+								else {
+									boolean f = false;
+									while (!f){
+										f = ants[a].pick();
+										ants[a].nextOccupied(true, this.model);
+									}
+									ants[a].nextOccupied(false, this.model);
+								}
+								}
+								break;
+		}	
 	}
-
-
-	/* Make the ants drop all elements before generating the topic map
-	 * 
-	 */
-    public void finish() {
-		for (int a = 0; a < conf.getnants(); a++) ants[a].fdrop();
-	}
-	
-     
-	/* Restart sorting process after a user interruption 
-     public void resume() {
-		int select;
-							
-		for (select = 0; select < conf.getnants(); select++) {
-		
-			ants[select].resume();
-
-		}
-	
-     }
-
-
-*/
-
-
 
 }

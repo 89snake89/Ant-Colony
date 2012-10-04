@@ -27,7 +27,7 @@
 
 	Description:
 
-	* Represents an individual document
+	* Represents an individual item
 	* Stores all essential information e.g. grid position
                                                                                                                         	
 *****************************************************************/
@@ -81,7 +81,10 @@ public class Item {
 	
 /********** Distance functions********************************************************************************************/
 
-
+	/* The distance between this item and other
+	 * @param i other item
+	 * @parame type of measure, 0 - between initial positions, 1 - current position
+	 */
 
 	public double distance(Item i, int measure) {
 
@@ -145,28 +148,28 @@ public class Item {
 
 /****** item position *********/
 		
-	/** Get document position
+	/** Get item position
 	* @return the current document x position on the grid
 	*/
 	public int getX() {
 		return this.x;
 	}
 	
-	/** Get document position
+	/** Get item position
 	* @return the current document y position on the grid
 	*/
 	public int getY() {
 		return this.y;
 	}
 	
-	/** Get initial document position
+	/** Get initial item position
 	* @return the starting x position of the document on the grid
 	*/
 	public int getinitX() {
 		return this.x_init;
 	}
 	
-	/** Get initial document position
+	/** Get initial item position
 	* @return the starting x position of the document on the grid
 	*/
 	public int getinitY() {
@@ -174,7 +177,7 @@ public class Item {
 	}
 	
 	
-	/** Set document position
+	/** Set item position
 	* @param x the x coordinate of the current position of the document on the grid
 	* @param y the y coordinate of the current position of the document on the grid
 	*/
@@ -185,8 +188,8 @@ public class Item {
 
 /******** misc **********************/
 
-	/** Is this document currently being transported by an ant?
-	* @return truth value signalising whether document is being transported or not
+	/** Is this item currently being transported by an ant?
+	* @return truth value signalising whether item is being transported or not
 	*/
 	public boolean isPicked() {
 		return isPicked;
