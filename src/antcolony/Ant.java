@@ -197,9 +197,18 @@ public void nextOccupied(boolean f, Configuration.Models m) {
 							int x_coor = (int)(Math.random()*conf.getxsize());
 							int	y_coor = (int)(Math.random()*conf.getysize());
 							if (grid.occupied(x_coor,y_coor) == f) {
+								if (this.load != null && !f){
+									if (grid.densityAt(x_coor, y_coor, this.load)> 0.0){
+										this.x = x_coor;
+										this.y = y_coor;
+										loop = false;
+									}
+								}
+								else {
 								this.x = x_coor;
 								this.y = y_coor;
 								loop = false;
+								}
 							}
 						}
 					break;
