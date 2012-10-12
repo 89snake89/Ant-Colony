@@ -1,0 +1,50 @@
+CLASSE ANT
+
+Variaveis:
+
+- Id
+
+- Velocidade
+- Posição / Localização
+- Ângulo
+
+- Feromona
+
+- Memória ( lista de trilhos )
+
+- Colónia
+- Trilho ( lista de posiçoes / localizações)
+- Grafo
+- Nó
+- Laço
+
+- Energia
+
+- Carry ID
+- Carry att1
+- Carry att2
+
+Métodos:
+
+- Init()
+- Reset()
+- Get_x()
+- Set_x()
+- Step()
+- stateTransitionRule()
+- Stop()
+- Finish()
+- Resume()
+- Pick()
+- localUpdatingRule()
+- Drop()
+- ToString()
+- 
+
+
+CLASSE COLONY
+
+Métodos:
+
+createAnt()
+globalUpdatingRule()

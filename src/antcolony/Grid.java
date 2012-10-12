@@ -77,7 +77,6 @@ public class Grid {
 		for (int i=0; i < conf.getxsize(); i++)
 			for (int j=0; j< conf.getysize(); j++)
 				this.cells[i][j] = null;
-
 		this.distance = new DistanceMatrix(data, conf);
  		
 		// generate starting distribution

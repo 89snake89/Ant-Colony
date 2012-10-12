@@ -60,7 +60,7 @@ public class Configuration {
 	private Models model = Models.LUMERFAIETA;
 	
 	// Ant parameters
-	private int nants = 200;
+	private int nants = 50;
 	private int speed = 50;
 	private int memsize = 20;
 	private int sigma = 10;

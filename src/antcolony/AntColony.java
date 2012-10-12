@@ -62,7 +62,7 @@ public class AntColony {
 		this.grid = grid;
 		this.ants = new Ant[this.conf.getnants()];
 		for (int i = 0; i < this.conf.getnants(); i++) ants[i] = new Ant(grid,conf);
-		
+		System.out.println("mais isto");
 	}
 
 

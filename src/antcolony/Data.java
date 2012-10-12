@@ -153,18 +153,19 @@ private void generate_items() {
 						mapy.put("Iris-virginica", this.conf.getysize()/4 * 2);
 						for (int i=0; i<n; i++){
 							List<String> list = this.csvData.get(i);
-							String type = list.get(4);
-							if (type == "Iris-setosa") cl=1;
-							if (type == "Iris-versicolor") cl=2;
-							if (type == "Iris-virginica") cl=3;
-							list.remove(4);
+							String type = list.get(list.size()-1);
+							System.out.print(type);
+							if (type.equals("Iris-setosa")) cl=1;
+							if (type.equals("Iris-versicolor")) cl=2;
+							if (type.equals("Iris-virginica")) cl=3;
+							list=list.subList(0, list.size()-1);
 							List<Double> l_out = new ArrayList<Double>();
 							Iterator<String> it = list.iterator();
 							while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
-							double x = (Double.parseDouble(list.get(0))+Double.parseDouble(list.get(1))-1)/2;
-							double y = (Double.parseDouble(list.get(2))+Double.parseDouble(list.get(3))-1)/2;
-							x = x * this.conf.getxsize()/12 + mapx.get(type);
-							y = y * this.conf.getxsize()/12 + mapy.get(type);
+							double x = (Double.parseDouble(list.get(0))+Double.parseDouble(list.get(1))-1);
+							double y = (Double.parseDouble(list.get(2))+Double.parseDouble(list.get(3))-1);
+							x = x * this.conf.getxsize()/4 + mapx.get(type);
+							y = y * this.conf.getxsize()/4 + mapy.get(type);
 							items[i]= new Item(i,this.conf,(int)x,(int)y,type,cl,l_out);
 						}
 						}
@@ -182,32 +183,30 @@ private void generate_items() {
 						items = new Item[n];
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
 						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
-						mapx.put("1", this.conf.getxsize()/4);
-						mapy.put("1", this.conf.getysize()/4);
-						mapx.put("2", this.conf.getxsize()/4 * 3); 
-						mapy.put("2", this.conf.getysize()/4);
-						mapx.put("3", this.conf.getxsize()/4 * 2);
-						mapy.put("3", this.conf.getysize()/4 * 2);
+						mapx.put("1", this.conf.getxsize()/5);
+						mapy.put("1", this.conf.getysize()/5);
+						mapx.put("2", this.conf.getxsize()/5 * 3); 
+						mapy.put("2", this.conf.getysize()/5);
+						mapx.put("3", this.conf.getxsize()/5 * 2);
+						mapy.put("3", this.conf.getysize()/5 * 2);
 						for (int i=0; i<n; i++){
 							List<String> list = this.csvData.get(i);
-							String type = list.get(13);
-							list.remove(13);
+							String type = list.get(list.size()-1);
+							list=list.subList(0, list.size()-1);
 							List<Double> l_out = new ArrayList<Double>();
 							Iterator<String> it = list.iterator();
 							while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
 							double x = 0;
 							double y = 0;
 							int j=0;
-							while (j<13){
+							while (j<12){
 								x += Double.parseDouble(list.get(j));
 								j++;
 								y += Double.parseDouble(list.get(j));
 								j++;
 								}
-							x = (x-3)/2;
-							y = (y-3)/2;
-							x = x * this.conf.getxsize()/12 + mapx.get(type);
-							y = y * this.conf.getxsize()/12 + mapy.get(type);
+							x = (x-2) * this.conf.getxsize()/6 + mapx.get(type);
+							y = (y-2) * this.conf.getxsize()/6 + mapy.get(type);
 							items[i]= new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out);
 						}
 						}
@@ -227,20 +226,20 @@ private void generate_items() {
 						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
 						mapx.put("1", this.conf.getxsize()/6);
 						mapy.put("1", this.conf.getysize()/6);
-						mapx.put("2", this.conf.getxsize()/6 * 3); 
-						mapy.put("2", this.conf.getysize()/6);
-						mapx.put("3", this.conf.getxsize()/6 * 5);
-						mapy.put("3", this.conf.getysize()/6 );
-						mapx.put("5", this.conf.getxsize()/6 );
-						mapy.put("5", this.conf.getysize()/6 * 5);
-						mapx.put("6", this.conf.getxsize()/6 * 3); 
-						mapy.put("6", this.conf.getysize()/6 * 5);
-						mapx.put("7", this.conf.getxsize()/4 * 5);
-						mapy.put("7", this.conf.getysize()/4 * 5);
+						mapx.put("2", this.conf.getxsize()/6); 
+						mapy.put("2", this.conf.getysize()/6 * 2);
+						mapx.put("3", this.conf.getxsize()/6 );
+						mapy.put("3", this.conf.getysize()/6 * 4);
+						mapx.put("5", this.conf.getxsize()/6 * 4);
+						mapy.put("5", this.conf.getysize()/6);
+						mapx.put("6", this.conf.getxsize()/6 * 5); 
+						mapy.put("6", this.conf.getysize()/6 * 2);
+						mapx.put("7", this.conf.getxsize()/6 * 4);
+						mapy.put("7", this.conf.getysize()/6 * 4);
 						for (int i=0; i<n; i++){
 							List<String> list = this.csvData.get(i);
-							String type = list.get(7);
-							list.remove(7);
+							String type = list.get(list.size()-1);
+							list=list.subList(0, list.size()-1);
 							List<Double> l_out = new ArrayList<Double>();
 							Iterator<String> it = list.iterator();
 							while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
@@ -253,10 +252,8 @@ private void generate_items() {
 								y += Double.parseDouble(list.get(j));
 								j++;
 							}
-							x = (x-2)/2;
-							y = (y-2)/2;
-							x = x * this.conf.getxsize()/12 + mapx.get(type);
-							y = y * this.conf.getxsize()/12 + mapy.get(type);
+							x = (x-1) * this.conf.getxsize()/4 + mapx.get(type);
+							y = (y-1) * this.conf.getysize()/4 + mapy.get(type);
 							items[i]= new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out);
 						}
 						}
@@ -280,15 +277,15 @@ private void generate_items() {
 						mapy.put("4", this.conf.getysize()/2);
 						for (int i=0; i<n; i++){
 							List<String> list = this.csvData.get(i);
-							String type = list.get(9);
-							list.remove(9);
+							String type = list.get(list.size()-1);
+							list=list.subList(0, list.size()-1);
 							List<Double> l_out = new ArrayList<Double>();
 							Iterator<String> it = list.iterator();
 							while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
 							double x = 0;
 							double y = 0;
 							int j=0;
-							while (j<9){
+							while (j<8){
 								x += Double.parseDouble(list.get(j));
 								j++;
 								y += Double.parseDouble(list.get(j));
@@ -296,8 +293,8 @@ private void generate_items() {
 							}
 							x = (x-3)/2;
 							y = (y-3)/2;
-							x = x * this.conf.getxsize()/12 + mapx.get(type);
-							y = y * this.conf.getxsize()/12 + mapy.get(type);
+							x = x * this.conf.getxsize()/8 + mapx.get(type);
+							y = y * this.conf.getysize()/8 + mapy.get(type);
 							items[i]= new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out);
 						}
 						}		

@@ -104,8 +104,7 @@ public class Simulation extends JPanel implements Runnable  {
 		this.conf = conf;
 		this.grid = new Grid(conf,data);
 		this.scale = 1.0;
-		this.antColony = new AntColony(conf, grid);
-	
+		this.antColony = new AntColony(conf, grid);	
 	}
 
 /******************* access functions *************************************************************/
