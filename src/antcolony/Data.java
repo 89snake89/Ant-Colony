@@ -29,7 +29,14 @@
 
 package antcolony;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
 import java.util.Random;
 
 import antcolony.Configuration.Datasets;
@@ -43,6 +50,7 @@ public class Data {
 	private Configuration conf;
 	private Item [] items;          // document collection
 	private String [] keys;
+	private List<List<String>> csvData;
 	
 
 	
@@ -105,9 +113,10 @@ private void generate_items() {
 						centers[8][0] = this.conf.getxsize()/6 * 5; centers[8][1] = this.conf.getysize()/6 * 5;
 						for (int i=0; i<n; i++){
 							int type = (i+1)%9;
+							String t = Integer.toString(type);
 							int x = centers[type][0]+(int)((generator.nextDouble()- 0.5)* this.conf.getxsize()/6);
 							int y = centers[type][1]+(int)((generator.nextDouble()- 0.5)* this.conf.getysize()/6);
-							items[i]= new Item(i,this.conf,x,y,type,generate_map(keys,generator.nextInt(this.conf.getMaxitemsize())));
+							items[i]= new Item(i,this.conf,x,y,t,type,generate_map(keys,generator.nextInt(this.conf.getMaxitemsize())));
 						}
 						break;
 									
@@ -120,20 +129,193 @@ private void generate_items() {
 						centers[3][0] = this.conf.getxsize()/4 * 3; centers[3][1] = this.conf.getysize()/ 4 * 3;
 						for (int i=0; i<n; i++){
 						int type = (i+1)%4;
+						String t = Integer.toString(type);
 						int x = centers[type][0]+(int)(generator.nextGaussian()* this.conf.getxsize()/12);
 						int y = centers[type][1]+(int)(generator.nextGaussian()* this.conf.getysize()/12);
-						items[i]= new Item(i,this.conf,x,y,type,generate_map(keys,generator.nextInt(this.conf.getMaxitemsize())));
+						items[i]= new Item(i,this.conf,x,y,t,type,generate_map(keys,generator.nextInt(this.conf.getMaxitemsize())));
+						}
+						break;
+						
+		// Hard-coded IRIS dataset from http://archive.ics.uci.edu/ml/datasets.html
+						
+		case IRIS :		try {
+						n = this.readCsvFile("Iris.csv");
+						conf.setnitems(n);
+						items = new Item[n];
+						int cl = 0;
+						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
+						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
+						mapx.put("Iris-setosa", this.conf.getxsize()/4);
+						mapy.put("Iris-setosa", this.conf.getysize()/4);
+						mapx.put("Iris-versicolor", this.conf.getxsize()/4 * 3); 
+						mapy.put("Iris-versicolor", this.conf.getysize()/4);
+						mapx.put("Iris-virginica", this.conf.getxsize()/4 * 2);
+						mapy.put("Iris-virginica", this.conf.getysize()/4 * 2);
+						for (int i=0; i<n; i++){
+							List<String> list = this.csvData.get(i);
+							String type = list.get(4);
+							if (type == "Iris-setosa") cl=1;
+							if (type == "Iris-versicolor") cl=2;
+							if (type == "Iris-virginica") cl=3;
+							list.remove(4);
+							List<Double> l_out = new ArrayList<Double>();
+							Iterator<String> it = list.iterator();
+							while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
+							double x = (Double.parseDouble(list.get(0))+Double.parseDouble(list.get(1))-1)/2;
+							double y = (Double.parseDouble(list.get(2))+Double.parseDouble(list.get(3))-1)/2;
+							x = x * this.conf.getxsize()/12 + mapx.get(type);
+							y = y * this.conf.getxsize()/12 + mapy.get(type);
+							items[i]= new Item(i,this.conf,(int)x,(int)y,type,cl,l_out);
+						}
+						}
+						catch (Exception e) {
+							System.out.println("Could not build dataset IRIS");
+							e.printStackTrace();
+						}
+						break;
+						
+		// Hard-coded Wine dataset from http://archive.ics.uci.edu/ml/datasets.html
+						
+		case WINE :		try {
+						n = this.readCsvFile("Wine.csv");
+						conf.setnitems(n);
+						items = new Item[n];
+						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
+						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
+						mapx.put("1", this.conf.getxsize()/4);
+						mapy.put("1", this.conf.getysize()/4);
+						mapx.put("2", this.conf.getxsize()/4 * 3); 
+						mapy.put("2", this.conf.getysize()/4);
+						mapx.put("3", this.conf.getxsize()/4 * 2);
+						mapy.put("3", this.conf.getysize()/4 * 2);
+						for (int i=0; i<n; i++){
+							List<String> list = this.csvData.get(i);
+							String type = list.get(13);
+							list.remove(13);
+							List<Double> l_out = new ArrayList<Double>();
+							Iterator<String> it = list.iterator();
+							while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
+							double x = 0;
+							double y = 0;
+							int j=0;
+							while (j<13){
+								x += Double.parseDouble(list.get(j));
+								j++;
+								y += Double.parseDouble(list.get(j));
+								j++;
+								}
+							x = (x-3)/2;
+							y = (y-3)/2;
+							x = x * this.conf.getxsize()/12 + mapx.get(type);
+							y = y * this.conf.getxsize()/12 + mapy.get(type);
+							items[i]= new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out);
+						}
+						}
+						catch (Exception e) {
+							System.out.println("Could not build dataset WINE");
+							e.printStackTrace();
+						}
+						break;
+						
+		// Hard-coded Glass Identification dataset from http://archive.ics.uci.edu/ml/datasets.html
+						
+		case GLASS :	try {
+						n = this.readCsvFile("Glass.csv");
+						conf.setnitems(n);
+						items = new Item[n];
+						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
+						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
+						mapx.put("1", this.conf.getxsize()/6);
+						mapy.put("1", this.conf.getysize()/6);
+						mapx.put("2", this.conf.getxsize()/6 * 3); 
+						mapy.put("2", this.conf.getysize()/6);
+						mapx.put("3", this.conf.getxsize()/6 * 5);
+						mapy.put("3", this.conf.getysize()/6 );
+						mapx.put("5", this.conf.getxsize()/6 );
+						mapy.put("5", this.conf.getysize()/6 * 5);
+						mapx.put("6", this.conf.getxsize()/6 * 3); 
+						mapy.put("6", this.conf.getysize()/6 * 5);
+						mapx.put("7", this.conf.getxsize()/4 * 5);
+						mapy.put("7", this.conf.getysize()/4 * 5);
+						for (int i=0; i<n; i++){
+							List<String> list = this.csvData.get(i);
+							String type = list.get(7);
+							list.remove(7);
+							List<Double> l_out = new ArrayList<Double>();
+							Iterator<String> it = list.iterator();
+							while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
+							double x = 0;
+							double y = 0;
+							int j=0;
+							while (j<7){
+								x += Double.parseDouble(list.get(j));
+								j++;
+								y += Double.parseDouble(list.get(j));
+								j++;
+							}
+							x = (x-2)/2;
+							y = (y-2)/2;
+							x = x * this.conf.getxsize()/12 + mapx.get(type);
+							y = y * this.conf.getxsize()/12 + mapy.get(type);
+							items[i]= new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out);
+						}
+						}
+						catch (Exception e) {
+							System.out.println("Could not build dataset GLASS");
+							e.printStackTrace();
+						}
+						break;
+						
+		// Hard-coded Breast Cancer dataset from http://archive.ics.uci.edu/ml/datasets.html
+						
+		case BREAST :	try {
+						n = this.readCsvFile("Breast.csv");
+						conf.setnitems(n);
+						items = new Item[n];
+						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
+						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
+						mapx.put("2", this.conf.getxsize()/4);
+						mapy.put("2", this.conf.getysize()/ 2);
+						mapx.put("4", this.conf.getxsize()/ 4 * 3); 
+						mapy.put("4", this.conf.getysize()/2);
+						for (int i=0; i<n; i++){
+							List<String> list = this.csvData.get(i);
+							String type = list.get(9);
+							list.remove(9);
+							List<Double> l_out = new ArrayList<Double>();
+							Iterator<String> it = list.iterator();
+							while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
+							double x = 0;
+							double y = 0;
+							int j=0;
+							while (j<9){
+								x += Double.parseDouble(list.get(j));
+								j++;
+								y += Double.parseDouble(list.get(j));
+								j++;
+							}
+							x = (x-3)/2;
+							y = (y-3)/2;
+							x = x * this.conf.getxsize()/12 + mapx.get(type);
+							y = y * this.conf.getxsize()/12 + mapy.get(type);
+							items[i]= new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out);
+						}
+						}		
+						catch (Exception e) {
+							System.out.println("Could not build dataset BREAST");
+							e.printStackTrace();
 						}
 						break;
 		}
 }
 
-private HashMap<Integer,String> generate_map(String [] k, int l){
-	HashMap<Integer,String> m = new HashMap<Integer,String>();
+private List<String> generate_map(String [] k, int l){
+	List<String> m = new ArrayList<String>();
 	Random generator = new Random();
-	for (int i=0; i<l; i++) m.put(i, k[generator.nextInt(k.length)]);
+	for (int i=0; i<l; i++) m.add(i, k[generator.nextInt(k.length)]);
 	return m;
 }
+
 
 private void generate_keys(){
 	this.keys = new String[this.conf.getnkeys()];
@@ -188,6 +370,26 @@ private void generate_keys(){
 			"luctus","Pellentesque","euismod","dolor","ac","tincidunt","vehicula","tellus","lorem","consectetur",
 			"dolor","suscipit","adipiscing","est","mauris","eu","diam"};
 	for (int i=0; i<keys.length; i++) this.keys[i]=dictionary[generator.nextInt(keys.length %dictionary.length)];
+}
+
+private int readCsvFile(String csvFileName) throws IOException {
+
+    String line = null;
+    BufferedReader stream = null;
+    this.csvData = new ArrayList<List<String>>();
+    int count = 0;
+
+    try {
+        stream = new BufferedReader(new FileReader(csvFileName));
+        while ((line = stream.readLine()) != null){
+            this.csvData.add(Arrays.asList(line.split(",")));
+            count++;
+        }
+    } finally {
+        if (stream != null)
+            stream.close();
+    }
+    return count;
 }
 
 }

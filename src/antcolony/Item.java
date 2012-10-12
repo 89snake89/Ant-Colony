@@ -34,7 +34,7 @@
 
 package antcolony;
 
-import java.util.HashMap;
+import java.util.List;
 
 /** Stores the data for an individual document
 	using compressed storage format for sparse document vectors
@@ -46,14 +46,15 @@ public class Item {
 	private int x,y;						// position on the grid
 	private int x_init,y_init;				// starting position
 	private int xsize, ysize;				// size of grid
-	private int type;						// the type of the item
-	private HashMap<Integer,String> data; 	// data carried by the item
+	private String type;					// the type of the item
+	private int color;						// the color of the item to display
+	private List<?> data; 	// data carried by the item
 	private boolean isPicked = false;		// flag whether document is picked
 
 /*********** Constructor ****************************************************************************/
 
 	/** Default Constructor */
-	public Item(int i, Configuration c, int t, HashMap<Integer,String> a) {
+	public Item(int i, Configuration c, String t, int cl, List<?> a) {
 		this.id = i;
 		this.xsize = c.getxsize();
 		this.ysize = c.getysize();
@@ -62,11 +63,12 @@ public class Item {
 		this.x = this.x_init;
 		this.y = this.y_init;
 		this.type = t;
+		this.color = cl;
 		this.data = a;
 	}
 
 	/** Constructor given a grid position and initial data*/
-	public Item(int i, Configuration c, int x_i, int y_i, int t, HashMap<Integer,String> a) {
+	public Item(int i, Configuration c, int x_i, int y_i, String t,int cl, List<?> a) {
 		this.id = i;
 		this.xsize = c.getxsize();
 		this.ysize = c.getysize();
@@ -75,6 +77,7 @@ public class Item {
 		this.x = x_i;
 		this.y = y_i;
 		this.type = t;
+		this.color = cl;
 		this.data = a;
 	}
 		
@@ -121,28 +124,35 @@ public class Item {
 	/** Get type of the item
 	 * @return the associated document vector
 	 */
-	public int getType() {
+	public String getType() {
 	return this.type;
+	}
+	
+	/** Get type of the item
+	 * @return the associated document vector
+	 */
+	public int getColor() {
+	return this.color;
 	}
 	
 	/** Set type of the item
 	* @param t - the type of the item
 	*/
-	public void setType(int t) {
+	public void setType(String t) {
 		this.type = t;
 	}
     	
 	/** Get data of the item
 	 * @return the associated document vector
 	 */
-	public HashMap<Integer,String> getData() {
+	public List<?> getData() {
 	return this.data;
 	}
 	
 	/** Set data of the item
 	 * @param a - the HashMap representing the data carried by the tem
 	*/
-	public void setData(HashMap<Integer,String> a) {
+	public void setData(List<?> a) {
 		this.data = a;
 	}
 

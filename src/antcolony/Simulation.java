@@ -245,7 +245,7 @@ public class Simulation extends JPanel implements Runnable  {
 	    		  else
 //    		  		  g.drawString(symbols[it[i].getType()], (int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale));
 	    		      g.fillOval((int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale),5,5);
-	    		  g.setColor(new Color(colors[it[i].getType()]));
+	    		  g.setColor(new Color(colors[it[i].getColor()]));
 	    	  }
 	  }
 
