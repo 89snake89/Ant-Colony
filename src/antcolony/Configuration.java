@@ -43,7 +43,7 @@ public class Configuration {
 	public enum Datasets {UNIFORM9, NORMAL4,IRIS,WINE,GLASS,BREAST};
 	private Datasets dataset = Datasets.UNIFORM9;
 	private int nitems = 500;
-	private int dmeasure = 0;
+	private int dmeasure = 2;
 	
 	// Item Parameters
 	private int nkeys = 50;

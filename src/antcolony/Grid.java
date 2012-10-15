@@ -53,6 +53,7 @@ public class Grid {
 	private Configuration conf;			// Current configuration
 	private Item[] items;				// Current document collection
 	private Item[][] cells;				// Cell matrix
+	private Heap[][] hcells;
 	private DistanceMatrix distance;	// Precomputed distance matrix
 	private Configuration.Models model;
 
@@ -259,7 +260,7 @@ public class Grid {
 			}
 		}	
 		
-		int size = this.conf.getSigma()*2+1;
+		int size = sigma*2+1;
 		size *= size;
 		size -= 1;
 		return Math.max(0, sum/size);

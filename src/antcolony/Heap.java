@@ -22,7 +22,7 @@
 	Antonio Fonseca
 	antoniofilipefonseca@gmail.com
 
-	File: Item.java
+	File: Heap.java
 	Package: antcolony
 
 	Description:
@@ -42,21 +42,20 @@ import java.util.List;
 	using compressed storage format for sparse document vectors
 	 */
 
-public class Item {
+public class Heap {
 	
 	public int id;
 	private int x,y;						// position on the grid
 	private int x_init,y_init;				// starting position
 	private int xsize, ysize;				// size of grid
-	private String type;					// the type of the item
 	private int color;						// the color of the item to display
-	private List<Double> data; 	// data carried by the item
+	private List<Item> items; 				// data carried by the item
 	private boolean isPicked = false;		// flag whether document is picked
 
 /*********** Constructor ****************************************************************************/
 
 	/** Default Constructor */
-	public Item(int i, Configuration c, String t, int cl, List<Double> a) {
+	public Heap(int i, Configuration c, String t, int cl, List<Double> a) {
 		this.id = i;
 		this.xsize = c.getxsize();
 		this.ysize = c.getysize();
@@ -64,13 +63,11 @@ public class Item {
 		this.y_init = (int)(Math.random()* ysize);
 		this.x = this.x_init;
 		this.y = this.y_init;
-		this.type = t;
 		this.color = cl;
-		this.data = a;
 	}
 
 	/** Constructor given a grid position and initial data*/
-	public Item(int i, Configuration c, int x_i, int y_i, String t,int cl, List<Double> a) {
+	public Heap(int i, Configuration c, int x_i, int y_i, String t,int cl, List<Double> a) {
 		this.id = i;
 		this.xsize = c.getxsize();
 		this.ysize = c.getysize();
@@ -78,51 +75,11 @@ public class Item {
 		this.y_init = y_i;
 		this.x = x_i;
 		this.y = y_i;
-		this.type = t;
 		this.color = cl;
-		this.data = a;
 	}
 		
 	
-/********** Distance functions********************************************************************************************/
 
-	/* The distance between this item and other
-	 * @param i other item
-	 * @parame type of measure, 0 - between initial positions, 1 - current position
-	 */
-
-	public double distance(Item i, int measure) {
-
-		double d = 0;
-		
-		switch (measure){
-
-		case 0 : 		double xdiff = Math.abs(i.getinitX() - this.x_init);
-						xdiff = Math.min(xdiff, xsize-xdiff);
-						double ydiff = Math.abs(i.getinitY() - this.y_init);
-						ydiff = Math.min(ydiff, ysize-ydiff);
-						d = Math.sqrt(xdiff*xdiff + ydiff*ydiff);
-						break;
-						
-		case 1 : 		xdiff = Math.abs(i.getX() - this.x);
-						xdiff = Math.min(xdiff, xsize-xdiff);
-						ydiff = Math.abs(i.getY() - this.y);
-						ydiff = Math.min(ydiff, ysize-ydiff);
-						d = Math.sqrt(xdiff*xdiff + ydiff*ydiff);
-						break;
-						
-		case 2 :		List<Double> other = i.getData();
-						Iterator<Double> it = this.data.iterator();
-						Iterator<Double> it1 = other.iterator();
-						double sum = 0;
-						while (it.hasNext() && it1.hasNext()) sum += Math.pow((Double)it.next()-(Double)it1.next(),2);
-						d = Math.sqrt(sum);
-						break;
-		}
-		
-		return d;
-
-	}
 	
 			
 /*********** Access & Modification Functions ****************************************************************************/
@@ -133,37 +90,13 @@ public class Item {
 	/** Get type of the item
 	 * @return the associated document vector
 	 */
-	public String getType() {
-	return this.type;
-	}
-	
-	/** Get type of the item
-	 * @return the associated document vector
-	 */
 	public int getColor() {
 	return this.color;
 	}
 	
-	/** Set type of the item
-	* @param t - the type of the item
-	*/
-	public void setType(String t) {
-		this.type = t;
-	}
-    	
-	/** Get data of the item
-	 * @return the associated document vector
-	 */
-	public List<Double> getData() {
-	return this.data;
-	}
 	
-	/** Set data of the item
-	 * @param a - the HashMap representing the data carried by the tem
-	*/
-	public void setData(List<Double> a) {
-		this.data = a;
-	}
+    	
+	
 
 /****** item position *********/
 		
@@ -223,3 +156,4 @@ public class Item {
 
 
 }
+
