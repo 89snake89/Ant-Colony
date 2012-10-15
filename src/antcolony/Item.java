@@ -38,7 +38,7 @@ import java.util.Iterator;
 import java.util.List;
 
 
-/** Stores the data for an individual document
+/** Stores the data for an item
 	using compressed storage format for sparse document vectors
 	 */
 
@@ -50,8 +50,9 @@ public class Item {
 	private int xsize, ysize;				// size of grid
 	private String type;					// the type of the item
 	private int color;						// the color of the item to display
-	private List<Double> data; 	// data carried by the item
+	private List<Double> data; 				// data carried by the item
 	private boolean isPicked = false;		// flag whether document is picked
+	private int heap;
 
 /*********** Constructor ****************************************************************************/
 
@@ -159,10 +160,31 @@ public class Item {
 	}
 	
 	/** Set data of the item
-	 * @param a - the HashMap representing the data carried by the tem
+	 * @param a - the List representing the data carried by the tem
 	*/
 	public void setData(List<Double> a) {
 		this.data = a;
+	}
+	
+	/** Set the heap  of the item
+	 * @param h - the heap id
+	*/
+	public void setHeap(int h) {
+		this.heap = h;
+	}
+	
+	/** Get the heap  of the item
+	 * @return h - the heap id
+	*/
+	public int getHeap() {
+		return this.heap;
+	}
+	
+	/** Get the id  of the item
+	 * @return h - the heap id
+	*/
+	public int getID() {
+		return this.id;
 	}
 
 /****** item position *********/
