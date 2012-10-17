@@ -43,10 +43,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import javax.swing.JPanel;
+import java.util.Iterator;
 
 
 /** Wrapping class for the item and ant data. Also contains the basic grid
@@ -235,16 +237,36 @@ public class Simulation extends JPanel implements Runnable  {
 	*/
 	  public void paint(Graphics g){
 	      super.paint(g);
-	      Item[] it = this.grid.getItems();
-	      if (it != null)
-	    	  for (int i=0; i<it.length; i++){
-	    		  if (this.original)
-//	    			  g.drawString(symbols[it[i].getType()],(int)(it[i].getinitX()*this.scale), (int)(it[i].getinitY()*this.scale));
-	    		      g.fillOval((int)(it[i].getinitX()*this.scale), (int)(it[i].getinitY()*this.scale),5,5);
-	    		  else
-//    		  		  g.drawString(symbols[it[i].getType()], (int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale));
-	    		      g.fillOval((int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale),5,5);
-	    		  g.setColor(new Color(colors[it[i].getColor()]));
+	      if (this.conf.getModel() == Configuration.Models.LUMERFAIETA ||
+	    	  this.conf.getModel() == Configuration.Models.LUMERFAIETA_S){
+	    	  
+	    	  Item[] it = this.grid.getItems();
+	    	  if (it != null)
+	    		  for (int i=0; i<it.length; i++){
+	    			  if (this.original)
+//	    			  	g.drawString(symbols[it[i].getType()],(int)(it[i].getinitX()*this.scale), (int)(it[i].getinitY()*this.scale));
+	    				  g.fillOval((int)(it[i].getinitX()*this.scale), (int)(it[i].getinitY()*this.scale),5,5);
+	    			  else
+//    		  		  	g.drawString(symbols[it[i].getType()], (int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale));
+	    				  g.fillOval((int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale),5,5);
+	    			  g.setColor(new Color(colors[it[i].getColor()]));
+	    	  }
+	      }
+	      else {
+	    	  Heap[] ht = this.grid.getHeaps();
+	    	  if (ht != null)
+	    		  for (int i=0; i<ht.length; i++){
+	    			  ArrayList<Item> items = ht[i].getItems();
+	    			  Iterator<Item> it = items.iterator();
+	    			  int s = 0;
+	    			  while(it.hasNext()){			  
+	    			  if (this.original)
+	    				 g.drawString(symbols[it.next().getColor()],(int)((ht[i].getinitX()+s)*this.scale), (int)(ht[i].getinitY()*this.scale));
+	    			  else
+	    				  g.drawString(symbols[it.next().getColor()], (int)((ht[i].getX()+s)*this.scale), (int)(ht[i].getY()*this.scale));
+	    			  s++;
+	    			  }
+	    			  }
 	    	  }
 	  }
 

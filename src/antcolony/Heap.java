@@ -36,7 +36,6 @@ package antcolony;
 
 import java.util.Iterator;
 import java.util.ArrayList;
-import java.util.List;
 
 
 /** Stores the data for an individual document
@@ -47,7 +46,7 @@ public class Heap {
 	
 	public int id;
 	private int x,y;						// position on the grid
-	private int xsize, ysize;				// size of grid
+	private int x_init,y_init;				// initial position on the grid
 	private int dim;						// item dimension
 	private double max_distance;			// the maximum distance between two objects
 	private double[]  center_of_mass;			// the object corresponding to the center of mass of this heap
@@ -62,14 +61,15 @@ public class Heap {
 	/** Constructor given a grid position and initial data*/
 	public Heap(int i, Configuration c, int x_i, int y_i, Item item) {
 		this.id = i;
-		this.xsize = c.getxsize();
-		this.ysize = c.getysize();
 		this.x = x_i;
 		this.y = y_i;
+		this.x_init = x_i;
+		this.y_init = y_i;
 		this.items = new ArrayList<Item>();
 		this.items.add(item);
 		this.dim = item.getData().size();
 		this.center_of_mass = new double[this.dim];
+		this.computeCenterMass();
 		this.most_dissimilar = item.getID();
 		this.max_distance = 0;
 		this.mean_distance = 0;
@@ -125,6 +125,19 @@ public class Heap {
 		return this.y;
 	}
 	
+	/** Get initial item position
+	* @return the starting x position of the document on the grid
+	*/
+	public int getinitX() {
+		return this.x_init;
+	}
+	
+	/** Get initial item position
+	* @return the starting x position of the document on the grid
+	*/
+	public int getinitY() {
+		return this.y_init;
+	}
 	
 	/** Set item position
 	* @param x the x coordinate of the current position of the document on the grid
@@ -150,36 +163,98 @@ public class Heap {
 	public void setPicked(boolean value) {
 		this.isPicked = value;
 	}
+	
+	/** Set picked flag
+	* @param value the new truth value
+	*/
+	public ArrayList<Item> getItems() {
+		return this.items;
+	}
 
 
 /*********** Calculate values ****************************************************************************/
 
 public void computeCenterMass(){
-	Iterator<Item> it = items.iterator();
-	for (int i=0; i<dim; i++) center_of_mass[i]=0;
+	Iterator<Item> it = this.items.iterator();
+	for (int i=0; i<dim; i++) this.center_of_mass[i]=0;
 	while (it.hasNext()){
 		Item i = it.next();
 		Iterator<Double> it1 = i.getData().iterator();
 		int j=0;
 		while (it1.hasNext()){
-			center_of_mass[j] += it1.next();
+			this.center_of_mass[j] += it1.next();
 			j++;
 		}
 	}
 	for (int i=0; i<dim; i++) center_of_mass[i]=center_of_mass[i]/dim;
 }
 
-public void computeMostDissimilarMaxDistance(){
+public void computeMostDissimilar(){
+	Iterator<Item> it = this.items.iterator();
+	double max_d = 0;
+	while (it.hasNext()){
+		Item i = it.next();
+		Iterator<Double> it1 = i.getData().iterator();
+		double sum = 0;
+		int j=0;
+		while (it1.hasNext()) {
+			sum += Math.abs(center_of_mass[j]- it1.next());
+			j++;
+		}
+		if (sum > max_d){
+			max_d = sum;
+			this.most_dissimilar = i.getID();
+		}
+	}	
+}
+
+public void computeMaxDistance(Item j){
+	Iterator<Item> it = this.items.iterator();
+	this.max_distance = 0;
+	while (it.hasNext()){
+		Item i = it.next();
+		Iterator<Double> it1 = i.getData().iterator();
+		Iterator<Double> it2 = j.getData().iterator();
+		double sum = 0;
+		while (it1.hasNext()) sum += Math.abs(it2.next()- it1.next());
+		if (sum > this.max_distance)this.max_distance = sum;
+	}
 	
 }
 
-public void updateValues(){
-	
+public void computeMeanDistance(){
+	Iterator<Item> it = this.items.iterator();
+	double mean_d = 0;
+	while (it.hasNext()){
+		Item i = it.next();
+		Iterator<Double> it1 = i.getData().iterator();
+		int j=0;
+		while (it1.hasNext()) {
+			mean_d += Math.abs(center_of_mass[j]- it1.next());
+			j++;
+		}
+	}	
+	this.mean_distance = mean_d / (double)this.items.size();
 }
 
 public void putItem(Item i){
 	i.setHeap(this.id);
+	this.computeMaxDistance(i);
 	this.items.add(i);
+	this.computeCenterMass();
+	this.computeMeanDistance();
+	this.computeMostDissimilar();
+}
+
+public void removeItem(int id){
+	Iterator<Item> it = this.items.iterator();
+	while (it.hasNext()) {
+		Item j = it.next();
+		if (j.getID()==id) {
+			it.remove();
+			j.setHeap(-1);
+		}
+	}
 }
 
 }

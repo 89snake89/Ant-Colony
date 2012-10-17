@@ -52,6 +52,7 @@ public class Grid {
 
 	private Configuration conf;			// Current configuration
 	private Item[] items;				// Current document collection
+	private Heap[] heaps;
 	private Item[][] cells;				// Cell matrix
 	private Heap[][] hcells;
 	private DistanceMatrix distance;	// Precomputed distance matrix
@@ -72,8 +73,9 @@ public class Grid {
 		this.conf = conf;
 		this.model = conf.getModel();
 		this.items = data.getItems();
+		this.heaps = new Heap[this.items.length];
 		this.cells = new Item[this.conf.getxsize()][this.conf.getysize()];
-				
+		this.hcells = new Heap[this.conf.getxsize()][this.conf.getysize()];			
 		// initialize base matrix (item id "-1" signifies "not occupied")
 		for (int i=0; i < conf.getxsize(); i++)
 			for (int j=0; j< conf.getysize(); j++)
@@ -81,7 +83,8 @@ public class Grid {
 		this.distance = new DistanceMatrix(data, conf);
  		
 		// generate starting distribution
-		scatterItems();
+		if (this.model == Configuration.Models.ANTCLASS) scatterHeaps();
+		else scatterItems();
 	}
 
 	
@@ -104,6 +107,27 @@ public class Grid {
 		}
 	}
 	
+	/**
+	* Advise random position on the grid to all items
+	*/
+	public void scatterHeaps() {
+		int x, y;
+		clear();
+		for (int i = 0; i < this.items.length; i++) {
+			while (true) {
+				x = (int)Math.floor(this.conf.getxsize() * Math.random());
+				y = (int)Math.floor(this.conf.getysize() * Math.random());
+					if ( this.hcells[x][y]==null) {
+						this.heaps[i] = new Heap(i, this.conf,x,y,this.items[i]);
+						this.items[i].setHeap(i);
+						this.hcells[x][y] = this.heaps[i];
+						this.heaps[i].setXY(x, y);
+						break;
+					}
+				}
+		}
+	}
+	
 	
 	
 	/**
@@ -111,8 +135,10 @@ public class Grid {
 	*/
 	public void clear() {
 		for (int i=0; i<conf.getxsize(); i++)
-			for (int j=0; j<conf.getysize(); j++)
+			for (int j=0; j<conf.getysize(); j++){
 				this.cells[i][j]=null;
+				this.hcells[i][j]=null;
+				}
 	}
 
 	/**** simple access functions *********************************************************/
@@ -162,6 +188,12 @@ public class Grid {
 	*/
 	public Item[] getItems() {
 		return this.items;
+	}
+	
+	/** Get the colection of heaps
+	*/
+	public Heap[] getHeaps() {
+		return this.heaps;
 	}
 	
 	
@@ -232,8 +264,6 @@ public class Grid {
 		int yhigh = y + sigma;
 		int xlow = x - sigma;
 		int ylow = y - sigma;
-		
-		double r = 0;
 		
 
 		

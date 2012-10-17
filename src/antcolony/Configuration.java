@@ -56,7 +56,7 @@ public class Configuration {
 	private int[] colors = new int[]{0,255,65280,16711680,16776960,16711935,65535,16753920,16729344};
 	
 	// Model parameters
-	public enum Models {LUMERFAIETA, LUMERFAIETA_S};
+	public enum Models {LUMERFAIETA, LUMERFAIETA_S,ANTCLASS};
 	private Models model = Models.LUMERFAIETA;
 	
 	// Ant parameters

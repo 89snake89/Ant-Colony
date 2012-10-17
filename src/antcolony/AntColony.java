@@ -46,7 +46,6 @@ public class AntColony {
 	// Pointers to the environment
 	private Configuration conf;   			                    
 	private Configuration.Models model;
-	private Grid grid;
 	
 	
 /************** Constructor ************************************************************/	
@@ -59,7 +58,6 @@ public class AntColony {
 	
 		this.conf = conf;
 		this.model = conf.getModel();
-		this.grid = grid;
 		this.ants = new Ant[this.conf.getnants()];
 		for (int i = 0; i < this.conf.getnants(); i++) ants[i] = new Ant(grid,conf);
 	}
