@@ -83,12 +83,12 @@ public class AntColony {
 		
 		case LUMERFAIETA : for (int a = 0; a< conf.getnants(); a++) {
 								if ( ants[a].getLoad() != null) {
-									if (ants[a].drop() == true) ants[a].nextOccupied(true, this.model);
+									if (ants[a].drop_lumer_faieta() == true) ants[a].nextOccupied(true, this.model);
 									}
 								else {
 									boolean f = false;
 									while (!f){
-										f = ants[a].pick();
+										f = ants[a].pick_lumer_faieta();
 										ants[a].nextOccupied(true, this.model);
 									}
 									ants[a].nextOccupied(false, this.model);
@@ -98,12 +98,12 @@ public class AntColony {
 								
 		case LUMERFAIETA_S : for (int a = 0; a< conf.getnants(); a++) {
 								if ( ants[a].getLoad() != null){
-									if (ants[a].drop() == true) ants[a].nextOccupied(true, this.model);
+									if (ants[a].drop_lumer_faieta() == true) ants[a].nextOccupied(true, this.model);
 									}
 								else {
 									boolean f = false;
 									while (!f){
-										f = ants[a].pick();
+										f = ants[a].pick_lumer_faieta();
 										ants[a].nextOccupied(true, this.model);
 									}
 									ants[a].nextOccupied(false, this.model);

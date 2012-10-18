@@ -81,10 +81,7 @@ public class Grid {
 			for (int j=0; j< conf.getysize(); j++)
 				this.cells[i][j] = null;
 		this.distance = new DistanceMatrix(data, conf);
- 		
-		// generate starting distribution
-		if (this.model == Configuration.Models.ANTCLASS) scatterHeaps();
-		else scatterItems();
+		scatterItems();
 	}
 
 	
@@ -106,28 +103,6 @@ public class Grid {
 				}
 		}
 	}
-	
-	/**
-	* Advise random position on the grid to all items
-	*/
-	public void scatterHeaps() {
-		int x, y;
-		clear();
-		for (int i = 0; i < this.items.length; i++) {
-			while (true) {
-				x = (int)Math.floor(this.conf.getxsize() * Math.random());
-				y = (int)Math.floor(this.conf.getysize() * Math.random());
-					if ( this.hcells[x][y]==null) {
-						this.heaps[i] = new Heap(i, this.conf,x,y,this.items[i]);
-						this.items[i].setHeap(i);
-						this.hcells[x][y] = this.heaps[i];
-						this.heaps[i].setXY(x, y);
-						break;
-					}
-				}
-		}
-	}
-	
 	
 	
 	/**
@@ -160,15 +135,44 @@ public class Grid {
 	public Item getItemAt(int x, int y) {
 		return this.cells[x][y];
 	}
+	
+	/** Get the Heap for a given grid position
+	* @param x the provided grid x-coordinate
+	* @param y the provided grid y-coordinate
+	* @return the document null if empty
+	*/
+	public Heap getHeapAt(int x, int y) {
+		return this.hcells[x][y];
+	}
 
-	/** Check if a cell is occupied
+	/** Check if a cell is occupied by a item
+	* @param x the provided grid x-coordinate
+	* @param y the provided grid y-coordinate
+	* @return the state of occupation
+	*/
+
+	public boolean occupied_item(int x, int y) {
+		return (this.cells[x][y] != null);
+	}
+	
+	/** Check if a cell is occupied by an heap
+	* @param x the provided grid x-coordinate
+	* @param y the provided grid y-coordinate
+	* @return the state of occupation
+	*/
+
+	public boolean occupied_heap(int x, int y) {
+		return (this.hcells[x][y] != null);
+	}
+	
+	/** Check if a cell is occupied by an heap
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
 	* @return the state of occupation
 	*/
 
 	public boolean occupied(int x, int y) {
-		return (this.cells[x][y] != null);
+		return (this.hcells[x][y] != null || this.cells[x][y]!= null);
 	}
 
 	/** Get the item number by id
@@ -205,7 +209,7 @@ public class Grid {
 		int sum3=0;
 		for (int i=0; i< conf.getxsize();i++)
 			for (int j=0; j< conf.getxsize();j++)
-				if (occupied(i,j)) sum1++;
+				if (occupied_item(i,j)) sum1++;
 		for (int i=0; i < items.length; i++){
 			if (items[i]!= null) sum2++;
 			if (items[i].isPicked()) sum3++;
@@ -222,18 +226,39 @@ public class Grid {
 	* @param item the Item
 	*/
 	
-	public void set(int x, int y, Item item) {
+	public void set_item(int x, int y, Item item) {
+		item.setPicked(false);
 		this.cells[x][y] = item;
 		items[item.id].setXY(x, y);
+	}
+	
+	/** Place a item at a given position on the grid
+	* @param x, y the position of the item
+	* @param item the Item
+	*/
+	
+	public void set_heap(int x, int y, Heap heap) {
+		this.hcells[x][y] = heap;
+		heaps[heap.id].setXY(x, y);
 	}
 	
 	/** Remove item at a given position from the grid
 	* @param x, y the document position on the grid
 	*/
 	
-	public void remove(int x, int y) {
+	public void remove_item(int x, int y) {
 		this.cells[x][y].setXY(-1, -1);
 		this.cells[x][y] = null;
+
+	}
+	
+	/** Remove item at a given position from the grid
+	* @param x, y the document position on the grid
+	*/
+	
+	public void remove_heap(int x, int y) {
+		this.hcells[x][y].setXY(-1, -1);
+		this.hcells[x][y] = null;
 
 	}
 
@@ -243,7 +268,7 @@ public class Grid {
 		int sum = 0;
 		for (int i=0; i< conf.getxsize(); i++)
 			for (int j=0; j< conf.getysize(); j++)
-				if (this.occupied(i,j)) sum++;
+				if (this.occupied_item(i,j)) sum++;
 		return sum;
 	}
 	
@@ -282,7 +307,7 @@ public class Grid {
 		
 				double div =  this.distance.getScaleFactor();
 				
-				if ( occupied(jh,ih) && (jh != x || ih != y) ){
+				if ( occupied_item(jh,ih) && (jh != x || ih != y) ){
 				Item it1 = this.getItemAt(jh, ih);
 				sum += (1 - distance.get(it.id,it1.id)/div);
 				}

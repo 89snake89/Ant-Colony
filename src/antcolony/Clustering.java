@@ -205,7 +205,7 @@ public class Clustering {
 		
 		JLabel lblVariables = new JLabel("Measures");
 		lblVariables.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblVariables.setBounds(24, 361, 76, 14);
+		lblVariables.setBounds(24, 405, 76, 14);
 		frame.getContentPane().add(lblVariables);
 		
 		JLabel lblParameters = new JLabel("Model Parameters");
@@ -234,12 +234,18 @@ public class Clustering {
 				{null, null},
 				{null, null},
 				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
 			},
 			new String[] {
 				"Parameter", "Value"
 			}
 		) );
-		table.setBounds(25, 162, 340, 187);
+		table.setBounds(25, 162, 340, 237);
 		frame.getContentPane().add(table);
 		
 		JComboBox comboBox_1 = new JComboBox();
@@ -358,21 +364,16 @@ public class Clustering {
 			new Object[][] {
 				{null, null},
 				{null, null},
-				{null, null},
-				{null, null},
-				{null, null},
-				{null, null},
-				{null, null},
-				{null, null},
-				{null, null},
-				{null, null},
 			},
-			new String[]{"Measure", "Value"}));
+			new String[] {
+				"Measure", "Value"
+			}
+		));
 		
 		table_1.setValueAt("Pearson's Correlation", 0, 0);
 		table_1.setValueAt("Entropy", 1, 0);
 		
-		table_1.setBounds(24, 387, 341, 82);
+		table_1.setBounds(24, 429, 341, 40);
 		frame.getContentPane().add(table_1);
 		
 		JButton btnNewButton_1 = new JButton("Apply");

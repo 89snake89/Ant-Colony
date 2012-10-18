@@ -56,7 +56,7 @@ public class Configuration {
 	private int[] colors = new int[]{0,255,65280,16711680,16776960,16711935,65535,16753920,16729344};
 	
 	// Model parameters
-	public enum Models {LUMERFAIETA, LUMERFAIETA_S,ANTCLASS};
+	public enum Models {LUMERFAIETA, LUMERFAIETA_S, ANTCLASS};
 	private Models model = Models.LUMERFAIETA;
 	
 	// Ant parameters
@@ -67,7 +67,23 @@ public class Configuration {
 	private double kd = 0.0001;
 	private double kp = 0.001;
 	private double alpha = 1.0;
-	
+	private double max_carry_low = 20;
+	private double max_carry_range = 180;
+	private double speed_low = 1;
+	private double speed_range = 9;
+	private double p_load_low = 0.4;
+	private double p_load_range = 0.4;
+	private double p_drop_low = 0.4;
+	private double p_drop_range = 0.4;
+	private double p_destroy_low = 0;
+	private double destroy_range = 0.6;
+	private double p_direction_low = 0.5;
+	private double p_direction_range = 0.5;
+	private double t_create_low = 0.05;
+	private double t_create_range = 0.15;
+	private double t_remove_low = 0.1;
+	private double t_remove_range = 0.1;
+
 	//file parameters
 	private String filename = "record_ant_clustering.txt";
 	
@@ -123,6 +139,70 @@ public class Configuration {
 	public void setSpeed(int value) {
 		this.speed = value;
 	}
+	
+	public void setMaxCarryLow(double value){
+		this.max_carry_low = value;
+	}
+	public void setMaxCarryRange(double value){
+		this.max_carry_range = value;
+	}
+	
+	public void setSpeedLow(double value){
+		this.speed_low = value;
+	}
+	
+	public void setSpeedRange(double value){
+		this.speed_range = value;
+	}
+	
+	public void setPLoadLow(double value){
+		this.p_load_low = value;
+	}
+	
+	public void setPLoadRange(double value){
+		this.p_load_range = value;
+	}
+	
+	public void setPDropLow(double value){
+		this.p_drop_low = value;
+	}
+	
+	public void setPDropRange(double value){
+		this.p_drop_range = value;
+	}
+	
+	public void setPDestroyLow(double value){
+		this.p_destroy_low = value;
+	}
+	
+	public void setPDestroyRange(double value){
+		this.destroy_range = value;
+	}
+	
+	public void setPDirectionLow(double value){
+		this.p_direction_low = value;
+	}
+	
+	public void setPDirectionRange(double value){
+		this.p_direction_range = value;
+	}
+	
+	public void setTCreateLow(double value){
+		this.t_create_low = value;
+	}
+	
+	public void setTCreateRange(double value){
+		this.t_create_range = value;
+	}
+	
+	public void setTRemoveLow(double value){
+		this.t_remove_low = value;
+	}
+	
+	public void setTRemoveRange(double value){
+		this.t_remove_range = value;
+	}
+	
 	public void setMemsize(int value) {
 		this.memsize = value;
 	}
@@ -140,7 +220,23 @@ public class Configuration {
 		if (k == "Alpha")		this.setAlpha(v);
 		if (k == "Kd")			this.setKd(v);
 		if (k == "Kp")			this.setKp(v);
-		if (k == "Speed")		this.setSpeed((int)v);                                   
+		if (k == "Speed")		this.setSpeed((int)v);
+		if (k == "Max Carry low") this.setMaxCarryLow(v);
+		if (k == "Max Carry range") this.setMaxCarryRange(v);
+		if (k == "Speed low")	this.setSpeedLow(v);
+		if (k == "Speed range") this.setSpeedRange(v);
+		if (k == "P Load low") this.setPLoadLow(v);
+		if (k == "P Load range") this.setPLoadRange(v);
+		if (k == "P Drop low") this.setPDropLow(v);
+		if (k == "P Drop range") this.setPDropRange(v);
+		if (k == "P Destroy low")this.setPDestroyLow(v);
+		if (k == "P Destroy range") this.setPDestroyRange(v);
+		if (k == "P Direction low") this.setPDirectionLow(v);
+		if (k == "P Direction range") this.setPDirectionRange(v);
+		if (k == "T Create low") this.setTCreateLow(v);
+		if (k == "T Create range") this.setTCreateRange(v);
+		if (k == "T Remove low") this.setTRemoveLow(v);
+		if (k == "T Remove range") this.setTRemoveRange(v);
 	}
 	
 /********** simple access functions ********************************************************************/	
@@ -194,6 +290,54 @@ public class Configuration {
 	public int getSpeed() {
 		return this.speed;
 	}
+	public double getMaxCarryLow(){
+		return this.max_carry_low;
+	}
+	public double getMaxCarryRange(){
+		return this.max_carry_range;
+	}
+	public double getSpeedLow(){
+		return this.speed_low;
+	}
+	public double getSpeedRange(){
+		return this.speed_range;
+	}	
+	public double getPLoadLow(){
+		return this.p_load_low;
+	}
+	public double getPLoadRange(){
+		return this.p_load_range;
+	}
+	public double getPDropLow(){
+		return this.p_drop_low;
+	}
+	public double getPDropRange(){
+		return this.p_drop_range;
+	}
+	public double getPDestroyLow(){
+		return this.p_destroy_low;
+	}
+	public double getPDestroyRange(){
+		return this.destroy_range;
+	}
+	public double getPDirectionLow(){
+		return this.p_direction_low;
+	}
+	public double getPDirectionRange(){
+		return this.p_direction_range;
+	}
+	public double getTCreateLow(){
+		return this.t_create_low;
+	}
+	public double getTCreateRange(){
+		return this.t_create_range;
+	}
+	public double getTRemoveLow(){
+		return this.t_remove_low;
+	}
+	public double getTRemoveRange(){
+		return this.t_remove_range;
+	}
 	public int getmemsize() {
 		return this.memsize;
 	}
@@ -209,20 +353,41 @@ public class Configuration {
 						   r.put("N of items", new Double(this.getnitems()));
 						   r.put("N of keys", new Double(this.getnkeys()));
 						   r.put("Sigma", new Double(this.getSigma()));
-						   r.put("Alpha", this.getAlpha());
 						   r.put("Kd", this.getKd());
 						   r.put("Kp", this.getKp());
 						   r.put("Speed", new Double(this.getSpeed()));
 						   break;
 		case LUMERFAIETA_S : 	r.put("X size", new Double(this.getxsize()));
-		   				r.put("Y size", new Double(this.getysize()));
-		   				r.put("N of ants", new Double(this.getnants()));
-		   				r.put("N of items", new Double(this.getnitems()));
-		   				r.put("N of keys", new Double(this.getnkeys()));
-		   				r.put("Sigma", new Double(this.getSigma()));
-		   				r.put("Kd", this.getKd());
-		   				r.put("Kp", this.getKp());
-		   				break;	                                         
+		   					r.put("Y size", new Double(this.getysize()));
+		   					r.put("N of ants", new Double(this.getnants()));
+		   					r.put("N of items", new Double(this.getnitems()));
+		   					r.put("N of keys", new Double(this.getnkeys()));
+		   					r.put("Sigma", new Double(this.getSigma()));
+		   					r.put("Kd", this.getKd());
+		   					r.put("Kp", this.getKp());
+		   					break;
+		case ANTCLASS : 	r.put("X size", new Double(this.getxsize()));
+							r.put("Y size", new Double(this.getysize()));
+							r.put("N of ants", new Double(this.getnants()));
+							r.put("N of items", new Double(this.getnitems()));
+							r.put("N of keys", new Double(this.getnkeys()));
+							r.put("Max Carry low", new Double(this.getMaxCarryLow()));
+							r.put("Max Carry range", new Double(this.getMaxCarryRange()));
+							r.put("Speed low", new Double(this.getSpeedLow()));
+							r.put("Speed range", new Double(this.getSpeedRange()));
+							r.put("P Load low", new Double(this.getPLoadLow()));
+							r.put("P Load range", new Double(this.getPLoadRange()));
+							r.put("P Drop low", new Double(this.getPDropLow()));
+							r.put("P Drop range", new Double(this.getPDropRange()));
+							r.put("P Destroy low", new Double(this.getPDestroyLow()));
+							r.put("P Destroy range", new Double(this.getPDestroyRange()));
+							r.put("P Direction low", new Double(this.getPDirectionLow()));
+							r.put("P Direction range", new Double(this.getPDirectionRange()));
+							r.put("T Create low", new Double(this.getTCreateLow()));
+							r.put("T Create range", new Double(this.getTCreateRange()));
+							r.put("T Remove low", new Double(this.getTRemoveLow()));
+							r.put("T Remove range", new Double(this.getTRemoveRange()));
+							break;
 		}
 		return r;
 	}

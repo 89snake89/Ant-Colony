@@ -68,6 +68,7 @@ public class Item {
 		this.type = t;
 		this.color = cl;
 		this.data = a;
+		this.heap = -1;
 	}
 
 	/** Constructor given a grid position and initial data*/
@@ -82,6 +83,7 @@ public class Item {
 		this.type = t;
 		this.color = cl;
 		this.data = a;
+		this.heap = -1;
 	}
 		
 	

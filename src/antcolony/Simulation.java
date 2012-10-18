@@ -236,10 +236,7 @@ public class Simulation extends JPanel implements Runnable  {
 	* Paint the Grid
 	*/
 	  public void paint(Graphics g){
-	      super.paint(g);
-	      if (this.conf.getModel() == Configuration.Models.LUMERFAIETA ||
-	    	  this.conf.getModel() == Configuration.Models.LUMERFAIETA_S){
-	    	  
+	      super.paint(g);    	  
 	    	  Item[] it = this.grid.getItems();
 	    	  if (it != null)
 	    		  for (int i=0; i<it.length; i++){
@@ -250,23 +247,6 @@ public class Simulation extends JPanel implements Runnable  {
 //    		  		  	g.drawString(symbols[it[i].getType()], (int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale));
 	    				  g.fillOval((int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale),5,5);
 	    			  g.setColor(new Color(colors[it[i].getColor()]));
-	    	  }
-	      }
-	      else {
-	    	  Heap[] ht = this.grid.getHeaps();
-	    	  if (ht != null)
-	    		  for (int i=0; i<ht.length; i++){
-	    			  ArrayList<Item> items = ht[i].getItems();
-	    			  Iterator<Item> it = items.iterator();
-	    			  int s = 0;
-	    			  while(it.hasNext()){			  
-	    			  if (this.original)
-	    				 g.drawString(symbols[it.next().getColor()],(int)((ht[i].getinitX()+s)*this.scale), (int)(ht[i].getinitY()*this.scale));
-	    			  else
-	    				  g.drawString(symbols[it.next().getColor()], (int)((ht[i].getX()+s)*this.scale), (int)(ht[i].getY()*this.scale));
-	    			  s++;
-	    			  }
-	    			  }
 	    	  }
 	  }
 

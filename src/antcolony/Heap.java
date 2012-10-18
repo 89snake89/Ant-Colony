@@ -35,7 +35,7 @@
 package antcolony;
 
 import java.util.Iterator;
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 
 /** Stores the data for an individual document
@@ -43,36 +43,37 @@ import java.util.ArrayList;
 	 */
 
 public class Heap {
-	
-	public int id;
+	private int id;
 	private int x,y;						// position on the grid
 	private int x_init,y_init;				// initial position on the grid
 	private int dim;						// item dimension
 	private double max_distance;			// the maximum distance between two objects
 	private double[]  center_of_mass;			// the object corresponding to the center of mass of this heap
 	private int most_dissimilar; 			// the most dissimilar object
+	private double max_dissimilar;
 	private double mean_distance;			// mean distance between all the objects and the center of mass
-	private ArrayList<Item> items; 				// data carried by the item
+	private LinkedList<Item> items; 		// data carried by the item
 	private boolean isPicked = false;		// flag whether document is picked
 
 /*********** Constructor ****************************************************************************/
 
 
 	/** Constructor given a grid position and initial data*/
-	public Heap(int i, Configuration c, int x_i, int y_i, Item item) {
+	public Heap(int i, Configuration c, int x_i, int y_i, Item it1, Item it2) {
 		this.id = i;
 		this.x = x_i;
 		this.y = y_i;
 		this.x_init = x_i;
 		this.y_init = y_i;
-		this.items = new ArrayList<Item>();
-		this.items.add(item);
-		this.dim = item.getData().size();
+		this.items = new LinkedList<Item>();
+		this.items.addLast(it1);
+		this.items.addLast(it2);
+		this.dim = it1.getData().size();
 		this.center_of_mass = new double[this.dim];
 		this.computeCenterMass();
-		this.most_dissimilar = item.getID();
-		this.max_distance = 0;
-		this.mean_distance = 0;
+		this.computeMostDissimilar();
+		this.computeMaxDistance(it2);
+		this.computeMeanDistance();
 		this.isPicked = true;
 	}
 			
@@ -86,6 +87,13 @@ public class Heap {
 	 */
 	public double getMaxDistance() {
 		return this.max_distance;
+	}
+	
+	/** get the maximum dissimilar distance
+	 * @return the measure
+	 */
+	public double getMaxDissimilar() {
+		return this.max_dissimilar;
 	}
 	
 	/** get the center of mass
@@ -164,11 +172,16 @@ public class Heap {
 		this.isPicked = value;
 	}
 	
-	/** Set picked flag
-	* @param value the new truth value
+	/** Get the items on this heap
 	*/
-	public ArrayList<Item> getItems() {
+	public LinkedList<Item> getItems() {
 		return this.items;
+	}
+	
+	/** Get the size this heap
+	*/
+	public int getSize() {
+		return this.items.size();
 	}
 
 
@@ -191,18 +204,19 @@ public void computeCenterMass(){
 
 public void computeMostDissimilar(){
 	Iterator<Item> it = this.items.iterator();
-	double max_d = 0;
+	this.max_dissimilar = 0;
 	while (it.hasNext()){
 		Item i = it.next();
 		Iterator<Double> it1 = i.getData().iterator();
 		double sum = 0;
 		int j=0;
 		while (it1.hasNext()) {
-			sum += Math.abs(center_of_mass[j]- it1.next());
+			sum += Math.pow(center_of_mass[j]- it1.next(),2);
 			j++;
 		}
-		if (sum > max_d){
-			max_d = sum;
+		sum = Math.sqrt(sum);
+		if (sum > this.max_dissimilar){
+			this.max_dissimilar = sum;
 			this.most_dissimilar = i.getID();
 		}
 	}	
@@ -216,7 +230,8 @@ public void computeMaxDistance(Item j){
 		Iterator<Double> it1 = i.getData().iterator();
 		Iterator<Double> it2 = j.getData().iterator();
 		double sum = 0;
-		while (it1.hasNext()) sum += Math.abs(it2.next()- it1.next());
+		while (it1.hasNext()) sum += Math.pow(it2.next()- it1.next(),2);
+		sum = Math.sqrt(sum);
 		if (sum > this.max_distance)this.max_distance = sum;
 	}
 	
@@ -230,31 +245,38 @@ public void computeMeanDistance(){
 		Iterator<Double> it1 = i.getData().iterator();
 		int j=0;
 		while (it1.hasNext()) {
-			mean_d += Math.abs(center_of_mass[j]- it1.next());
+			mean_d += Math.abs(Math.pow(center_of_mass[j]- it1.next(),2));
 			j++;
 		}
 	}	
-	this.mean_distance = mean_d / (double)this.items.size();
+	this.mean_distance = Math.sqrt(mean_d) / (double)this.items.size();
 }
 
 public void putItem(Item i){
 	i.setHeap(this.id);
 	this.computeMaxDistance(i);
-	this.items.add(i);
+	this.items.addLast(i);
 	this.computeCenterMass();
 	this.computeMeanDistance();
 	this.computeMostDissimilar();
 }
 
-public void removeItem(int id){
+public Item removeItem(int id){
+	Item r = null;
 	Iterator<Item> it = this.items.iterator();
-	while (it.hasNext()) {
-		Item j = it.next();
-		if (j.getID()==id) {
+	done: while (it.hasNext()) {
+		r = it.next();
+		if (r.getID()==id) {
+			r.setHeap(-1);
 			it.remove();
-			j.setHeap(-1);
+			break done ;
 		}
 	}
+	return r;
+}
+
+public Item removeLastItem(){
+	return this.items.removeLast();
 }
 
 }
