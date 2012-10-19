@@ -44,7 +44,7 @@ import java.util.List;
 
 public class Item {
 	
-	public int id;
+	private int id;
 	private int x,y;						// position on the grid
 	private int x_init,y_init;				// starting position
 	private int xsize, ysize;				// size of grid
@@ -52,7 +52,6 @@ public class Item {
 	private int color;						// the color of the item to display
 	private List<Double> data; 				// data carried by the item
 	private boolean isPicked = false;		// flag whether document is picked
-	private int heap;
 
 /*********** Constructor ****************************************************************************/
 
@@ -68,7 +67,6 @@ public class Item {
 		this.type = t;
 		this.color = cl;
 		this.data = a;
-		this.heap = -1;
 	}
 
 	/** Constructor given a grid position and initial data*/
@@ -83,7 +81,6 @@ public class Item {
 		this.type = t;
 		this.color = cl;
 		this.data = a;
-		this.heap = -1;
 	}
 		
 	
@@ -139,6 +136,7 @@ public class Item {
 	public String getType() {
 	return this.type;
 	}
+
 	
 	/** Get type of the item
 	 * @return the associated document vector
@@ -166,20 +164,6 @@ public class Item {
 	*/
 	public void setData(List<Double> a) {
 		this.data = a;
-	}
-	
-	/** Set the heap  of the item
-	 * @param h - the heap id
-	*/
-	public void setHeap(int h) {
-		this.heap = h;
-	}
-	
-	/** Get the heap  of the item
-	 * @return h - the heap id
-	*/
-	public int getHeap() {
-		return this.heap;
 	}
 	
 	/** Get the id  of the item

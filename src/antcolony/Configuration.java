@@ -46,12 +46,12 @@ public class Configuration {
 	private int dmeasure = 2;
 	
 	// Item Parameters
-	private int nkeys = 50;
+	private int nkeys = 5;
 	private int maxitemsize = 10;
 	
 	// Simulation parameters
-	private int xsize = 600;
-	private int ysize = 600;
+	private int xsize = 100;
+	private int ysize = 100;
 	private String[] symbols = new String[]{"X","O","*","+","&","$","#","%","="};
 	private int[] colors = new int[]{0,255,65280,16711680,16776960,16711935,65535,16753920,16729344};
 	
@@ -60,8 +60,8 @@ public class Configuration {
 	private Models model = Models.LUMERFAIETA;
 	
 	// Ant parameters
-	private int nants = 50;
-	private int speed = 50;
+	private int nants = 100;
+	private int speed = 10;
 	private int memsize = 20;
 	private int sigma = 10;
 	private double kd = 0.0001;

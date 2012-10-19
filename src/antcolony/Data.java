@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -48,7 +49,7 @@ import antcolony.Configuration.Datasets;
 public class Data {
 	
 	private Configuration conf;
-	private Item [] items;          // document collection
+	private ArrayList<Item> items;          // document collection
 	private Double [] keys;
 	private List<List<String>> csvData;
 	
@@ -70,11 +71,11 @@ public class Data {
 	
 	/** get the number of items */
 	public int getnitems() {
-		return this.items.length;
+		return this.items.size();
 	}
 	
-	/** retrieve all itemss */
-	public Item [] getItems() {
+	/** retrieve all items */
+	public ArrayList<Item> getItems() {
 		return this.items;
 	}
 	
@@ -101,7 +102,7 @@ private void generate_items() {
 	
 		// Hard-coded test distribution (Uniform Distribution)
 	
-		case UNIFORM9 :	items = new Item[n];											
+		case UNIFORM9 :	items = new ArrayList<Item>();											
 						centers[0][0] = this.conf.getxsize()/6; centers[0][1] = this.conf.getysize()/6;
 						centers[1][0] = this.conf.getxsize()/2; centers[1][1] = this.conf.getysize()/6;
 						centers[2][0] = this.conf.getxsize()/6 * 5; centers[2][1] = this.conf.getysize()/6;
@@ -116,13 +117,13 @@ private void generate_items() {
 							String t = Integer.toString(type);
 							int x = centers[type][0]+(int)((generator.nextDouble()- 0.5)* this.conf.getxsize()/6);
 							int y = centers[type][1]+(int)((generator.nextDouble()- 0.5)* this.conf.getysize()/6);
-							items[i]= new Item(i,this.conf,x,y,t,type,generate_map(keys,generator.nextInt(this.conf.getMaxitemsize())));
+							items.add(i,new Item(i,this.conf,x,y,t,type,generate_map(keys,5)));
 						}
 						break;
 									
 		// Hard-coded test distribution (Normal Distribution)
 									
-		case NORMAL4 :	items = new Item[n];
+		case NORMAL4 :	items = new ArrayList<Item>();
 						centers[0][0] = this.conf.getxsize()/4; centers[0][1] = this.conf.getysize()/4;
 						centers[1][0] = this.conf.getxsize()/4 * 3; centers[1][1] = this.conf.getysize()/4;
 						centers[2][0] = this.conf.getxsize()/4; centers[2][1] = this.conf.getysize()/4 * 3;
@@ -132,7 +133,7 @@ private void generate_items() {
 						String t = Integer.toString(type);
 						int x = centers[type][0]+(int)(generator.nextGaussian()* this.conf.getxsize()/12);
 						int y = centers[type][1]+(int)(generator.nextGaussian()* this.conf.getysize()/12);
-						items[i]= new Item(i,this.conf,x,y,t,type,generate_map(keys,generator.nextInt(this.conf.getMaxitemsize())));
+						items.add(i,new Item(i,this.conf,x,y,t,type,generate_map(keys,5)));
 						}
 						break;
 						
@@ -141,7 +142,7 @@ private void generate_items() {
 		case IRIS :		try {
 						n = this.readCsvFile("Iris.csv");
 						conf.setnitems(n);
-						items = new Item[n];
+						items = new ArrayList<Item>();
 						int cl = 0;
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
 						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
@@ -165,7 +166,7 @@ private void generate_items() {
 							double y = (Double.parseDouble(list.get(2))+Double.parseDouble(list.get(3))-1);
 							x = x * this.conf.getxsize()/4 + mapx.get(type);
 							y = y * this.conf.getxsize()/4 + mapy.get(type);
-							items[i]= new Item(i,this.conf,(int)x,(int)y,type,cl,l_out);
+							items.add(i,new Item(i,this.conf,(int)x,(int)y,type,cl,l_out));
 						}
 						}
 						catch (Exception e) {
@@ -179,7 +180,7 @@ private void generate_items() {
 		case WINE :		try {
 						n = this.readCsvFile("Wine.csv");
 						conf.setnitems(n);
-						items = new Item[n];
+						items = new ArrayList<Item>();
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
 						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
 						mapx.put("1", this.conf.getxsize()/5);
@@ -206,7 +207,7 @@ private void generate_items() {
 								}
 							x = (x-2) * this.conf.getxsize()/6 + mapx.get(type);
 							y = (y-2) * this.conf.getxsize()/6 + mapy.get(type);
-							items[i]= new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out);
+							items.add(i,new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out));
 						}
 						}
 						catch (Exception e) {
@@ -220,7 +221,7 @@ private void generate_items() {
 		case GLASS :	try {
 						n = this.readCsvFile("Glass.csv");
 						conf.setnitems(n);
-						items = new Item[n];
+						items = new ArrayList<Item>();
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
 						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
 						mapx.put("1", this.conf.getxsize()/6);
@@ -253,7 +254,7 @@ private void generate_items() {
 							}
 							x = (x-1) * this.conf.getxsize()/4 + mapx.get(type);
 							y = (y-1) * this.conf.getysize()/4 + mapy.get(type);
-							items[i]= new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out);
+							items.add(i,new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out));
 						}
 						}
 						catch (Exception e) {
@@ -267,7 +268,7 @@ private void generate_items() {
 		case BREAST :	try {
 						n = this.readCsvFile("Breast.csv");
 						conf.setnitems(n);
-						items = new Item[n];
+						items = new ArrayList<Item>();
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
 						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
 						mapx.put("2", this.conf.getxsize()/4);
@@ -294,7 +295,7 @@ private void generate_items() {
 							y = (y-3)/2;
 							x = x * this.conf.getxsize()/8 + mapx.get(type);
 							y = y * this.conf.getysize()/8 + mapy.get(type);
-							items[i]= new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out);
+							items.add(i,new Item(i,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out));
 						}
 						}		
 						catch (Exception e) {

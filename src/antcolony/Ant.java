@@ -46,8 +46,10 @@ private double kd;
 private double kp;
 private double t_remove;
 private double t_create;
+private double d_max;
 private int max_carry;
 private int fail;
+private int has_load;
 private Grid grid;
 private Configuration conf;
 private Configuration.Models model;
@@ -70,7 +72,9 @@ public Ant(Grid grid, Configuration conf) {
 	this.ysize = this.conf.getysize();
 	this.nextOccupied(true, model);
 	this.load = grid.getItemAt(this.x,this.y);
+	this.has_load = 1;
 	grid.remove_item(this.x,this.y);
+	this.d_max = Math.sqrt(this.load.getData().size()*Math.sqrt(2));
 	this.fail = 0;
 	this.max_carry = (int)(conf.getMaxCarryLow() * Math.random()* conf.getMaxCarryRange());
 	this.speed = (int)(conf.getSpeedLow()+ Math.random() * conf.getSpeedRange());
@@ -94,6 +98,13 @@ public Ant(Grid grid, Configuration conf) {
 */
 public Item getLoad() {
 	return this.load;
+}
+
+/** What do I currently carry?
+* @return document number of currently carried document or -1
+*/
+public boolean hasLoad() {
+	return this.load != null;
 }
 
 /** Set the coordinates of this ant
@@ -232,13 +243,32 @@ public void nextOccupied(boolean f, Configuration.Models m) {
 								}
 							}
 						}
-					break;
+						break;
+	case ANTCLASS : 	while (loop) {
+						int x_coor = (int)(Math.random()*conf.getxsize());
+						int	y_coor = (int)(Math.random()*conf.getysize());
+						if (grid.occupied_item(x_coor,y_coor) == f) {
+							if (this.load != null && !f){
+								if (grid.densityAt(x_coor, y_coor, this.load)> 0.0){
+									this.x = x_coor;
+									this.y = y_coor;
+									loop = false;
+								}
+							}
+							else {
+								this.x = x_coor;
+								this.y = y_coor;
+								loop = false;
+							}
+						}
+						}
+						break;
 	}
 
 }
 
 public void move(){
-	if (Math.random()< p_direction) this.direction = (int)Math.random()*8;
+	if (Math.random()< p_direction) this.direction = (int)(Math.random()*8);
 	switch (this.direction){
 		case 0 : this.y -= this.speed; break;
 		case 1 : this.x += this.speed; this.y -= this.speed; break;
@@ -252,7 +282,8 @@ public void move(){
 	if (this.x < 0) this.x = xsize + this.x%xsize;
 	if (this.x >= xsize) this.x = this.x%xsize;
 	if (this.y < 0) this.y = ysize + this.y%ysize;
-	if (this.y >= ysize) this.y = this.y%ysize;	
+	if (this.y >= ysize) this.y = this.y%ysize;
+	this.has_load++;
 }
 
 public void pick_ant_class(){
@@ -267,7 +298,8 @@ public void pick_ant_class(){
 				if (grid.occupied_item(x_coor, y_coor) && Math.random()< this.p_load){
 					this.load = grid.getItemAt(x_coor, y_coor);
 					this.load.setPicked(true);
-					grid.remove_item(this.x,this.y);
+					this.has_load=1;
+					grid.remove_item(x_coor,y_coor);
 					break done;
 				}
 				if (grid.occupied_heap(x_coor, y_coor)){
@@ -277,6 +309,7 @@ public void pick_ant_class(){
 							LinkedList<Item> l = h.getItems();
 							this.load = l.removeLast();
 							this.load.setPicked(true);
+							this.has_load = 1;
 							grid.set_item(x_coor,y_coor,l.removeLast());
 							grid.remove_heap(x_coor, y_coor);
 							break done;
@@ -285,6 +318,7 @@ public void pick_ant_class(){
 						if (h.getMaxDissimilar()/h.getMeanDistance()> this.t_remove){
 							this.load = h.removeItem(h.getMostDissimilar());
 							this.load.setPicked(true);
+							this.has_load=1;
 							break done;
 						}
 							
@@ -302,35 +336,36 @@ public void drop_ant_class(){
 				if (x_coor >= xsize) x_coor = x_coor%xsize;
 				if (y_coor < 0) y_coor = ysize + y_coor%ysize;
 				if (y_coor >= ysize) y_coor = y_coor%ysize;
-				if (!grid.occupied(x_coor, y_coor)&& Math.random()< this.p_drop){
+				if (!grid.occupied(x_coor, y_coor)&& (Math.random()< this.p_drop || this.has_load > this.max_carry)){
 					grid.set_item(x_coor, y_coor, this.load);
 					this.load=null;
+					this.has_load = 0;
 					break done;
 				}
 				if (grid.occupied_item(x_coor, y_coor)){
 					Item it = grid.getItemAt(x_coor, y_coor);
-					grid.remove_item(x_coor, y_coor);
-					grid.set_heap(x_coor, y_coor, new Heap(this.load.getID(),conf,x_coor,y_coor,it,this.load));
-					if (h.getSize()==2){
-						if (Math.random()< this.p_destroy){
-							LinkedList<Item> l = h.getItems();
-							this.load = l.removeLast();
-							this.load.setPicked(true);
-							grid.set_item(x_coor,y_coor,l.removeLast());
-							grid.remove_heap(x_coor, y_coor);
-							break done;
-						}}
-					else {
-						if (h.getMaxDissimilar()/h.getMeanDistance()> this.t_remove){
-							this.load = h.removeItem(h.getMostDissimilar());
-							this.load.setPicked(true);
-							break done;
-						}
-							
+					if (it.distance(this.load, 2)/this.d_max < this.t_create){
+//						if (true){
+						grid.remove_item(x_coor, y_coor);
+						grid.set_heap(x_coor, y_coor, new Heap(conf,x_coor,y_coor,it,this.load));
+						this.load=null;
+						this.has_load = 0;
+						break done;
 					}
 				}
+				if (grid.occupied_heap(x_coor, y_coor)){
+					Heap h = grid.getHeapAt(x_coor, y_coor);
+					if (h.computeDistanceCenterMass(this.load) > h.getMaxDissimilar()){
+//					if (true){
+						h.putItem(this.load);
+						grid.set_heap(x_coor, y_coor, h);
+						this.load=null;
+						this.has_load = 0;
+						break done;
+						}
+				}
 			}
-	}
+}
 }
 
 

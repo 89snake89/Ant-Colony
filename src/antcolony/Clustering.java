@@ -66,6 +66,7 @@ import antcolony.Configuration.Models;
 import javax.swing.border.BevelBorder;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import javax.swing.JTextPane;
 
 
 public class Clustering {
@@ -79,6 +80,7 @@ public class Clustering {
 	private Thread runner;
 	private JTable table, table_1;
 	private JLabel lblNewLabel;
+	private JTextPane textPane;
 
 	/**
 	 * Launch the application.
@@ -112,7 +114,7 @@ public class Clustering {
 		simul = new Simulation(conf,data,this);
 		simul.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		frame = new JFrame();
-		frame.setBounds(100, 100, 980, 614);
+		frame.setBounds(100, 100, 980, 737);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -179,7 +181,7 @@ public class Clustering {
 			}
 		});
 		tglbtnRecord.setFont(new Font("Tahoma", Font.BOLD, 11));
-		tglbtnRecord.setBounds(24, 537, 76, 23);
+		tglbtnRecord.setBounds(24, 661, 76, 23);
 		frame.getContentPane().add(tglbtnRecord);
 		
 		textField_1 = new JTextField();
@@ -194,18 +196,18 @@ public class Clustering {
 				else txt.setForeground(Color.BLACK);
 			}
 		});
-		textField_1.setBounds(24, 506, 340, 20);
+		textField_1.setBounds(24, 630, 340, 20);
 		frame.getContentPane().add(textField_1);
 		textField_1.setColumns(10);
 		
 		JLabel lblFilename = new JLabel("Filename (without extension, press ENTER to check)");
 		lblFilename.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblFilename.setBounds(24, 481, 340, 14);
+		lblFilename.setBounds(24, 605, 340, 14);
 		frame.getContentPane().add(lblFilename);
 		
 		JLabel lblVariables = new JLabel("Measures");
 		lblVariables.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblVariables.setBounds(24, 405, 76, 14);
+		lblVariables.setBounds(24, 529, 76, 14);
 		frame.getContentPane().add(lblVariables);
 		
 		JLabel lblParameters = new JLabel("Model Parameters");
@@ -245,7 +247,7 @@ public class Clustering {
 				"Parameter", "Value"
 			}
 		) );
-		table.setBounds(25, 162, 340, 237);
+		table.setBounds(25, 162, 340, 356);
 		frame.getContentPane().add(table);
 		
 		JComboBox comboBox_1 = new JComboBox();
@@ -373,7 +375,7 @@ public class Clustering {
 		table_1.setValueAt("Pearson's Correlation", 0, 0);
 		table_1.setValueAt("Entropy", 1, 0);
 		
-		table_1.setBounds(24, 429, 341, 40);
+		table_1.setBounds(24, 554, 341, 40);
 		frame.getContentPane().add(table_1);
 		
 		JButton btnNewButton_1 = new JButton("Apply");
@@ -396,6 +398,10 @@ public class Clustering {
 		lblNewLabel = new JLabel("Tick: 0");
 		lblNewLabel.setBounds(273, 106, 117, 16);
 		frame.getContentPane().add(lblNewLabel);
+		
+		textPane = new JTextPane();
+		textPane.setBounds(406, 599, 557, 100);
+		frame.getContentPane().add(textPane);
 	
 	}
 	
@@ -436,5 +442,9 @@ public class Clustering {
 	 */
 	public void setTick(int v){
 		lblNewLabel.setText("Tick : "+ v);
+	}
+	
+	public void setText(String s){
+		textPane.setText(s);
 	}
 }

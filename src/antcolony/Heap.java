@@ -44,8 +44,6 @@ import java.util.LinkedList;
 
 public class Heap {
 	private int id;
-	private int x,y;						// position on the grid
-	private int x_init,y_init;				// initial position on the grid
 	private int dim;						// item dimension
 	private double max_distance;			// the maximum distance between two objects
 	private double[]  center_of_mass;			// the object corresponding to the center of mass of this heap
@@ -53,28 +51,22 @@ public class Heap {
 	private double max_dissimilar;
 	private double mean_distance;			// mean distance between all the objects and the center of mass
 	private LinkedList<Item> items; 		// data carried by the item
-	private boolean isPicked = false;		// flag whether document is picked
 
 /*********** Constructor ****************************************************************************/
 
 
 	/** Constructor given a grid position and initial data*/
-	public Heap(int i, Configuration c, int x_i, int y_i, Item it1, Item it2) {
-		this.id = i;
-		this.x = x_i;
-		this.y = y_i;
-		this.x_init = x_i;
-		this.y_init = y_i;
+	public Heap(Configuration c, int x_i, int y_i, Item it1, Item it2) {
+		this.id = it1.getID();
 		this.items = new LinkedList<Item>();
-		this.items.addLast(it1);
 		this.items.addLast(it2);
+		this.items.addLast(it1);
 		this.dim = it1.getData().size();
 		this.center_of_mass = new double[this.dim];
 		this.computeCenterMass();
 		this.computeMostDissimilar();
 		this.computeMaxDistance(it2);
 		this.computeMeanDistance();
-		this.isPicked = true;
 	}
 			
 /*********** Access & Modification Functions ****************************************************************************/
@@ -110,66 +102,18 @@ public class Heap {
 		return this.most_dissimilar;
 	}
 	
+	/** Get id of the heap
+	 * @return the associated document vector
+	 */
+	public int getID() {
+	return this.id;
+	}
+	
 	/** get the maximum distance
 	 * @return the measure
 	 */
 	public double getMeanDistance() {
 		return this.mean_distance;
-	}	
-
-/****** item position *********/
-		
-	/** Get item position
-	* @return the current document x position on the grid
-	*/
-	public int getX() {
-		return this.x;
-	}
-	
-	/** Get item position
-	* @return the current document y position on the grid
-	*/
-	public int getY() {
-		return this.y;
-	}
-	
-	/** Get initial item position
-	* @return the starting x position of the document on the grid
-	*/
-	public int getinitX() {
-		return this.x_init;
-	}
-	
-	/** Get initial item position
-	* @return the starting x position of the document on the grid
-	*/
-	public int getinitY() {
-		return this.y_init;
-	}
-	
-	/** Set item position
-	* @param x the x coordinate of the current position of the document on the grid
-	* @param y the y coordinate of the current position of the document on the grid
-	*/
-	public void setXY(int x, int y) {
-		this.x = x;
-		this.y = y;
-	}
-
-/******** misc **********************/
-
-	/** Is this item currently being transported by an ant?
-	* @return truth value signaling whether item is being transported or not
-	*/
-	public boolean isPicked() {
-		return isPicked;
-	}
-
-	/** Set picked flag
-	* @param value the new truth value
-	*/
-	public void setPicked(boolean value) {
-		this.isPicked = value;
 	}
 	
 	/** Get the items on this heap
@@ -200,6 +144,17 @@ public void computeCenterMass(){
 		}
 	}
 	for (int i=0; i<dim; i++) center_of_mass[i]=center_of_mass[i]/dim;
+}
+
+public double computeDistanceCenterMass(Item i){
+		Iterator<Double> it = i.getData().iterator();
+		int j=0;
+		double sum = 0;
+		while (it.hasNext()){
+			sum += Math.pow(this.center_of_mass[j] - (Double)it.next(),2);
+			j++;
+		}
+		return Math.sqrt(sum);
 }
 
 public void computeMostDissimilar(){
@@ -253,7 +208,6 @@ public void computeMeanDistance(){
 }
 
 public void putItem(Item i){
-	i.setHeap(this.id);
 	this.computeMaxDistance(i);
 	this.items.addLast(i);
 	this.computeCenterMass();
@@ -267,7 +221,6 @@ public Item removeItem(int id){
 	done: while (it.hasNext()) {
 		r = it.next();
 		if (r.getID()==id) {
-			r.setHeap(-1);
 			it.remove();
 			break done ;
 		}
