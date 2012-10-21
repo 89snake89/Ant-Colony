@@ -43,7 +43,8 @@ import java.util.LinkedList;
 	 */
 
 public class Heap {
-	private int id;
+	private int id;							// id of the heap
+	private int x,y;						// coordinates of the heap
 	private int dim;						// item dimension
 	private double max_distance;			// the maximum distance between two objects
 	private double[]  center_of_mass;			// the object corresponding to the center of mass of this heap
@@ -56,17 +57,15 @@ public class Heap {
 
 
 	/** Constructor given a grid position and initial data*/
-	public Heap(Configuration c, int x_i, int y_i, Item it1, Item it2) {
-		this.id = it1.getID();
+	public Heap(int i, Configuration c, int x_i, int y_i, Item it1, Item it2) {
+		this.id = i;
+		this.x = x_i;
+		this.y = y_i;
 		this.items = new LinkedList<Item>();
-		this.items.addLast(it2);
-		this.items.addLast(it1);
+		this.items.add(it1);
 		this.dim = it1.getData().size();
 		this.center_of_mass = new double[this.dim];
-		this.computeCenterMass();
-		this.computeMostDissimilar();
-		this.computeMaxDistance(it2);
-		this.computeMeanDistance();
+		this.putItem(it2);
 	}
 			
 /*********** Access & Modification Functions ****************************************************************************/
@@ -127,13 +126,29 @@ public class Heap {
 	public int getSize() {
 		return this.items.size();
 	}
+	
+	/****** heap position *********/
+	
+	/** Get heap  horizontal position
+	* @return the current document x position on the grid
+	*/
+	public int getX() {
+		return this.x;
+	}
+	
+	/** Get heap vertical position
+	* @return the current document y position on the grid
+	*/
+	public int getY() {
+		return this.y;
+	}
 
 
 /*********** Calculate values ****************************************************************************/
 
 public void computeCenterMass(){
-	Iterator<Item> it = this.items.iterator();
 	for (int i=0; i<dim; i++) this.center_of_mass[i]=0;
+	Iterator<Item> it = this.items.iterator();
 	while (it.hasNext()){
 		Item i = it.next();
 		Iterator<Double> it1 = i.getData().iterator();
@@ -162,34 +177,12 @@ public void computeMostDissimilar(){
 	this.max_dissimilar = 0;
 	while (it.hasNext()){
 		Item i = it.next();
-		Iterator<Double> it1 = i.getData().iterator();
-		double sum = 0;
-		int j=0;
-		while (it1.hasNext()) {
-			sum += Math.pow(center_of_mass[j]- it1.next(),2);
-			j++;
-		}
-		sum = Math.sqrt(sum);
-		if (sum > this.max_dissimilar){
-			this.max_dissimilar = sum;
+		double dist = this.computeDistanceCenterMass(i);
+		if (dist >= this.max_dissimilar){
+			this.max_dissimilar = dist;
 			this.most_dissimilar = i.getID();
 		}
 	}	
-}
-
-public void computeMaxDistance(Item j){
-	Iterator<Item> it = this.items.iterator();
-	this.max_distance = 0;
-	while (it.hasNext()){
-		Item i = it.next();
-		Iterator<Double> it1 = i.getData().iterator();
-		Iterator<Double> it2 = j.getData().iterator();
-		double sum = 0;
-		while (it1.hasNext()) sum += Math.pow(it2.next()- it1.next(),2);
-		sum = Math.sqrt(sum);
-		if (sum > this.max_distance)this.max_distance = sum;
-	}
-	
 }
 
 public void computeMeanDistance(){
@@ -197,25 +190,29 @@ public void computeMeanDistance(){
 	double mean_d = 0;
 	while (it.hasNext()){
 		Item i = it.next();
-		Iterator<Double> it1 = i.getData().iterator();
-		int j=0;
-		while (it1.hasNext()) {
-			mean_d += Math.abs(Math.pow(center_of_mass[j]- it1.next(),2));
-			j++;
-		}
+		mean_d += this.computeDistanceCenterMass(i);
 	}	
-	this.mean_distance = Math.sqrt(mean_d) / (double)this.items.size();
+	this.mean_distance = mean_d / (double)this.items.size();
 }
 
 public void putItem(Item i){
-	this.computeMaxDistance(i);
-	this.items.addLast(i);
+	Iterator<Item> it = this.items.iterator();
+	while (it.hasNext()){
+		Item j = it.next();
+		Iterator<Double> it1 = i.getData().iterator();
+		Iterator<Double> it2 = j.getData().iterator();
+		double sum = 0;
+		while (it1.hasNext()) sum += Math.pow((it2.next()- it1.next()),2);
+		sum = Math.sqrt(sum);
+		if (sum > this.max_distance)this.max_distance = sum;
+		}
+	this.items.add(i);
 	this.computeCenterMass();
 	this.computeMeanDistance();
 	this.computeMostDissimilar();
 }
 
-public Item removeItem(int id){
+public Item getItem(int id){
 	Item r = null;
 	Iterator<Item> it = this.items.iterator();
 	done: while (it.hasNext()) {
@@ -225,11 +222,11 @@ public Item removeItem(int id){
 			break done ;
 		}
 	}
+	LinkedList<Item> list = new LinkedList<Item>(this.items);
+	this.items= new LinkedList<Item>();
+	it = list.iterator();
+	while(it.hasNext()) this.putItem(it.next());
 	return r;
-}
-
-public Item removeLastItem(){
-	return this.items.removeLast();
 }
 
 }

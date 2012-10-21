@@ -35,29 +35,26 @@
 
 package antcolony;
 
-import java.util.ArrayList;
-
-
 public class DistanceMatrix {
 
 	private double scaleFactor;
-	private ArrayList<Item> items;
+	private Item[] items;
 	private double [][] matrix;
 
 	public DistanceMatrix(Data data, Configuration conf) {
 		items = data.getItems();
-		matrix = new double[items.size()][items.size()];
+		matrix = new double[items.length][items.length];
 
-		for (int i=0; i<items.size(); i++) matrix[i] = new double[i+1];
+		for (int i=0; i<items.length; i++) matrix[i] = new double[i+1];
 		scaleFactor = 0;
-		for (int i=1; i<=items.size(); i++) {
+		for (int i=1; i<=items.length; i++) {
 			for (int j=0; j<i; j++) {
-				matrix[i-1][j] = (double)items.get(i-1).distance(items.get(j),conf.getDMeasure());
+				matrix[i-1][j] = (double)items[i-1].distance(items[j],conf.getDMeasure());
 				scaleFactor += matrix[i-1][j];
 			}
 		}
 		// compute the scale factor (average over all inter-item distances)
-		scaleFactor /= 0.5*(double)(items.size()*(items.size() - 1));
+		scaleFactor /= 0.5*(double)(items.length*(items.length - 1));
 	}
 
 	public double getScaleFactor(){

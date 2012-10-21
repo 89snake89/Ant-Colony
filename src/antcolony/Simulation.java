@@ -87,7 +87,7 @@ public class Simulation extends JPanel implements Runnable  {
 		this.grid = new Grid(conf,data);
 		this.symbols = conf.getSymbols();
 		this.colors = conf.getColors();
-		this.scale = 3;
+		this.scale = 6.0;
 		this.original = true;
 		this.antColony = new AntColony(conf, grid);
 		this.clustering = clt;
@@ -104,8 +104,8 @@ public class Simulation extends JPanel implements Runnable  {
 	public void update(Configuration conf, Data data) {	
 		this.conf = conf;
 		this.grid = new Grid(conf,data);
-		this.scale = 3.0;
-		this.antColony = new AntColony(conf, grid);	
+		this.antColony = new AntColony(conf, grid);
+		this.clustering.setText(this.grid.printStats());
 	}
 
 /******************* access functions *************************************************************/
@@ -188,7 +188,6 @@ public class Simulation extends JPanel implements Runnable  {
 	*/
 	public void run() {
 		
-	   	stop = false;
 	   	tick = 0;
 		double pearson;
 		double entropy;
@@ -235,17 +234,16 @@ public class Simulation extends JPanel implements Runnable  {
 	* Paint the Grid
 	*/
 	  public void paint(Graphics g){
-	      super.paint(g);    	  
-	    	  Iterator<Item> it = this.grid.getItems().iterator();
-	    		  while (it.hasNext()){
-	    			  Item i = it.next();
+	      super.paint(g);
+	          Item[] items = this.grid.getItems();
+	          for (int i=0; i< items.length;i++){
 	    			  if (this.original)
 //	    			  	g.drawString(symbols[it[i].getType()],(int)(it[i].getinitX()*this.scale), (int)(it[i].getinitY()*this.scale));
-	    				  g.fillOval((int)(i.getinitX()*this.scale), (int)(i.getinitY()*this.scale),5,5);
+	    				  g.fillOval((int)(items[i].getinitX()*this.scale), (int)(items[i].getinitY()*this.scale),5,5);
 	    			  else
 //    		  		  	g.drawString(symbols[it[i].getType()], (int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale));
-	    				  g.fillOval((int)(i.getX()*this.scale), (int)(i.getY()*this.scale),5,5);
-	    			  g.setColor(new Color(colors[i.getColor()]));
+	    				  g.fillOval((int)(items[i].getX()*this.scale), (int)(items[i].getY()*this.scale),5,5);
+	    			  g.setColor(new Color(colors[items[i].getColor()]));
 	    	  }
 	  }
 
@@ -303,17 +301,15 @@ public class Simulation extends JPanel implements Runnable  {
 		double xsquaresum = 0;
 		double ysquaresum = 0;
 		double N = 0;
-		ArrayList<Item> items = this.grid.getItems();
-		Iterator<Item> it =items.iterator();
+		Item[] items = this.grid.getItems();
 		DistanceMatrix d = this.grid.getDistanceMatrix();	
-		while(it.hasNext()) {
-			Item i = it.next();
-			if (ignore && i.isPicked()) continue;
-			for (int j=0; j < i.getID(); j++) {
-				if (ignore && items.get(j).isPicked()) continue;
+		for (int i=0; i<items.length;i++) {
+			if (ignore && items[i].isPicked()) continue;
+			for (int j=0; j < i; j++) {
+				if (ignore && items[j].isPicked()) continue;
 				N++;
-				double x = Math.abs(d.get(i.getID(), j));
-				double y = Math.abs(i.distance(items.get(j), 1));
+				double x = Math.abs(d.get(i, j));
+				double y = Math.abs(items[i].distance(items[j], 1));
 				xsum += x;
 				xsquaresum += (x*x);
 				ysum += y;
@@ -334,12 +330,11 @@ public class Simulation extends JPanel implements Runnable  {
 		int xdim = (int)Math.floor(conf.getxsize()/10);
 		int ydim = (int)Math.floor(conf.getysize()/10);
 		double[][] bins = new double[xdim][ydim];
-		Iterator<Item> it =this.grid.getItems().iterator();
+		Item[] items =this.grid.getItems();
 		double count = 0;
-		while(it.hasNext()) {
-			Item i = it.next();
-			if(i.isPicked()) continue;
-			bins[(int)Math.floor(i.getX()/10)][(int)Math.floor(i.getY()/10)]++;
+		for (int i=0; i<items.length;i++) {
+			if(items[i].isPicked()) continue;
+			bins[(int)Math.floor(items[i].getX()/10)][(int)Math.floor(items[i].getY()/10)]++;
 			count++;
 		}
 		double sum = 0;

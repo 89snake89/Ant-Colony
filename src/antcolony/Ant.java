@@ -25,7 +25,7 @@ Description:
 
 package antcolony;
 
-import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.LinkedList;
 
 
@@ -38,6 +38,7 @@ private int x,y;
 private int xsize, ysize;
 private int speed;
 private int direction;
+private LinkedList<Heap> memory;
 private double p_direction;
 private double p_load;
 private double p_drop;
@@ -87,6 +88,7 @@ public Ant(Grid grid, Configuration conf) {
 	this.kd = conf.getKd();
 	this.kp = conf.getKp();
 	this.direction = (int)Math.random()*8;
+	this.memory = new LinkedList<Heap>();
 }
 
 /******** access functions ************************************************************************************/		
@@ -268,21 +270,28 @@ public void nextOccupied(boolean f, Configuration.Models m) {
 }
 
 public void move(){
-	if (Math.random()< p_direction) this.direction = (int)(Math.random()*8);
-	switch (this.direction){
-		case 0 : this.y -= this.speed; break;
-		case 1 : this.x += this.speed; this.y -= this.speed; break;
-		case 2 : this.x += this.speed; break;
-		case 3 : this.x += this.speed; this.y += this.speed; break;
-		case 4 : this.y += this.speed; break;
-		case 5 : this.x -= this.speed; this.y += this.speed; break;
-		case 6 : this.x -= this.speed; break;
-		case 7 : this.x -= this.speed; this.y -= this.speed; break;
+	if (this.has_load > 0 && this.memory.size() > 0){
+		Heap h = this.memory.removeFirst();
+		this.x = h.getX() + 1;
+		this.y = h.getY() + 1;
 	}
-	if (this.x < 0) this.x = xsize + this.x%xsize;
-	if (this.x >= xsize) this.x = this.x%xsize;
-	if (this.y < 0) this.y = ysize + this.y%ysize;
-	if (this.y >= ysize) this.y = this.y%ysize;
+	else{
+		if (Math.random()< p_direction) this.direction = (int)(Math.random()*8);
+		switch (this.direction){
+			case 0 : this.y -= this.speed; break;
+			case 1 : this.x += this.speed; this.y -= this.speed; break;
+			case 2 : this.x += this.speed; break;
+			case 3 : this.x += this.speed; this.y += this.speed; break;
+			case 4 : this.y += this.speed; break;
+			case 5 : this.x -= this.speed; this.y += this.speed; break;
+			case 6 : this.x -= this.speed; break;
+			case 7 : this.x -= this.speed; this.y -= this.speed; break;
+		}
+		if (this.x < 0) this.x = xsize + this.x%xsize;
+		if (this.x >= xsize) this.x = this.x%xsize;
+		if (this.y < 0) this.y = ysize + this.y%ysize;
+		if (this.y >= ysize) this.y = this.y%ysize;
+	}
 	this.has_load++;
 }
 
@@ -304,8 +313,9 @@ public void pick_ant_class(){
 				}
 				if (grid.occupied_heap(x_coor, y_coor)){
 					Heap h = grid.getHeapAt(x_coor, y_coor);
+					this.updateMemory(h);
 					if (h.getSize()==2) {
-						if(Math.random()< this.p_destroy){
+						if(Math.random() < this.p_destroy) {
 							LinkedList<Item> l = h.getItems();
 							this.load = l.removeLast();
 							this.load.setPicked(true);
@@ -314,15 +324,13 @@ public void pick_ant_class(){
 							grid.remove_heap(x_coor, y_coor);
 							break done;
 						}}
-					else {
-						if (h.getMaxDissimilar()/h.getMeanDistance()> this.t_remove){
-							this.load = h.removeItem(h.getMostDissimilar());
+					else if ((h.getMaxDissimilar()/h.getMeanDistance()) > this.t_remove){
+							this.load = h.getItem(h.getMostDissimilar());
 							this.load.setPicked(true);
 							this.has_load=1;
 							break done;
 						}
 							
-					}
 				}
 			}
 	}
@@ -344,10 +352,10 @@ public void drop_ant_class(){
 				}
 				if (grid.occupied_item(x_coor, y_coor)){
 					Item it = grid.getItemAt(x_coor, y_coor);
+					this.calcDmax();
 					if (it.distance(this.load, 2)/this.d_max < this.t_create){
-//						if (true){
 						grid.remove_item(x_coor, y_coor);
-						grid.set_heap(x_coor, y_coor, new Heap(conf,x_coor,y_coor,it,this.load));
+						grid.set_heap(x_coor, y_coor, new Heap(x_coor+y_coor*this.xsize,conf,x_coor,y_coor,it,this.load));
 						this.load=null;
 						this.has_load = 0;
 						break done;
@@ -355,10 +363,9 @@ public void drop_ant_class(){
 				}
 				if (grid.occupied_heap(x_coor, y_coor)){
 					Heap h = grid.getHeapAt(x_coor, y_coor);
+					this.updateMemory(h);
 					if (h.computeDistanceCenterMass(this.load) > h.getMaxDissimilar()){
-//					if (true){
 						h.putItem(this.load);
-						grid.set_heap(x_coor, y_coor, h);
 						this.load=null;
 						this.has_load = 0;
 						break done;
@@ -366,6 +373,22 @@ public void drop_ant_class(){
 				}
 			}
 }
+
+private void calcDmax(){
+	LinkedList<Heap> list=this.grid.getHeaps();
+	Iterator<Heap> it = list.iterator();
+	while(it.hasNext()){
+		double d=it.next().getMaxDistance();
+		if (d >= this.d_max) this.d_max = d;
+	}	
+}
+
+private void updateMemory(Heap h){
+	this.memory.addLast(h);
+	if (this.memory.size() > 5) this.memory.removeFirst();
+}
+
+
 }
 
 

@@ -43,7 +43,8 @@
 package antcolony;
 
 import java.util.Iterator;
-import java.util.ArrayList;
+import java.util.LinkedList;
+
 
 
 /**  Represents the grid underlying a simulation, provides functions
@@ -54,8 +55,8 @@ import java.util.ArrayList;
 public class Grid {
 
 	private Configuration conf;			// Current configuration
-	private ArrayList<Item> items;				// Current document collection
-	private ArrayList<Heap> heaps;
+	private Item[] items;				// Current document collection
+	private LinkedList<Heap> heaps;
 	private int[][] cells;				// Cell matrix
 	private int[][] hcells;
 	private DistanceMatrix distance;	// Precomputed distance matrix
@@ -74,14 +75,14 @@ public class Grid {
 		// store provided information
 		this.conf = conf;
 		this.items = data.getItems();
-		this.heaps = new ArrayList<Heap>(this.items.size());
+		this.heaps = new LinkedList<Heap>();
 		this.cells = new int[this.conf.getxsize()][this.conf.getysize()];
 		this.hcells = new int[this.conf.getxsize()][this.conf.getysize()];			
 		// initialize base matrix (item id "-1" signifies "not occupied")
 		for (int i=0; i < conf.getxsize(); i++)
 			for (int j=0; j< conf.getysize(); j++){
-				this.cells[i][j] = 0;
-				this.hcells[i][j] = 0;
+				this.cells[i][j] = -1;
+				this.hcells[i][j] = -1;
 				}
 		this.distance = new DistanceMatrix(data, conf);
 		scatterItems();
@@ -94,15 +95,13 @@ public class Grid {
 	public void scatterItems() {
 		int x, y;
 		clear();
-		Iterator<Item> it = items.iterator();
-			while (it.hasNext()) {
+			for (int i=0; i<items.length;i++) {
 				while(true){
 					x = (int)Math.floor(this.conf.getxsize() * Math.random());
 					y = (int)Math.floor(this.conf.getysize() * Math.random());
-					if ( this.cells[x][y]==0) {
-						Item i = it.next();
-						this.cells[x][y] = i.getID();
-						i.setXY(x, y);
+					if ( this.cells[x][y]== -1) {
+						this.cells[x][y] = items[i].getID();
+						items[i].setXY(x, y);
 						break;
 					}
 				}
@@ -116,8 +115,8 @@ public class Grid {
 	public void clear() {
 		for (int i=0; i<conf.getxsize(); i++)
 			for (int j=0; j<conf.getysize(); j++){
-				this.cells[i][j]=0;
-				this.hcells[i][j]=0;
+				this.cells[i][j]=-1;
+				this.hcells[i][j]=-1;
 				}
 	}
 
@@ -138,7 +137,7 @@ public class Grid {
 	* @return the document null if empty
 	*/
 	public Item getItemAt(int x, int y) {
-		return this.items.get(cells[x][y]);
+		return this.items[cells[x][y]];
 	}
 	
 	/** Get the Heap for a given grid position
@@ -147,7 +146,17 @@ public class Grid {
 	* @return the document null if empty
 	*/
 	public Heap getHeapAt(int x, int y) {
-		return this.heaps.get(hcells[x][y]);
+		int id = hcells[x][y];
+		Heap r = null;
+		Iterator<Heap> it = this.heaps.iterator();
+		while (it.hasNext()) {
+			Heap h = it.next();
+			if (h.getID() == id) {
+				r = h;
+				break;
+			}
+		}
+		return r;
 	}
 
 	/** Check if a cell is occupied by a item
@@ -157,7 +166,7 @@ public class Grid {
 	*/
 
 	public boolean occupied_item(int x, int y) {
-		return (this.cells[x][y] != 0);
+		return (this.cells[x][y] != -1);
 	}
 	
 	/** Check if a cell is occupied by an heap
@@ -167,7 +176,7 @@ public class Grid {
 	*/
 
 	public boolean occupied_heap(int x, int y) {
-		return (this.hcells[x][y] != 0);
+		return (this.hcells[x][y] != -1);
 	}
 	
 	/** Check if a cell is occupied by an heap
@@ -177,7 +186,7 @@ public class Grid {
 	*/
 
 	public boolean occupied(int x, int y) {
-		return (this.hcells[x][y] != 0 || this.cells[x][y]!= 0);
+		return (this.hcells[x][y] != -1 || this.cells[x][y]!= -1);
 	}
 
 	/** Get the item number by id
@@ -187,18 +196,18 @@ public class Grid {
 	*/
 
 	public Item getById(int id) {
-		return this.items.get(id);
+		return this.items[id];
 	}
 
 	/** Get the colection of items
 	*/
-	public ArrayList<Item> getItems() {
+	public Item[] getItems() {
 		return this.items;
 	}
 	
 	/** Get the colection of heaps
 	*/
-	public ArrayList<Heap> getHeaps() {
+	public LinkedList<Heap> getHeaps() {
 		return this.heaps;
 	}
 	
@@ -211,23 +220,26 @@ public class Grid {
 		int sum3=0;
 		int sum4=0;
 		int sum5=0;
+		int maxh=0;
 		for (int i=0; i< conf.getxsize();i++)
 			for (int j=0; j< conf.getxsize();j++){
 				if (occupied_item(i,j)) sum1++;
 				if (occupied_heap(i,j)) sum2++;
 				}
-		Iterator<Item> it = items.iterator();
-		while (it.hasNext())if (it.next().isPicked()) sum3++;
-		Iterator<Heap> it1 = heaps.iterator();
-		while (it1.hasNext()){
-			Heap h= it1.next();
+		for (int i=0; i<items.length;i++)if (items[i].isPicked()) sum3++;
+		Iterator<Heap> it = this.heaps.iterator();
+		while (it.hasNext()) {
+			Heap h = it.next();
+			if (h!=null) {
 				sum4++;
+				if (h.getSize()>maxh) maxh=h.getSize();
 				sum5+= h.getSize();
 			}
-		if (sum2 > sum4) System.out.println(sum5);
+		}
+		if (sum2 < sum4) System.out.println("sum wrong");
 		return "Cells occupied by items: "+ sum1+"\nCells occupied by heaps: "+
 				sum2+"   \nItems picked: "+sum3+"\nNumber of heaps: "+ sum4+
-				"\nAverage heap size: "+ sum5/(sum4+1)+"\n";
+				"\nAverage heap size: "+ sum5/(sum4+1)+"\nMaximum heap size: "+ maxh+"\n";
 	}
 
 	/**** simple manipulation *******************************************************/
@@ -242,9 +254,7 @@ public class Grid {
 		item.setPicked(false);
 		int i = item.getID();
 		this.cells[x][y] = i;
-		Item it = this.items.get(i);
-		it.setXY(x, y);
-		this.items.add(i, it);
+		items[i].setXY(x, y);
 	}
 	
 	/** Place a item at a given position on the grid
@@ -253,9 +263,8 @@ public class Grid {
 	*/
 	
 	public void set_heap(int x, int y, Heap heap) {
-		int h = heap.getID();
-		this.hcells[x][y]= h;
-		this.heaps.add(h, heap);
+		this.hcells[x][y]= heap.getID();
+		this.heaps.add(heap);
 	}
 	
 	/** Remove item at a given position from the grid
@@ -263,8 +272,8 @@ public class Grid {
 	*/
 	
 	public void remove_item(int x, int y) {
-		this.items.get(this.cells[x][y]).setXY(0, 0);
-		this.cells[x][y] = 0;
+		this.items[this.cells[x][y]].setXY(0, 0);
+		this.cells[x][y] = -1;
 
 	}
 	
@@ -273,7 +282,19 @@ public class Grid {
 	*/
 	
 	public void remove_heap(int x, int y) {
-		this.heaps.set(this.hcells[x][y],null);
+		int id = hcells[x][y];
+		Iterator<Heap> it = this.heaps.iterator();
+		while (it.hasNext()) 
+			if (it.next().getID() == id) {
+				it.remove();
+				this.hcells[x][y]=-1;
+			}
+		int sum=0;
+		for (int i=0; i< conf.getxsize();i++)
+			for (int j=0; j< conf.getxsize();j++)
+				if (occupied_heap(i,j)) sum++;
+
+		if (this.heaps.size() > sum) System.exit(-1);
 	}
 	
 	/**** measures on the grid *******************************************************/
@@ -318,11 +339,10 @@ public class Grid {
 					
 			}
 		}	
-		
-		int size = sigma*2+1;
+		double size = sigma*2+1;
 		size *= size;
 		size -= 1;
-		return Math.max(0, sum/size);
+		return Math.max(0.0, (sum/size));
 
 	}	
 
