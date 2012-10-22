@@ -87,7 +87,7 @@ public class Simulation extends JPanel implements Runnable  {
 		this.grid = new Grid(conf,data);
 		this.symbols = conf.getSymbols();
 		this.colors = conf.getColors();
-		this.scale = 6.0;
+		this.scale = 1.0;
 		this.original = true;
 		this.antColony = new AntColony(conf, grid);
 		this.clustering = clt;
@@ -197,6 +197,7 @@ public class Simulation extends JPanel implements Runnable  {
             	this.repaint();
             	pearson = computePearson(false);
             	entropy = computeEntropy();
+            	if (this.tick%100==0) this.grid.calculateClusters();
             	this.clustering.setText(this.grid.printStats());
             	this.clustering.setPearsons(pearson);
             	this.clustering.setEntropy(entropy);
@@ -236,14 +237,14 @@ public class Simulation extends JPanel implements Runnable  {
 	  public void paint(Graphics g){
 	      super.paint(g);
 	          Item[] items = this.grid.getItems();
-	          for (int i=0; i< items.length;i++){
+	          for (int i=1; i< items.length ;i++){
+	        	  	g.setColor(new Color(colors[items[i].getColor()]));
 	    			  if (this.original)
 //	    			  	g.drawString(symbols[it[i].getType()],(int)(it[i].getinitX()*this.scale), (int)(it[i].getinitY()*this.scale));
-	    				  g.fillOval((int)(items[i].getinitX()*this.scale), (int)(items[i].getinitY()*this.scale),5,5);
+	    				  g.fillRect((int)(items[i].getinitX()*this.scale), (int)(items[i].getinitY()*this.scale),5,5);
 	    			  else
 //    		  		  	g.drawString(symbols[it[i].getType()], (int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale));
-	    				  g.fillOval((int)(items[i].getX()*this.scale), (int)(items[i].getY()*this.scale),5,5);
-	    			  g.setColor(new Color(colors[items[i].getColor()]));
+	    				  g.fillRect((int)(items[i].getX()*this.scale), (int)(items[i].getY()*this.scale),5,5);			  
 	    	  }
 	  }
 

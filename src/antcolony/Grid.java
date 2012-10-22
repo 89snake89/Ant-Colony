@@ -56,6 +56,9 @@ public class Grid {
 
 	private Configuration conf;			// Current configuration
 	private Item[] items;				// Current document collection
+	private Cluster[] partition;		// partitions
+	private int num_clusters;
+	private double clust_apart;
 	private LinkedList<Heap> heaps;
 	private int[][] cells;				// Cell matrix
 	private int[][] hcells;
@@ -75,6 +78,10 @@ public class Grid {
 		// store provided information
 		this.conf = conf;
 		this.items = data.getItems();
+		this.num_clusters = this.items.length;
+		this.partition = new Cluster[this.num_clusters];
+		this.clust_apart = conf.getxsize()/5;
+		for (int i=0; i<this.items.length; i++) this.partition[i]=new Cluster(new Item[]{items[i]});
 		this.heaps = new LinkedList<Heap>();
 		this.cells = new int[this.conf.getxsize()][this.conf.getysize()];
 		this.hcells = new int[this.conf.getxsize()][this.conf.getysize()];			
@@ -220,6 +227,7 @@ public class Grid {
 		int sum3=0;
 		int sum4=0;
 		int sum5=0;
+		this.num_clusters=0;
 		int maxh=0;
 		for (int i=0; i< conf.getxsize();i++)
 			for (int j=0; j< conf.getxsize();j++){
@@ -236,12 +244,54 @@ public class Grid {
 				sum5+= h.getSize();
 			}
 		}
+		for (int i=0; i<partition.length; i++) if (partition[i]!=null) this.num_clusters++;
 		if (sum2 < sum4) System.out.println("sum wrong");
 		return "Cells occupied by items: "+ sum1+"\nCells occupied by heaps: "+
 				sum2+"   \nItems picked: "+sum3+"\nNumber of heaps: "+ sum4+
-				"\nAverage heap size: "+ sum5/(sum4+1)+"\nMaximum heap size: "+ maxh+"\n";
+				"\nAverage heap size: "+ sum5/(sum4+1)+"\nMaximum heap size: "+ maxh+
+				"\nNumber of clusters: "+ num_clusters +"\n";
 	}
 
+	
+	public void calculateClusters(){
+		if (conf.getModel()== Configuration.Models.ANTCLASS){
+			for (int i=0; i<this.items.length; i++) this.partition[i]=null;
+			Iterator<Heap> it=this.heaps.iterator();
+			int j=0;
+			while (it.hasNext()){
+				LinkedList<Item> list= it.next().getItems();
+				partition[j]= new Cluster(list.toArray(new Item[0]));
+				j++;
+			}
+		}
+		else {
+		 for (int i=0; i<this.items.length; i++) this.partition[i]=new Cluster(new Item[]{items[i]});
+		 boolean flag=true;
+		 while (flag){
+			int c1=0;
+			int c2=0;
+			double c3=0;
+			double c4=0;
+			double min_dist= Double.MAX_VALUE;
+			for (int i=0; i<this.partition.length-1;i++){
+				for (int j=i+1; j<this.partition.length;j++){
+					if (partition[i]!=null && partition[j]!=null){
+					double[] d = partition[i].computeWeightedDistance(partition[j]);
+					if (d[0] < min_dist){
+						min_dist = d[0];
+						c1 = i;
+						c2 = j;
+						c3 = d[1];
+						c4 = d[2];
+					}}
+				}
+				}
+			if (c1!=c2 && min_dist<this.clust_apart) {partition[c1].addElements(partition[c2].getItems());
+			partition[c2]=null;}
+			flag = (min_dist<this.clust_apart);
+		}
+		}
+	}
 	/**** simple manipulation *******************************************************/
 	
 	
@@ -272,7 +322,7 @@ public class Grid {
 	*/
 	
 	public void remove_item(int x, int y) {
-		this.items[this.cells[x][y]].setXY(0, 0);
+		//this.items[this.cells[x][y]].setXY(0, 0);
 		this.cells[x][y] = -1;
 
 	}

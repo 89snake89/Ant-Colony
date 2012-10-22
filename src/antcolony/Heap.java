@@ -27,7 +27,7 @@
 
 	Description:
 
-	* Represents an individual item
+	* Represents a heap of items
 	* Stores all essential information e.g. grid position
                                                                                                                         	
 *****************************************************************/
@@ -206,6 +206,7 @@ public void putItem(Item i){
 		sum = Math.sqrt(sum);
 		if (sum > this.max_distance)this.max_distance = sum;
 		}
+	i.setXY(this.x, this.y);
 	this.items.add(i);
 	this.computeCenterMass();
 	this.computeMeanDistance();

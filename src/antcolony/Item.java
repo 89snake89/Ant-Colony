@@ -93,7 +93,7 @@ public class Item {
 
 	public double distance(Item i, int measure) {
 
-		double d = 0;
+		double d=0;
 		
 		switch (measure){
 

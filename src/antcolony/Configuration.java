@@ -50,8 +50,8 @@ public class Configuration {
 	private int maxitemsize = 10;
 	
 	// Simulation parameters
-	private int xsize = 30;
-	private int ysize = 30;
+	private int xsize = 600;
+	private int ysize = 600;
 	private String[] symbols = new String[]{"X","O","*","+","&","$","#","%","="};
 	private int[] colors = new int[]{0,255,65280,16711680,16776960,16711935,65535,16753920,16729344};
 	
