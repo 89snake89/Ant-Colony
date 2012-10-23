@@ -44,8 +44,12 @@ import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import javax.swing.JPanel;
 import java.util.Iterator;
@@ -87,7 +91,7 @@ public class Simulation extends JPanel implements Runnable  {
 		this.grid = new Grid(conf,data);
 		this.symbols = conf.getSymbols();
 		this.colors = conf.getColors();
-		this.scale = 1.0;
+		this.scale = 4.0;
 		this.original = true;
 		this.antColony = new AntColony(conf, grid);
 		this.clustering = clt;
@@ -191,21 +195,33 @@ public class Simulation extends JPanel implements Runnable  {
 	   	tick = 0;
 		double pearson;
 		double entropy;
+		double F_m;
+		double rand;
+		double InnVar;
         while (!stop) {
             try {            	
             	this.antColony.sort();
-            	this.repaint();
-            	pearson = computePearson(false);
-            	entropy = computeEntropy();
-            	if (this.tick%100==0) this.grid.calculateClusters();
-            	this.clustering.setText(this.grid.printStats());
-            	this.clustering.setPearsons(pearson);
-            	this.clustering.setEntropy(entropy);
-            	this.clustering.setTick(tick);
-            	if (this.rec && tick < 10000){
-            		this.record[0][tick]=pearson;
-            		this.record[1][tick]=entropy;
+            	this.repaint();	
+            	if (this.tick%100==0) {
+                	this.clustering.setText(this.grid.printStats());
+                	pearson = computePearson(true);
+                	this.clustering.setPearsons(pearson);
+                	entropy = computeEntropy();
+                	this.clustering.setEntropy(entropy);
+            		this.grid.calculateClusters();
+            		F_m = computeFMeasure();
+            		this.clustering.setF(F_m);
+            		rand = computeRand();
+            		this.clustering.setRand(rand);
+            		InnVar = computeInnerClusterVariance();
+            		this.clustering.setInnerCV(InnVar);
+                	if (this.rec && tick < 10000){
+                		this.record[0][tick]=pearson;
+                		this.record[1][tick]=entropy;
+                	}
             	}
+
+            	this.clustering.setTick(tick);
             	tick++;
             	if (interrupted) {
             		synchronized(this) {
@@ -348,9 +364,133 @@ public class Simulation extends JPanel implements Runnable  {
 		return -sum;
 	}
 
+	/** Compute F Measure
+	* @return F measure computed for the entire grid
+	*/
+	public double computeFMeasure(){
+		Cluster[] p = this.grid.getClusters();
+		Item[]    items = this.grid.getItems();
+		String[] types = this.conf.getTypes();
+		double[] count_i = new double[types.length];
+		for (int j=0; j<items.length; j++)
+			for (int i=0; i<types.length;i++)
+				if (items[j].getType().equals(types[i])) count_i[i]++;
+		double[][] prec = new double[types.length][p.length];
+		double[][] recl = new double[types.length][p.length];
+		double[][] F = new double[types.length][p.length];
+		double[] F_max = new double[types.length];
+		for (int j=0; j< p.length;j++){
+			if (p[j]!= null){
+				double[] count_j = new double[types.length];
+				LinkedList<Item> list = p[j].getItems();
+				Iterator<Item> it = list.iterator();
+				double sum = 0;
+				while(it.hasNext()){
+					Item itm = it.next();
+					for(int i=0; i<types.length;i++) if (itm.getType().equals(types[i])) count_j[i]++;
+					sum++;
+					}
+				for (int i=0;i<types.length;i++){
+					prec[i][j]= count_j[i] / sum;
+					recl[i][j]= count_j[i] / count_i[i];
+				}
+			}
+			}
+		for (int j=0; j< p.length;j++)
+			for (int i=0;i<types.length;i++)
+				if (p[j]!= null) 
+					F[i][j]= 2 * prec[i][j] * recl[i][j] / (prec[i][j] + recl[i][j]);
+		
+		for (int i=0;i<types.length;i++){
+			F_max[i]=0;
+			for (int j=0; j< p.length;j++)if (F[i][j] > F_max[i]) F_max[i]=F[i][j];
+		}
+		double F_measure = 0;
+			for (int i=0;i<types.length;i++)
+				F_measure += count_i[i] / items.length * F_max[i];	
+		return F_measure;
+	}
+	
+	/** Compute Rand Index
+	* @return Rand index computed for the entire grid
+	*/
+	public double computeRand() {
+		Cluster[] p = this.grid.getClusters();
+		int[] part = new int[conf.getnitems()];
+		int[] clust = new int[conf.getnitems()];
+		for (int i=0; i< p.length; i++)
+			if (p[i]!= null){
+				LinkedList<Item> items = p[i].getItems();
+				Iterator<Item> it = items.iterator();
+				while(it.hasNext()) part[it.next().getID()]=i+1;
+			}
+
+		Item[] items = this.grid.getItems();
+		String[] types = this.conf.getTypes();
+		for (int i=0; i<items.length;i++)
+			for (int j=0; j< this.conf.getTypes().length; j++)
+				if (items[i].getType().equals(types[j])) clust[items[i].getID()]=j+1;
+		
+		int a=0;
+		int b=0;
+		int c=0;
+		int d=0;
+		for (int i=0; i<items.length-1;i++)
+			for (int j=i+1; j<items.length;j++){
+					if (clust[i]==clust[j] && part[i]==part[j]) a++;
+					if (clust[i]==clust[j] && part[i]!=part[j]) b++;
+					if (clust[i]!=clust[j] && part[i]==part[j]) c++;
+					if (clust[i]!=clust[j] && part[i]!=part[j]) d++;
+				}
+		return ((double)(a+d))/((double) (a+b+c+d));
+	}
+	
+	/** Compute Inner Cluster Variance
+	* @return ICV computed for the entire grid
+	*/
+	public double computeInnerClusterVariance() {
+		Cluster[] p = this.grid.getClusters();
+		Double[][] centers = new Double[p.length][conf.getnkeys()];
+		double[][] centers_xy = new double[p.length][2];
+		Item[] centroids = new Item[p.length];
+		for (int i=0; i< p.length; i++)
+			if (p[i]!= null){
+				LinkedList<Item> items = p[i].getItems();
+				Iterator<Item> it = items.iterator();
+				while (it.hasNext()){
+					Item itm = it.next();
+					List<Double> list = itm.getData();
+					Iterator<Double> it1 = list.iterator();
+					centers_xy[i][0]+=(double)itm.getX();
+					centers_xy[i][1]+=(double)itm.getY();
+					for (int j=0; j<conf.getnkeys(); j++)centers[i][j]=0.0;
+					int j=0;
+					while (it1.hasNext()){
+						centers[i][j] += it1.next();
+						j++;
+					}
+				}
+				for (int j=0; j<conf.getnkeys();j++) centers[i][j]= centers[i][j]/(double)items.size();
+				centers_xy[i][0]= centers_xy[i][0]/(double)items.size();
+				centers_xy[i][1]= centers_xy[i][1]/(double)items.size();
+			}
+		for (int i=0; i< p.length; i++) 
+			if (p[i]!= null) {
+				Double[] c = centers[i];
+				centroids[i]= new Item(-1, this.conf,(int)centers_xy[i][0],(int)centers_xy[i][1],"",0, Arrays.asList(c));
+			}
+		double sum = 0;
+		for (int i=0; i< p.length; i++)
+			if (p[i]!= null){
+				LinkedList<Item> items = p[i].getItems();
+				Iterator<Item> it = items.iterator();
+				while (it.hasNext()){
+					sum+= it.next().distance(centroids[i], 1);
+				}
+			}
+		return sum/(double)p.length;
+	}
 }
-
-
 
 
 

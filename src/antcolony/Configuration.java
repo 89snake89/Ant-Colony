@@ -42,16 +42,17 @@ public class Configuration {
 	
 	public enum Datasets {UNIFORM9, NORMAL4,IRIS,WINE,GLASS,BREAST};
 	private Datasets dataset = Datasets.UNIFORM9;
-	private int nitems = 500;
+	private int nitems = 200;
 	private int dmeasure = 2;
+	private String[] types = new String[]{"0","1","2","3","4","5","6","7","8"};
 	
 	// Item Parameters
 	private int nkeys = 5;
 	private int maxitemsize = 10;
 	
 	// Simulation parameters
-	private int xsize = 600;
-	private int ysize = 600;
+	private int xsize = 100;
+	private int ysize = 100;
 	private String[] symbols = new String[]{"X","O","*","+","&","$","#","%","="};
 	private int[] colors = new int[]{0,255,65280,16711680,16776960,16711935,65535,16753920,16729344};
 	
@@ -64,7 +65,7 @@ public class Configuration {
 	private int speed = 10;
 	private int memsize = 20;
 	private int sigma = 10;
-	private double kd = 0.0001;
+	private double kd = 0.001;
 	private double kp = 0.001;
 	private double alpha = 1.0;
 	private double max_carry_low = 20;
@@ -102,6 +103,9 @@ public class Configuration {
 	}
 	public void setDMeasure(int value) {
 		this.dmeasure = value;
+	}
+	public void setTypes(String[] value){
+		this.types = value;
 	}
 	public void setxsize(int value) {
 		this.xsize = value;
@@ -247,6 +251,9 @@ public class Configuration {
 	}	
 	public int getDMeasure(){
 		return this.dmeasure;
+	}
+	public String[] getTypes(){
+		return this.types;
 	}
 	public Models getModel() {
 		return this.model;

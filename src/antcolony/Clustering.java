@@ -366,6 +366,10 @@ public class Clustering {
 			new Object[][] {
 				{null, null},
 				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
 			},
 			new String[] {
 				"Measure", "Value"
@@ -374,6 +378,9 @@ public class Clustering {
 		
 		table_1.setValueAt("Pearson's Correlation", 0, 0);
 		table_1.setValueAt("Entropy", 1, 0);
+		table_1.setValueAt("F measure", 2, 0);
+		table_1.setValueAt("Rand", 3, 0);
+		table_1.setValueAt("Inner Cluster Variance", 4, 0);
 		
 		table_1.setBounds(24, 554, 341, 175);
 		frame.getContentPane().add(table_1);
@@ -435,6 +442,27 @@ public class Clustering {
 	 */
 	public void setEntropy(double v){
 		table_1.setValueAt(v, 1, 1);
+	}
+	
+	/* Set the F measure value on measure table
+	 * @param F measure
+	 */
+	public void setF(double v){
+		table_1.setValueAt(v, 2, 1);
+	}
+	
+	/* Set the rand index value on measure table
+	 * @param rand index value
+	 */
+	public void setRand(double v){
+		table_1.setValueAt(v, 3, 1);
+	}
+	
+	/* Set the inner cluster variance value on measure table
+	 * @param rand index value
+	 */
+	public void setInnerCV(double v){
+		table_1.setValueAt(v, 4, 1);
 	}
 	
 	/* Set tick value on panel

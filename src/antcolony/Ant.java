@@ -73,6 +73,7 @@ public Ant(Grid grid, Configuration conf) {
 	this.ysize = this.conf.getysize();
 	this.nextOccupied(true, model);
 	this.load = grid.getItemAt(this.x,this.y);
+	this.load.setPicked(true);
 	this.has_load = 1;
 	grid.remove_item(this.x,this.y);
 	this.d_max = Math.sqrt(this.load.getData().size()*Math.sqrt(2));

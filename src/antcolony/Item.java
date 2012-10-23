@@ -35,6 +35,7 @@
 package antcolony;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -162,7 +163,7 @@ public class Item {
 	/** Set data of the item
 	 * @param a - the List representing the data carried by the tem
 	*/
-	public void setData(List<Double> a) {
+	public void setData(LinkedList<Double> a) {
 		this.data = a;
 	}
 	

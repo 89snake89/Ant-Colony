@@ -102,7 +102,7 @@ private void generate_items() {
 	
 		// Hard-coded test distribution (Uniform Distribution)
 	
-		case UNIFORM9 :	items = new Item[n];											
+		case UNIFORM9 :	items = new Item[n];
 						centers[0][0] = this.conf.getxsize()/6; centers[0][1] = this.conf.getysize()/6;
 						centers[1][0] = this.conf.getxsize()/2; centers[1][1] = this.conf.getysize()/6;
 						centers[2][0] = this.conf.getxsize()/6 * 5; centers[2][1] = this.conf.getysize()/6;
@@ -119,6 +119,7 @@ private void generate_items() {
 							int y = centers[type][1]+(int)((generator.nextDouble()- 0.5)* this.conf.getysize()/6);
 							items[i]=new Item(i,this.conf,x,y,t,type,generate_map(keys,5));
 						}
+						conf.setTypes(new String[]{"0","1","2","3","4","5","6","7","8"});
 						break;
 									
 		// Hard-coded test distribution (Normal Distribution)
@@ -135,12 +136,14 @@ private void generate_items() {
 						int y = centers[type][1]+(int)(generator.nextGaussian()* this.conf.getysize()/12);
 						items[i]=new Item(i,this.conf,x,y,t,type,generate_map(keys,5));
 						}
+						conf.setTypes(new String[]{"0","1","2","3"});
 						break;
 						
 		// Hard-coded IRIS dataset from http://archive.ics.uci.edu/ml/datasets.html
 						
 		case IRIS :		try {
 						n = this.readCsvFile("Iris.csv");
+						conf.setTypes(new String[]{"Iris-setosa","Iris-versicolor","Iris-virginica"});
 						conf.setnitems(n);
 						items = new Item[n];
 						int cl = 0;
@@ -179,6 +182,7 @@ private void generate_items() {
 						
 		case WINE :		try {
 						n = this.readCsvFile("Wine.csv");
+						conf.setTypes(new String[]{"1","2","3"});
 						conf.setnitems(n);
 						items = new Item[n];
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
@@ -220,6 +224,7 @@ private void generate_items() {
 						
 		case GLASS :	try {
 						n = this.readCsvFile("Glass.csv");
+						conf.setTypes(new String[]{"1","2","3","5","6","7"});
 						conf.setnitems(n);
 						items = new Item[n];
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
@@ -267,6 +272,7 @@ private void generate_items() {
 						
 		case BREAST :	try {
 						n = this.readCsvFile("Breast.csv");
+						conf.setTypes(new String[]{"2","4"});
 						conf.setnitems(n);
 						items = new Item[n];
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();

@@ -212,6 +212,12 @@ public class Grid {
 		return this.items;
 	}
 	
+	/** Get the partition of clusters
+	*/
+	public Cluster[] getClusters() {
+		return this.partition;
+	}
+	
 	/** Get the colection of heaps
 	*/
 	public LinkedList<Heap> getHeaps() {
