@@ -81,37 +81,52 @@ public class AntColony {
 	public void sort() {
 		switch (model){
 		
-		case LUMERFAIETA : for (int a = 0; a< conf.getnants(); a++) {
+		case LUMERFAIETA_S : for (int a = 0; a< conf.getnants(); a++) {
 								if ( ants[a].hasLoad()) {
-									if (ants[a].drop_lumer_faieta() == true) ants[a].nextOccupied(true, this.model);
+									if (ants[a].drop_lumer_faieta(Configuration.Models.LUMERFAIETA_S) == true) ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_S);
 									}
 								else {
 									boolean f = false;
 									while (!f){
 										f = ants[a].pick_lumer_faieta();
-										ants[a].nextOccupied(true, this.model);
+										ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_S);
 									}
-									ants[a].nextOccupied(false, this.model);
+									ants[a].move_lumer_faieta(false,Configuration.Models.LUMERFAIETA_S);
 									}
 								}
 								break;
 								
-		case LUMERFAIETA_S : for (int a = 0; a< conf.getnants(); a++) {
+		case LUMERFAIETA_M : for (int a = 0; a< conf.getnants(); a++) {
+								if ( ants[a].hasLoad()) {
+									if (ants[a].drop_lumer_faieta(Configuration.Models.LUMERFAIETA_M) == true) ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_M);
+								}
+								else {
+									boolean f = false;
+									while (!f){
+										f = ants[a].pick_lumer_faieta();
+										ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_M);
+									}
+									ants[a].move_lumer_faieta(false,Configuration.Models.LUMERFAIETA_M);
+									}
+								}
+								break;
+								
+		case LUMERFAIETA_R : for (int a = 0; a< conf.getnants(); a++) {
 								if ( ants[a].hasLoad()){
-									if (ants[a].drop_lumer_faieta() == true) ants[a].nextOccupied(true, this.model);
+									if (ants[a].drop_lumer_faieta(Configuration.Models.LUMERFAIETA_R) == true) ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_R);
 									}
 								else {
 									boolean f = false;
 									while (!f){
 										f = ants[a].pick_lumer_faieta();
-										ants[a].nextOccupied(true, this.model);
+										ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_R);
 									}
-									ants[a].nextOccupied(false, this.model);
+									ants[a].move_lumer_faieta(false,Configuration.Models.LUMERFAIETA_R);
 								}
 								}
 								break;
 		case ANTCLASS 		: for (int a = 0; a< conf.getnants(); a++) {
-								ants[a].move();
+								ants[a].move_ant_class();
 								if ( ants[a].hasLoad())
 									ants[a].drop_ant_class();
 								else

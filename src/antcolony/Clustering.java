@@ -71,7 +71,6 @@ import javax.swing.JTextPane;
 
 public class Clustering {
 
-	private Data data;
 	private Configuration conf;
 	private Simulation simul;
 	private JFrame frame;
@@ -110,8 +109,7 @@ public class Clustering {
 	 */
 	private void initialize() {
 		conf = new Configuration();
-		data = new Data(conf);
-		simul = new Simulation(conf,data,this);
+		simul = new Simulation(conf,this);
 		simul.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		frame = new JFrame();
 		frame.setBounds(100, 100, 980, 857);
@@ -255,7 +253,7 @@ public class Clustering {
 			public void actionPerformed(ActionEvent arg0) {
 				JComboBox cb = (JComboBox)arg0.getSource();
 				conf.setModel((Models)cb.getSelectedItem());
-				simul.update(conf,data);
+				simul.update(conf);
 				HashMap<String,Double> h = conf.getParameters();
 				table.setModel(toTableModel(h));			
 			}
@@ -270,8 +268,7 @@ public class Clustering {
 			public void actionPerformed(ActionEvent arg0) {
 				JComboBox cb = (JComboBox)arg0.getSource();
 				conf.setDataset((Datasets)cb.getSelectedItem());
-				data = new Data(conf);
-				simul.update(conf,data);
+				simul.update(conf);
 				simul.repaint();
 				HashMap<String,Double> h = conf.getParameters();
 				table.setModel(toTableModel(h));
@@ -288,8 +285,7 @@ public class Clustering {
 				if (btnStop.getText()=="Restart"){
 					if (runner == null){	
 					synchronized (simul) {
-						data = new Data(conf);
-						simul.update(conf,data);
+						simul.update(conf);
 						simul.repaint();
 						}
 					}
@@ -297,8 +293,7 @@ public class Clustering {
 						//runner.stop();
 						runner = null;
 						synchronized (simul) {
-							data = new Data(conf);
-							simul.update(conf,data);
+							simul.update(conf);
 							simul.repaint();
 							}
 					}

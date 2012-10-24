@@ -103,6 +103,7 @@ private void generate_items() {
 		// Hard-coded test distribution (Uniform Distribution)
 	
 		case UNIFORM9 :	items = new Item[n];
+						conf.setnkeys(5);
 						centers[0][0] = this.conf.getxsize()/6; centers[0][1] = this.conf.getysize()/6;
 						centers[1][0] = this.conf.getxsize()/2; centers[1][1] = this.conf.getysize()/6;
 						centers[2][0] = this.conf.getxsize()/6 * 5; centers[2][1] = this.conf.getysize()/6;
@@ -125,6 +126,7 @@ private void generate_items() {
 		// Hard-coded test distribution (Normal Distribution)
 									
 		case NORMAL4 :	items = new Item[n];
+						conf.setnkeys(5);
 						centers[0][0] = this.conf.getxsize()/4; centers[0][1] = this.conf.getysize()/4;
 						centers[1][0] = this.conf.getxsize()/4 * 3; centers[1][1] = this.conf.getysize()/4;
 						centers[2][0] = this.conf.getxsize()/4; centers[2][1] = this.conf.getysize()/4 * 3;
@@ -145,6 +147,7 @@ private void generate_items() {
 						n = this.readCsvFile("Iris.csv");
 						conf.setTypes(new String[]{"Iris-setosa","Iris-versicolor","Iris-virginica"});
 						conf.setnitems(n);
+						conf.setnkeys(4);
 						items = new Item[n];
 						int cl = 0;
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
@@ -184,6 +187,7 @@ private void generate_items() {
 						n = this.readCsvFile("Wine.csv");
 						conf.setTypes(new String[]{"1","2","3"});
 						conf.setnitems(n);
+						conf.setnkeys(13);
 						items = new Item[n];
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
 						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
@@ -226,6 +230,7 @@ private void generate_items() {
 						n = this.readCsvFile("Glass.csv");
 						conf.setTypes(new String[]{"1","2","3","5","6","7"});
 						conf.setnitems(n);
+						conf.setnkeys(9);
 						items = new Item[n];
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
 						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
@@ -274,6 +279,7 @@ private void generate_items() {
 						n = this.readCsvFile("Breast.csv");
 						conf.setTypes(new String[]{"2","4"});
 						conf.setnitems(n);
+						conf.setnkeys(9);
 						items = new Item[n];
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
 						HashMap<String,Integer> mapy = new HashMap<String,Integer>();

@@ -53,17 +53,16 @@ public class Configuration {
 	// Simulation parameters
 	private int xsize = 100;
 	private int ysize = 100;
-	private String[] symbols = new String[]{"X","O","*","+","&","$","#","%","="};
 	private int[] colors = new int[]{0,255,65280,16711680,16776960,16711935,65535,16753920,16729344};
 	
 	// Model parameters
-	public enum Models {LUMERFAIETA, LUMERFAIETA_S, ANTCLASS};
-	private Models model = Models.LUMERFAIETA;
+	public enum Models {LUMERFAIETA_S, LUMERFAIETA_M, LUMERFAIETA_R, ANTCLASS};
+	private Models model = Models.LUMERFAIETA_S;
 	
 	// Ant parameters
 	private int nants = 30;
 	private int speed = 10;
-	private int memsize = 20;
+	private int memsize = 5;
 	private int sigma = 10;
 	private double kd = 0.001;
 	private double kp = 0.001;
@@ -224,7 +223,7 @@ public class Configuration {
 		if (k == "Alpha")		this.setAlpha(v);
 		if (k == "Kd")			this.setKd(v);
 		if (k == "Kp")			this.setKp(v);
-		if (k == "Speed")		this.setSpeed((int)v);
+		if (k == "Max Speed")	this.setSpeed((int)v);
 		if (k == "Max Carry low") this.setMaxCarryLow(v);
 		if (k == "Max Carry range") this.setMaxCarryRange(v);
 		if (k == "Speed low")	this.setSpeedLow(v);
@@ -241,6 +240,7 @@ public class Configuration {
 		if (k == "T Create range") this.setTCreateRange(v);
 		if (k == "T Remove low") this.setTRemoveLow(v);
 		if (k == "T Remove range") this.setTRemoveRange(v);
+		if (k == "Memory Size") this.setMemsize((int)v);
 	}
 	
 /********** simple access functions ********************************************************************/	
@@ -272,9 +272,6 @@ public class Configuration {
 	}
 	public int getysize() {
 		return this.ysize;
-	}
-	public String[] getSymbols() {
-		return this.symbols;
 	}
 	public int[] getColors() {
 		return this.colors;
@@ -354,24 +351,29 @@ public class Configuration {
 	public HashMap<String,Double> getParameters(){
 		HashMap<String,Double> r = new HashMap<String,Double>();
 		switch(this.model){
-		case LUMERFAIETA : r.put("X size", new Double(this.getxsize()));
-						   r.put("Y size", new Double(this.getysize()));
-						   r.put("N of ants", new Double(this.getnants()));
-						   r.put("N of items", new Double(this.getnitems()));
-						   r.put("N of keys", new Double(this.getnkeys()));
-						   r.put("Sigma", new Double(this.getSigma()));
-						   r.put("Kd", this.getKd());
-						   r.put("Kp", this.getKp());
-						   r.put("Speed", new Double(this.getSpeed()));
-						   break;
-		case LUMERFAIETA_S : 	r.put("X size", new Double(this.getxsize()));
-		   					r.put("Y size", new Double(this.getysize()));
-		   					r.put("N of ants", new Double(this.getnants()));
-		   					r.put("N of items", new Double(this.getnitems()));
-		   					r.put("N of keys", new Double(this.getnkeys()));
-		   					r.put("Sigma", new Double(this.getSigma()));
-		   					r.put("Kd", this.getKd());
-		   					r.put("Kp", this.getKp());
+		case LUMERFAIETA_S : r.put("X size", new Double(this.getxsize()));
+						   	 r.put("Y size", new Double(this.getysize()));
+						   	 r.put("N of ants", new Double(this.getnants()));
+						   	 r.put("Sigma", new Double(this.getSigma()));
+						   	 r.put("Kd", this.getKd());
+						   	 r.put("Kp", this.getKp());
+						   	 r.put("Max Speed", new Double(this.getSpeed()));
+						   	 break;
+		case LUMERFAIETA_M : r.put("X size", new Double(this.getxsize()));
+		   					 r.put("Y size", new Double(this.getysize()));
+		   					 r.put("N of ants", new Double(this.getnants()));
+		   					 r.put("Sigma", new Double(this.getSigma()));
+		   					 r.put("Kd", this.getKd());
+		   					 r.put("Kp", this.getKp());
+		   					 r.put("Max Speed", new Double(this.getSpeed()));
+		   					 r.put("Memory Size", new Double(this.getmemsize()));
+		   					 break;
+		case LUMERFAIETA_R : 	r.put("X size", new Double(this.getxsize()));
+		   						r.put("Y size", new Double(this.getysize()));
+		   						r.put("N of ants", new Double(this.getnants()));
+		   						r.put("Sigma", new Double(this.getSigma()));
+		   						r.put("Kd", this.getKd());
+		   						r.put("Kp", this.getKp());
 		   					break;
 		case ANTCLASS : 	r.put("X size", new Double(this.getxsize()));
 							r.put("Y size", new Double(this.getysize()));

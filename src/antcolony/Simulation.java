@@ -63,15 +63,14 @@ public class Simulation extends JPanel implements Runnable  {
 	private Configuration conf;	
 	private AntColony antColony;
 	private Clustering clustering;
+	private Data data;
 	private Grid grid;
-	private String [] symbols;
 	private int[] colors;
 	private boolean  original = true;
 	private double scale;
 	private boolean stop;
 	private boolean interrupted;
 	private int tick;
-	private String[] measures;
 	private double[][] record;
 	private PrintWriter out;
 	private boolean rec;
@@ -85,17 +84,16 @@ public class Simulation extends JPanel implements Runnable  {
 	* @param data is the items
 	* @param clt the current underlying main application
 	*/
-	public Simulation(Configuration conf, Data data, Clustering clt) {
+	public Simulation(Configuration conf, Clustering clt) {
 		
 		this.conf = conf;
-		this.grid = new Grid(conf,data);
-		this.symbols = conf.getSymbols();
+		this.data = new Data(conf);
+		this.grid = new Grid(conf,this.data);
 		this.colors = conf.getColors();
 		this.scale = 4.0;
 		this.original = true;
 		this.antColony = new AntColony(conf, grid);
 		this.clustering = clt;
-		this.measures = new String[]{"Pearson","Entropy"};
 		this.record = new double[2][10000];
 		this.rec = false;
 	
@@ -105,9 +103,10 @@ public class Simulation extends JPanel implements Runnable  {
 	* @param conf the current parameter settings
 	* @param data is the items
 	*/
-	public void update(Configuration conf, Data data) {	
+	public void update(Configuration conf) {	
 		this.conf = conf;
-		this.grid = new Grid(conf,data);
+		this.data = new Data(conf);
+		this.grid = new Grid(conf,this.data);
 		this.antColony = new AntColony(conf, grid);
 		this.clustering.setText(this.grid.printStats());
 	}
@@ -256,10 +255,8 @@ public class Simulation extends JPanel implements Runnable  {
 	          for (int i=1; i< items.length ;i++){
 	        	  	g.setColor(new Color(colors[items[i].getColor()]));
 	    			  if (this.original)
-//	    			  	g.drawString(symbols[it[i].getType()],(int)(it[i].getinitX()*this.scale), (int)(it[i].getinitY()*this.scale));
 	    				  g.fillRect((int)(items[i].getinitX()*this.scale), (int)(items[i].getinitY()*this.scale),5,5);
 	    			  else
-//    		  		  	g.drawString(symbols[it[i].getType()], (int)(it[i].getX()*this.scale), (int)(it[i].getY()*this.scale));
 	    				  g.fillRect((int)(items[i].getX()*this.scale), (int)(items[i].getY()*this.scale),5,5);			  
 	    	  }
 	  }
@@ -286,12 +283,12 @@ public class Simulation extends JPanel implements Runnable  {
 				  out.println("Data:\n");
 				  out.println("********************************************************\n");
 				  out.print("Tick "+'\t');
-				  for(String s: this.measures)
+				  for(String s: new String[]{"Entropy","Pearson"})
 					  out.print(s + '\t');
 				  out.println();
 				  for (int i=0; i< this.tick;i++){
 					  out.print(Integer.toString(i) +'\t');
-					  for (int j=0; j< this.measures.length; j++)
+					  for (int j=0; j< 2; j++)
 						  out.print(Double.toString(this.record[j][i])+'\t');
 					  out.println();
 					  }
@@ -480,16 +477,19 @@ public class Simulation extends JPanel implements Runnable  {
 				centroids[i]= new Item(-1, this.conf,(int)centers_xy[i][0],(int)centers_xy[i][1],"",0, Arrays.asList(c));
 			}
 		double sum = 0;
+		double inc = 0.0;
 		for (int i=0; i< p.length; i++)
 			if (p[i]!= null){
 				LinkedList<Item> items = p[i].getItems();
 				Iterator<Item> it = items.iterator();
 				while (it.hasNext()){
-					sum+= it.next().distance(centroids[i], 1);
+					sum+= it.next().distance(centroids[i], 2);
+					inc++;
 				}
 			}
-		return sum/(double)p.length;
+		return sum/inc;
 	}
+
 }
 
 
