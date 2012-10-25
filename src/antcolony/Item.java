@@ -119,12 +119,30 @@ public class Item {
 						while (it.hasNext() && it1.hasNext()) sum += Math.pow((Double)it.next()-(Double)it1.next(),2);
 						d = Math.sqrt(sum);
 						break;
+		case 3 :		if (this.type.equals(i.getType())) d=0; else d=1;
+						break;
+						
 		}
 		
 		return d;
 
 	}
 	
+	
+	/* The distance between this item and a vector of item keys
+	 * @param v - vector
+	 */
+
+	public double distance_vector(double[] v) {
+		Iterator<Double> it = this.data.iterator();
+		double sum = 0;
+		int i=0;
+		while (it.hasNext()){
+			sum += Math.pow((Double)it.next()-v[i],2);
+			i++;
+		}
+		return Math.sqrt(sum);
+	}
 			
 /*********** Access & Modification Functions ****************************************************************************/
 

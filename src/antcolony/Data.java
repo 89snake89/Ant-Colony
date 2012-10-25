@@ -36,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -50,7 +49,7 @@ public class Data {
 	
 	private Configuration conf;
 	private Item[] items;          // document collection
-	private Double [] keys;
+	//private Double [] keys;
 	private List<List<String>> csvData;
 	
 
@@ -60,15 +59,9 @@ public class Data {
     
 	public Data(Configuration c) {
 		this.conf = c;
-		generate_keys();
 		generate_items();
 	}
 
-    /** get the dimensionality of the itemspace */
-	public int getnkeys() {
-		return this.keys.length;
-	}
-	
 	/** get the number of items */
 	public int getnitems() {
 		return this.items.length;
@@ -78,11 +71,7 @@ public class Data {
 	public Item[] getItems() {
 		return this.items;
 	}
-	
-	/** retrieve the keyword assigned to each dimension */
-	public Double [] getKeys() {
-		return this.keys;
-	}
+
 
 /*********** hardcoded generation of artificial data *************************************/
 
@@ -118,9 +107,10 @@ private void generate_items() {
 							String t = Integer.toString(type);
 							int x = centers[type][0]+(int)((generator.nextDouble()- 0.5)* this.conf.getxsize()/6);
 							int y = centers[type][1]+(int)((generator.nextDouble()- 0.5)* this.conf.getysize()/6);
-							items[i]=new Item(i,this.conf,x,y,t,type,generate_map(keys,5));
+							items[i]=new Item(i,this.conf,x,y,t,type,generate_map(x,y,5));
 						}
 						conf.setTypes(new String[]{"0","1","2","3","4","5","6","7","8"});
+						conf.setntypes(9);
 						break;
 									
 		// Hard-coded test distribution (Normal Distribution)
@@ -136,9 +126,10 @@ private void generate_items() {
 						String t = Integer.toString(type);
 						int x = centers[type][0]+(int)(generator.nextGaussian()* this.conf.getxsize()/12);
 						int y = centers[type][1]+(int)(generator.nextGaussian()* this.conf.getysize()/12);
-						items[i]=new Item(i,this.conf,x,y,t,type,generate_map(keys,5));
+						items[i]=new Item(i,this.conf,x,y,t,type,generate_map(x,y,5));
 						}
 						conf.setTypes(new String[]{"0","1","2","3"});
+						conf.setntypes(4);
 						break;
 						
 		// Hard-coded IRIS dataset from http://archive.ics.uci.edu/ml/datasets.html
@@ -147,6 +138,7 @@ private void generate_items() {
 						n = this.readCsvFile("Iris.csv");
 						conf.setTypes(new String[]{"Iris-setosa","Iris-versicolor","Iris-virginica"});
 						conf.setnitems(n);
+						conf.setntypes(3);
 						conf.setnkeys(4);
 						items = new Item[n];
 						int cl = 0;
@@ -186,6 +178,7 @@ private void generate_items() {
 		case WINE :		try {
 						n = this.readCsvFile("Wine.csv");
 						conf.setTypes(new String[]{"1","2","3"});
+						conf.setntypes(3);
 						conf.setnitems(n);
 						conf.setnkeys(13);
 						items = new Item[n];
@@ -229,6 +222,7 @@ private void generate_items() {
 		case GLASS :	try {
 						n = this.readCsvFile("Glass.csv");
 						conf.setTypes(new String[]{"1","2","3","5","6","7"});
+						conf.setntypes(6);
 						conf.setnitems(n);
 						conf.setnkeys(9);
 						items = new Item[n];
@@ -278,6 +272,7 @@ private void generate_items() {
 		case BREAST :	try {
 						n = this.readCsvFile("Breast.csv");
 						conf.setTypes(new String[]{"2","4"});
+						conf.setntypes(2);
 						conf.setnitems(n);
 						conf.setnkeys(9);
 						items = new Item[n];
@@ -318,19 +313,14 @@ private void generate_items() {
 		}
 }
 
-private List<Double> generate_map(Double [] k, int l){
+private List<Double> generate_map(int x, int y, int l){
 	List<Double> m = new ArrayList<Double>();
-	Random generator = new Random();
-	for (int i=0; i<l; i++) m.add(i, k[generator.nextInt(k.length)]);
+	double a = (double)x/(double)conf.getxsize();
+	double b = (double)y/(double)conf.getysize();
+	for (int i=0; i<l; i++) m.add(i, (a+b)/2);
 	return m;
 }
 
-
-private void generate_keys(){
-	this.keys = new Double[this.conf.getnkeys()];
-	Random generator = new Random();
-	for (int i=0; i<keys.length; i++) this.keys[i]=generator.nextDouble();
-}
 
 private int readCsvFile(String csvFileName) throws IOException {
 

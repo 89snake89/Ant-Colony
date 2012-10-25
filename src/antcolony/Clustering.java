@@ -404,6 +404,9 @@ public class Clustering {
 		textPane = new JTextPane();
 		textPane.setBounds(406, 599, 557, 220);
 		frame.getContentPane().add(textPane);
+		
+		HashMap<String,Double> h = conf.getParameters();
+		table.setModel(toTableModel(h));
 	
 	}
 	

@@ -80,7 +80,7 @@ public class Grid {
 		this.items = data.getItems();
 		this.num_clusters = this.items.length;
 		this.partition = new Cluster[this.num_clusters];
-		this.clust_apart = conf.getxsize()/5;
+		this.clust_apart = conf.getxsize()/3;
 		for (int i=0; i<this.items.length; i++) this.partition[i]=new Cluster(new Item[]{items[i]});
 		this.heaps = new LinkedList<Heap>();
 		this.cells = new int[this.conf.getxsize()][this.conf.getysize()];
@@ -101,7 +101,8 @@ public class Grid {
 	*/
 	public void scatterItems() {
 		int x, y;
-		clear();
+		clear_cells();
+		clear_heaps();
 			for (int i=0; i<items.length;i++) {
 				while(true){
 					x = (int)Math.floor(this.conf.getxsize() * Math.random());
@@ -119,10 +120,19 @@ public class Grid {
 	/**
 	* Clear the grid
 	*/
-	public void clear() {
+	public void clear_cells() {
 		for (int i=0; i<conf.getxsize(); i++)
 			for (int j=0; j<conf.getysize(); j++){
 				this.cells[i][j]=-1;
+				}
+	}
+	
+	/**
+	* Clear the grid
+	*/
+	public void clear_heaps() {
+		for (int i=0; i<conf.getxsize(); i++)
+			for (int j=0; j<conf.getysize(); j++){
 				this.hcells[i][j]=-1;
 				}
 	}
@@ -266,7 +276,7 @@ public class Grid {
 			int j=0;
 			while (it.hasNext()){
 				LinkedList<Item> list= it.next().getItems();
-				partition[j]= new Cluster(list.toArray(new Item[0]));
+				partition[j]= new Cluster(list.toArray(new Item[list.size()]));
 				j++;
 			}
 		}
@@ -292,12 +302,56 @@ public class Grid {
 					}}
 				}
 				}
-			if (c1!=c2 && min_dist<this.clust_apart) {partition[c1].addElements(partition[c2].getItems());
-			partition[c2]=null;}
-			flag = (min_dist<this.clust_apart);
+			if (c1!=c2) {
+				partition[c1].addElements(partition[c2].getItems());
+				partition[c2]=null;
+				}
+			int count=0;
+			for (int i=0; i<this.items.length; i++) if (this.partition[i]!=null) count++;
+			flag = (count>this.conf.getntypes());
 		}
 		}
 	}
+	
+	
+	public void kmeans(){
+		if (this.heaps.size()>1){
+		double[][] centers = new double[this.heaps.size()][conf.getnkeys()];
+		int[][] centers_xy = new int[this.heaps.size()][2];
+		Iterator<Heap> it = this.heaps.iterator();
+		int i=0;
+		while (it.hasNext()){
+			Heap h = it.next();
+			centers[i] = h.getCenterMass();
+			centers_xy[i][0]= h.getX();
+			centers_xy[i][1]= h.getY();
+			i++;
+		}
+		Heap[] heaps_temp = new Heap[i];
+		for (int j=0; j< this.items.length; j++){
+			double dist_min = Double.MAX_VALUE;
+			int min = 0;
+			for (int l=0; l<i; l++){
+				double dist = this.items[j].distance_vector(centers[l]);
+				if (dist <dist_min) {
+					dist_min = dist;
+					min = l;
+				}
+				}
+			if (heaps_temp[min]== null)
+				heaps_temp[min]= new Heap(min, this.conf,centers_xy[min][0],centers_xy[min][1], this.items[j]);
+			else
+				heaps_temp[min].putItem(this.items[j]);
+		}
+		clear_cells();
+		this.heaps = new LinkedList<Heap>();
+		clear_heaps();
+		for (int l=0; l<i; l++) 
+			if (heaps_temp[l]!= null)
+				set_heap(heaps_temp[l].getX(),heaps_temp[l].getY(),heaps_temp[l]);
+		}
+	}
+	
 	/**** simple manipulation *******************************************************/
 	
 	

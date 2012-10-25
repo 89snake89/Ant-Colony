@@ -45,6 +45,7 @@ public class Configuration {
 	private int nitems = 200;
 	private int dmeasure = 2;
 	private String[] types = new String[]{"0","1","2","3","4","5","6","7","8"};
+	private int ntypes = 9;
 	
 	// Item Parameters
 	private int nkeys = 5;
@@ -61,9 +62,9 @@ public class Configuration {
 	
 	// Ant parameters
 	private int nants = 30;
-	private int speed = 10;
+	private int max_speed = 20;
 	private int memsize = 5;
-	private int sigma = 10;
+	private int sigma = 5;
 	private double kd = 0.001;
 	private double kp = 0.001;
 	private double alpha = 1.0;
@@ -129,7 +130,10 @@ public class Configuration {
 	}
 	public void setnkeys(int value) {
 		this.nkeys = value;
-	}	
+	}
+	public void setntypes(int value) {
+		this.ntypes = value;
+	}
 	public void setMaxitemsize(int value) {
 		this.maxitemsize = value;
 	}
@@ -139,8 +143,8 @@ public class Configuration {
 	public void setSigma(int value) {
 		this.sigma = value;
 	}
-	public void setSpeed(int value) {
-		this.speed = value;
+	public void setMaxSpeed(int value) {
+		this.max_speed = value;
 	}
 	
 	public void setMaxCarryLow(double value){
@@ -223,7 +227,7 @@ public class Configuration {
 		if (k == "Alpha")		this.setAlpha(v);
 		if (k == "Kd")			this.setKd(v);
 		if (k == "Kp")			this.setKp(v);
-		if (k == "Max Speed")	this.setSpeed((int)v);
+		if (k == "Max Speed")	this.setMaxSpeed((int)v);
 		if (k == "Max Carry low") this.setMaxCarryLow(v);
 		if (k == "Max Carry range") this.setMaxCarryRange(v);
 		if (k == "Speed low")	this.setSpeedLow(v);
@@ -285,14 +289,17 @@ public class Configuration {
 	public int getnkeys() {
 		return this.nkeys;
 	}
+	public int getntypes() {
+		return this.ntypes;
+	}
 	public int getMaxitemsize(){
 		return this.maxitemsize;
 	}
 	public int getSigma() {
 		return this.sigma;
 	}
-	public int getSpeed() {
-		return this.speed;
+	public int getMaxSpeed() {
+		return this.max_speed;
 	}
 	public double getMaxCarryLow(){
 		return this.max_carry_low;
@@ -357,7 +364,7 @@ public class Configuration {
 						   	 r.put("Sigma", new Double(this.getSigma()));
 						   	 r.put("Kd", this.getKd());
 						   	 r.put("Kp", this.getKp());
-						   	 r.put("Max Speed", new Double(this.getSpeed()));
+						   	 r.put("Max Speed", new Double(this.getMaxSpeed()));
 						   	 break;
 		case LUMERFAIETA_M : r.put("X size", new Double(this.getxsize()));
 		   					 r.put("Y size", new Double(this.getysize()));
@@ -365,7 +372,7 @@ public class Configuration {
 		   					 r.put("Sigma", new Double(this.getSigma()));
 		   					 r.put("Kd", this.getKd());
 		   					 r.put("Kp", this.getKp());
-		   					 r.put("Max Speed", new Double(this.getSpeed()));
+		   					 r.put("Max Speed", new Double(this.getMaxSpeed()));
 		   					 r.put("Memory Size", new Double(this.getmemsize()));
 		   					 break;
 		case LUMERFAIETA_R : 	r.put("X size", new Double(this.getxsize()));
@@ -396,6 +403,7 @@ public class Configuration {
 							r.put("T Create range", new Double(this.getTCreateRange()));
 							r.put("T Remove low", new Double(this.getTRemoveLow()));
 							r.put("T Remove range", new Double(this.getTRemoveRange()));
+		   					r.put("Memory Size", new Double(this.getmemsize()));
 							break;
 		}
 		return r;

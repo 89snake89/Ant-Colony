@@ -37,6 +37,7 @@ private Item load;
 private int x,y;
 private int xsize, ysize;
 private int speed;
+private int max_speed;
 private int direction;
 private LinkedList<Heap> memory_h;
 private LinkedList<Item> memory_i;
@@ -75,10 +76,11 @@ public Ant(Grid grid, Configuration conf) {
 	this.load.setPicked(true);
 	this.has_load = 1;
 	grid.remove_item(this.x,this.y);
-	this.d_max = Math.sqrt(this.load.getData().size()*Math.sqrt(2));
+	this.d_max = Math.sqrt((double)this.load.getData().size());
 	this.fail = 0;
 	this.max_carry = (int)(conf.getMaxCarryLow() * Math.random()* conf.getMaxCarryRange());
 	this.speed = (int)(conf.getSpeedLow()+ Math.random() * conf.getSpeedRange());
+	this.max_speed = conf.getMaxSpeed();
 	this.p_load = conf.getPLoadLow()+ Math.random() * conf.getPLoadRange();
 	this.p_drop = conf.getPDropLow()+ Math.random() * conf.getPDropRange();
 	this.p_destroy = conf.getPDestroyLow() + Math.random() * conf.getPDestroyRange();
@@ -145,10 +147,9 @@ private double pdrop(double f) {
 * */
 
 public boolean pick_lumer_faieta() {
-	
-	if (grid.occupied_item(this.x,this.y)) {											
-        double f = grid.densityAt(this.x,this.y, grid.getItemAt(this.x, this.y));
-		if (Math.random() < ppick(f)) {
+	if (grid.occupied_item(this.x,this.y)) {	
+    double f = grid.densityAt(this.x,this.y, grid.getItemAt(this.x, this.y));
+	if (Math.random() < ppick(f)) {
 			this.load = grid.getItemAt(this.x,this.y);
 			this.load.setPicked(true);
 			updateMemoryItem(this.load);
@@ -164,21 +165,14 @@ public boolean pick_lumer_faieta() {
 * @return report on the success of drop operation
 */
 
-public boolean drop_lumer_faieta(Configuration.Models m) {
+public boolean drop_lumer_faieta() {
 	double f = grid.densityAt(this.x,this.y,this.load);	
 	if ((fail == 100) || (Math.random() < pdrop(f))) {
-		fail = 0;
 		if (!grid.occupied_item(this.x,this.y)) {
 			this.load.setPicked(false);
 			grid.set_item(this.x, this.y, this.load);
 			this.load = null;
-			return true;
-		}
-		else { 
-			this.move_lumer_faieta(false, m);
-			this.load.setPicked(false);
-			grid.set_item(this.x, this.y, this.load);
-			this.load = null;
+			fail = 0;
 			return true;
 		}
 	}
@@ -195,17 +189,22 @@ public boolean drop_lumer_faieta(Configuration.Models m) {
     
 public void move_lumer_faieta(boolean f, Configuration.Models model) {	
 	
-	boolean loop = true;
-	
 	switch (model) {
+	
+	case LUMERFAIETA_M : 	if (this.load != null && this.memory_i.size() > 0){
+								Item i = this.getMostSimilar(this.load);
+								this.x = i.getX();
+								this.y = i.getY();
+							}
 		
-	case LUMERFAIETA_S : 	int step = 1;
+	case LUMERFAIETA_S : 	int step = 2;
+							boolean loop = true;
 							while (loop) {
-								for (int i = 0; i< conf.getSpeed(); i++) {
+								for (int i = 0; i< this.max_speed; i++) {
 									int xpart = (int)Math.round(step * Math.random());
 									int ypart = step - xpart;
 												
-									if ( Math.random() < 0.5) xpart = -xpart;
+									if (Math.random() < 0.5) xpart = -xpart;
 									if (Math.random() < 0.5) ypart = -ypart;
 												
 									int x_coor = this.x + xpart;
@@ -225,59 +224,34 @@ public void move_lumer_faieta(boolean f, Configuration.Models model) {
 								step++;
 							}
 							break;
-					
-	case LUMERFAIETA_M : 	if (this.load != null && this.memory_i.size() > 0){
-								Item i = this.getMostSimilar(this.load);
-								this.x = i.getX();
-								this.y = i.getY();
-							}
-							step = 1;
-							while (loop) {
-								for (int i = 0; i< conf.getSpeed(); i++) {
-									int xpart = (int)Math.round(step * Math.random());
-									int ypart = step - xpart;
-						
-									if ( Math.random() < 0.5) xpart = -xpart;
-									if (Math.random() < 0.5) ypart = -ypart;
-						
-									int x_coor = this.x + xpart;
-									int	y_coor = this.y + ypart;
-									if (x_coor < 0) x_coor = xsize + x_coor%xsize;
-									if (x_coor >= xsize) x_coor = x_coor%xsize;
-									if (y_coor < 0) y_coor = ysize + y_coor%ysize;
-									if (y_coor >= ysize) y_coor = y_coor%ysize;
-
-									if (grid.occupied_item(x_coor,y_coor) == f) {
-										this.x = x_coor;
-										this.y = y_coor;
-										loop = false;
-									}
-
-								}
-								step++;
-							}
-							break;
-					
-	case LUMERFAIETA_R : 	while (loop) {
-							int x_coor = (int)(Math.random()*conf.getxsize());
-							int	y_coor = (int)(Math.random()*conf.getysize());
-							if (grid.occupied_item(x_coor,y_coor) == f) {
-								if (this.load != null && !f){
-									if (grid.densityAt(x_coor, y_coor, this.load)> 0.0){
-										this.x = x_coor;
-										this.y = y_coor;
-										loop = false;
-									}
-								}
-								else {
-								this.x = x_coor;
-								this.y = y_coor;
-								loop = false;
-								}
-							}
-						}
-						break;
 	}}
+
+
+public void move_random_item(boolean f, Item it){
+	boolean loop = true;
+	while (loop) {
+		int x_coor = (int)(Math.random()*conf.getxsize());
+		int	y_coor = (int)(Math.random()*conf.getysize());
+		if (grid.occupied_item(x_coor,y_coor) == f && this.grid.densityAt(x_coor, y_coor, it)> 0.0) {
+			this.x = x_coor;
+			this.y = y_coor;
+			loop = false;
+		}
+	}
+}
+
+public void move_random(boolean f){
+	boolean loop = true;
+	while (loop) {
+		int x_coor = (int)(Math.random()*conf.getxsize());
+		int	y_coor = (int)(Math.random()*conf.getysize());
+		if (grid.occupied_item(x_coor,y_coor) == f) {
+			this.x = x_coor;
+			this.y = y_coor;
+			loop = false;
+		}
+	}
+}
 						
 public void scatter() {
 	
@@ -368,7 +342,7 @@ public void drop_ant_class(){
 				if (x_coor >= xsize) x_coor = x_coor%xsize;
 				if (y_coor < 0) y_coor = ysize + y_coor%ysize;
 				if (y_coor >= ysize) y_coor = y_coor%ysize;
-				if (!grid.occupied(x_coor, y_coor)&& (Math.random()< this.p_drop || this.has_load > this.max_carry)){
+				if ((!grid.occupied(x_coor, y_coor)&& (Math.random()< this.p_drop) || (!grid.occupied(x_coor, y_coor)&& this.has_load > this.max_carry))){
 					grid.set_item(x_coor, y_coor, this.load);
 					this.load=null;
 					this.has_load = 0;
@@ -376,7 +350,6 @@ public void drop_ant_class(){
 				}
 				if (grid.occupied_item(x_coor, y_coor)){
 					Item it = grid.getItemAt(x_coor, y_coor);
-					this.calcDmax();
 					if (it.distance(this.load, 2)/this.d_max < this.t_create){
 						grid.remove_item(x_coor, y_coor);
 						grid.set_heap(x_coor, y_coor, new Heap(x_coor+y_coor*this.xsize,conf,x_coor,y_coor,it,this.load));
@@ -388,7 +361,7 @@ public void drop_ant_class(){
 				if (grid.occupied_heap(x_coor, y_coor)){
 					Heap h = grid.getHeapAt(x_coor, y_coor);
 					this.updateMemoryHeap(h);
-					if (h.computeDistanceCenterMass(this.load) > h.getMaxDissimilar()){
+					if (h.computeDistanceCenterMass(this.load) < h.getMaxDissimilar()){
 						h.putItem(this.load);
 						this.load=null;
 						this.has_load = 0;
@@ -396,15 +369,6 @@ public void drop_ant_class(){
 						}
 				}
 			}
-}
-
-private void calcDmax(){
-	LinkedList<Heap> list=this.grid.getHeaps();
-	Iterator<Heap> it = list.iterator();
-	while(it.hasNext()){
-		double d=it.next().getMaxDistance();
-		if (d >= this.d_max) this.d_max = d;
-	}	
 }
 
 private void updateMemoryHeap(Heap h){
@@ -415,6 +379,11 @@ private void updateMemoryHeap(Heap h){
 private void updateMemoryItem(Item i){
 	this.memory_i.addLast(i);
 	if (this.memory_i.size() > conf.getmemsize()) this.memory_i.removeFirst();
+}
+
+public void cleanMemory(){
+	this.memory_h = new LinkedList<Heap>();
+	this.memory_i = new LinkedList<Item>();
 }
 
 private Item getMostSimilar(Item it){

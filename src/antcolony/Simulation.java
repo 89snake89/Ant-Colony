@@ -202,6 +202,10 @@ public class Simulation extends JPanel implements Runnable  {
             	this.antColony.sort();
             	this.repaint();	
             	if (this.tick%100==0) {
+                	if (this.conf.getModel()==Configuration.Models.ANTCLASS) {
+                		this.grid.kmeans();
+                		this.antColony.cleanMemories();
+                	}
                 	this.clustering.setText(this.grid.printStats());
                 	pearson = computePearson(true);
                 	this.clustering.setPearsons(pearson);
@@ -396,7 +400,7 @@ public class Simulation extends JPanel implements Runnable  {
 		for (int j=0; j< p.length;j++)
 			for (int i=0;i<types.length;i++)
 				if (p[j]!= null) 
-					F[i][j]= 2 * prec[i][j] * recl[i][j] / (prec[i][j] + recl[i][j]);
+					F[i][j]= 2* prec[i][j] * recl[i][j] / (prec[i][j] + recl[i][j]);
 		
 		for (int i=0;i<types.length;i++){
 			F_max[i]=0;

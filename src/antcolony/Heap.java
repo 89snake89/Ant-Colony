@@ -45,7 +45,7 @@ import java.util.LinkedList;
 public class Heap {
 	private int id;							// id of the heap
 	private int x,y;						// coordinates of the heap
-	private int dim;						// item dimension
+	private Configuration conf;
 	private double max_distance;			// the maximum distance between two objects
 	private double[]  center_of_mass;			// the object corresponding to the center of mass of this heap
 	private int most_dissimilar; 			// the most dissimilar object
@@ -56,16 +56,29 @@ public class Heap {
 /*********** Constructor ****************************************************************************/
 
 
-	/** Constructor given a grid position and initial data*/
+	/** Constructor given a grid position and two initial items*/
 	public Heap(int i, Configuration c, int x_i, int y_i, Item it1, Item it2) {
+		this.conf = c;
 		this.id = i;
 		this.x = x_i;
 		this.y = y_i;
 		this.items = new LinkedList<Item>();
+		it1.setXY(x_i, y_i);
 		this.items.add(it1);
-		this.dim = it1.getData().size();
-		this.center_of_mass = new double[this.dim];
+		this.center_of_mass = new double[conf.getnkeys()];
 		this.putItem(it2);
+	}
+	
+	/** Constructor given a grid position and initial item*/
+	public Heap(int i, Configuration c, int x_i, int y_i, Item it1) {
+		this.conf = c;
+		this.id = i;
+		this.x = x_i;
+		this.y = y_i;
+		this.items = new LinkedList<Item>();
+		it1.setXY(x_i, y_i);
+		this.items.add(it1);
+		this.center_of_mass = new double[conf.getnkeys()];
 	}
 			
 /*********** Access & Modification Functions ****************************************************************************/
@@ -147,7 +160,7 @@ public class Heap {
 /*********** Calculate values ****************************************************************************/
 
 public void computeCenterMass(){
-	for (int i=0; i<dim; i++) this.center_of_mass[i]=0;
+	for (int i=0; i<conf.getnkeys(); i++) this.center_of_mass[i]=0;
 	Iterator<Item> it = this.items.iterator();
 	while (it.hasNext()){
 		Item i = it.next();
@@ -158,13 +171,13 @@ public void computeCenterMass(){
 			j++;
 		}
 	}
-	for (int i=0; i<dim; i++) center_of_mass[i]=center_of_mass[i]/dim;
+	for (int i=0; i<conf.getnkeys(); i++) center_of_mass[i]=center_of_mass[i]/(double)this.items.size();
 }
 
 public double computeDistanceCenterMass(Item i){
 		Iterator<Double> it = i.getData().iterator();
 		int j=0;
-		double sum = 0;
+		double sum = 0.0;
 		while (it.hasNext()){
 			sum += Math.pow(this.center_of_mass[j] - (Double)it.next(),2);
 			j++;
@@ -188,10 +201,7 @@ public void computeMostDissimilar(){
 public void computeMeanDistance(){
 	Iterator<Item> it = this.items.iterator();
 	double mean_d = 0;
-	while (it.hasNext()){
-		Item i = it.next();
-		mean_d += this.computeDistanceCenterMass(i);
-	}	
+	while (it.hasNext())mean_d += this.computeDistanceCenterMass(it.next());
 	this.mean_distance = mean_d / (double)this.items.size();
 }
 
@@ -199,12 +209,8 @@ public void putItem(Item i){
 	Iterator<Item> it = this.items.iterator();
 	while (it.hasNext()){
 		Item j = it.next();
-		Iterator<Double> it1 = i.getData().iterator();
-		Iterator<Double> it2 = j.getData().iterator();
-		double sum = 0;
-		while (it1.hasNext()) sum += Math.pow((it2.next()- it1.next()),2);
-		sum = Math.sqrt(sum);
-		if (sum > this.max_distance)this.max_distance = sum;
+		double dist = i.distance(j, 2);
+		if (dist > this.max_distance)this.max_distance = dist;
 		}
 	i.setXY(this.x, this.y);
 	this.items.add(i);

@@ -83,7 +83,8 @@ public class AntColony {
 		
 		case LUMERFAIETA_S : for (int a = 0; a< conf.getnants(); a++) {
 								if ( ants[a].hasLoad()) {
-									if (ants[a].drop_lumer_faieta(Configuration.Models.LUMERFAIETA_S) == true) ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_S);
+									if (ants[a].drop_lumer_faieta() == true) 
+										ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_S);
 									}
 								else {
 									boolean f = false;
@@ -98,7 +99,8 @@ public class AntColony {
 								
 		case LUMERFAIETA_M : for (int a = 0; a< conf.getnants(); a++) {
 								if ( ants[a].hasLoad()) {
-									if (ants[a].drop_lumer_faieta(Configuration.Models.LUMERFAIETA_M) == true) ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_M);
+									if (ants[a].drop_lumer_faieta() == true) 
+										ants[a].move_random(true);
 								}
 								else {
 									boolean f = false;
@@ -106,22 +108,23 @@ public class AntColony {
 										f = ants[a].pick_lumer_faieta();
 										ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_M);
 									}
-									ants[a].move_lumer_faieta(false,Configuration.Models.LUMERFAIETA_M);
+									ants[a].move_random_item(false,ants[a].getLoad());
 									}
 								}
 								break;
 								
 		case LUMERFAIETA_R : for (int a = 0; a< conf.getnants(); a++) {
 								if ( ants[a].hasLoad()){
-									if (ants[a].drop_lumer_faieta(Configuration.Models.LUMERFAIETA_R) == true) ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_R);
+									if (ants[a].drop_lumer_faieta() == true) 
+										ants[a].move_random(true);
 									}
 								else {
 									boolean f = false;
 									while (!f){
 										f = ants[a].pick_lumer_faieta();
-										ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_R);
+										ants[a].move_random(true);
 									}
-									ants[a].move_lumer_faieta(false,Configuration.Models.LUMERFAIETA_R);
+									ants[a].move_random_item(false,ants[a].getLoad());
 								}
 								}
 								break;
@@ -134,6 +137,11 @@ public class AntColony {
 								}
 								break;
 		}	
+	}
+	
+	
+	public void cleanMemories(){
+		for (int a = 0; a< conf.getnants(); a++) ants[a].cleanMemory();
 	}
 
 }
