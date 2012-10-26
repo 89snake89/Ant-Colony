@@ -262,10 +262,21 @@ public class Grid {
 		}
 		for (int i=0; i<partition.length; i++) if (partition[i]!=null) this.num_clusters++;
 		if (sum2 < sum4) System.out.println("sum wrong");
+
+		int su=0;
+		for (int i=0; i< conf.getxsize();i++)
+			for (int j=0; j< conf.getxsize();j++)
+				if (this.occupied_heap(i,j)) su++;
+
+		if (this.heaps.size() > su) {
+			System.out.println("error heap reference on grid");
+			System.exit(-1);
+			}
+		
 		return "Cells occupied by items: "+ sum1+"\nCells occupied by heaps: "+
-				sum2+"   \nItems picked: "+sum3+"\nNumber of heaps: "+ sum4+
-				"\nAverage heap size: "+ sum5/(sum4+1)+"\nMaximum heap size: "+ maxh+
-				"\nNumber of clusters: "+ num_clusters +"\n";
+		sum2+"   \nItems picked: "+sum3+"\nNumber of heaps: "+ sum4+
+		"\nAverage heap size: "+ sum5/(sum4+1)+"\nMaximum heap size: "+ maxh+
+		"\nNumber of clusters: "+ num_clusters +"\n";
 	}
 
 	
@@ -315,7 +326,7 @@ public class Grid {
 	
 	
 	public void kmeans(){
-		if (this.heaps.size()>1){
+		if (this.heaps.size()>0){
 		double[][] centers = new double[this.heaps.size()][conf.getnkeys()];
 		int[][] centers_xy = new int[this.heaps.size()][2];
 		Iterator<Heap> it = this.heaps.iterator();
@@ -339,7 +350,7 @@ public class Grid {
 				}
 				}
 			if (heaps_temp[min]== null)
-				heaps_temp[min]= new Heap(min, this.conf,centers_xy[min][0],centers_xy[min][1], this.items[j]);
+				heaps_temp[min]= new Heap(min+1, this.conf,centers_xy[min][0],centers_xy[min][1], this.items[j]);
 			else
 				heaps_temp[min].putItem(this.items[j]);
 		}
@@ -399,12 +410,6 @@ public class Grid {
 				it.remove();
 				this.hcells[x][y]=-1;
 			}
-		int sum=0;
-		for (int i=0; i< conf.getxsize();i++)
-			for (int j=0; j< conf.getxsize();j++)
-				if (occupied_heap(i,j)) sum++;
-
-		if (this.heaps.size() > sum) System.exit(-1);
 	}
 	
 	/**** measures on the grid *******************************************************/

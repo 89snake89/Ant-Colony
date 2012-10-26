@@ -268,6 +268,7 @@ public void scatter() {
 
 
 public void move_ant_class(){
+
 	if (this.has_load > 0 && this.memory_h.size() > 0){
 		Heap h = this.memory_h.removeFirst();
 		this.x = h.getX() + 1;
@@ -311,6 +312,7 @@ public void pick_ant_class(){
 				}
 				if (grid.occupied_heap(x_coor, y_coor)){
 					Heap h = grid.getHeapAt(x_coor, y_coor);
+					System.out.println(h+" "+ x_coor+" "+y_coor);
 					this.updateMemoryHeap(h);
 					if (h.getSize()==2) {
 						if(Math.random() < this.p_destroy) {
@@ -360,6 +362,7 @@ public void drop_ant_class(){
 				}
 				if (grid.occupied_heap(x_coor, y_coor)){
 					Heap h = grid.getHeapAt(x_coor, y_coor);
+					System.out.println(h + ":"+x_coor+":"+y_coor);
 					this.updateMemoryHeap(h);
 					if (h.computeDistanceCenterMass(this.load) < h.getMaxDissimilar()){
 						h.putItem(this.load);
@@ -371,8 +374,8 @@ public void drop_ant_class(){
 			}
 }
 
-private void updateMemoryHeap(Heap h){
-	this.memory_h.addLast(h);
+private void updateMemoryHeap(Heap hp){
+	this.memory_h.addLast(hp);
 	if (this.memory_h.size() > conf.getmemsize()) this.memory_h.removeFirst();
 }
 
