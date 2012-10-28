@@ -51,6 +51,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
+
 import javax.swing.JPanel;
 import java.util.Iterator;
 
@@ -197,22 +199,26 @@ public class Simulation extends JPanel implements Runnable  {
 		double F_m;
 		double rand;
 		double InnVar;
+		boolean heap_f = false;
         while (!stop) {
             try {            	
-            	this.antColony.sort();
-            	this.repaint();	
+            	this.antColony.sort(heap_f);
+            	this.grid.decPheromone();
+            	this.repaint();
             	if (this.tick%100==0) {
                 	if (this.conf.getModel()==Configuration.Models.ANTCLASS) {
                 		this.grid.kmeans();
+                		heap_f = !heap_f;
                 		this.antColony.cleanMemories();
                 	}
                 	this.clustering.setText(this.grid.printStats());
                 	pearson = computePearson(true);
                 	this.clustering.setPearsons(pearson);
-                	entropy = computeEntropy();
+                	entropy = computeEntropy(true);
                 	this.clustering.setEntropy(entropy);
             		this.grid.calculateClusters();
             		F_m = computeFMeasure();
+            		if (F_m>0.9) System.exit(-1);
             		this.clustering.setF(F_m);
             		rand = computeRand();
             		this.clustering.setRand(rand);
@@ -255,13 +261,13 @@ public class Simulation extends JPanel implements Runnable  {
 	*/
 	  public void paint(Graphics g){
 	      super.paint(g);
-	          Item[] items = this.grid.getItems();
-	          for (int i=1; i< items.length ;i++){
-	        	  	g.setColor(new Color(colors[items[i].getColor()]));
+	          HashMap<UUID,Item> items = this.grid.getItems();
+	          for (Item it : items.values()){
+	        	  	g.setColor(new Color(colors[it.getColor()]));
 	    			  if (this.original)
-	    				  g.fillRect((int)(items[i].getinitX()*this.scale), (int)(items[i].getinitY()*this.scale),5,5);
+	    				  g.fillRect((int)(it.getinitX()*this.scale), (int)(it.getinitY()*this.scale),5,5);
 	    			  else
-	    				  g.fillRect((int)(items[i].getX()*this.scale), (int)(items[i].getY()*this.scale),5,5);			  
+	    				  g.fillRect((int)(it.getX()*this.scale), (int)(it.getY()*this.scale),5,5);			  
 	    	  }
 	  }
 
@@ -319,15 +325,16 @@ public class Simulation extends JPanel implements Runnable  {
 		double xsquaresum = 0;
 		double ysquaresum = 0;
 		double N = 0;
-		Item[] items = this.grid.getItems();
+		HashMap<UUID,Item> items = this.grid.getItems();
 		DistanceMatrix d = this.grid.getDistanceMatrix();	
-		for (int i=0; i<items.length;i++) {
-			if (ignore && items[i].isPicked()) continue;
-			for (int j=0; j < i; j++) {
-				if (ignore && items[j].isPicked()) continue;
+		for (UUID key : items.keySet()) {
+			if (ignore && items.get(key).isPicked()) continue;
+			for (UUID key1 : items.keySet())  {
+				if (ignore && items.get(key1).isPicked()) continue;
+				if (key.equals(key1)) continue;
 				N++;
-				double x = Math.abs(d.get(i, j));
-				double y = Math.abs(items[i].distance(items[j], 1));
+				double x = Math.abs(d.get(key, key1));
+				double y = Math.abs(items.get(key).distance(items.get(key1), 1));
 				xsum += x;
 				xsquaresum += (x*x);
 				ysum += y;
@@ -344,15 +351,15 @@ public class Simulation extends JPanel implements Runnable  {
 	/** Compute Entropy
 	* @return Entropy computed for the entire grid
 	*/
-	public double computeEntropy() {
+	public double computeEntropy(boolean ignore) {
 		int xdim = (int)Math.floor(conf.getxsize()/10);
 		int ydim = (int)Math.floor(conf.getysize()/10);
 		double[][] bins = new double[xdim][ydim];
-		Item[] items =this.grid.getItems();
+		HashMap<UUID,Item> items = this.grid.getItems();
 		double count = 0;
-		for (int i=0; i<items.length;i++) {
-			if(items[i].isPicked()) continue;
-			bins[(int)Math.floor(items[i].getX()/10)][(int)Math.floor(items[i].getY()/10)]++;
+		for (UUID key : items.keySet()) {
+			if (ignore && items.get(key).isPicked()) continue;
+			bins[(int)Math.floor(items.get(key).getX()/10)][(int)Math.floor(items.get(key).getY()/10)]++;
 			count++;
 		}
 		double sum = 0;
@@ -370,12 +377,12 @@ public class Simulation extends JPanel implements Runnable  {
 	*/
 	public double computeFMeasure(){
 		Cluster[] p = this.grid.getClusters();
-		Item[]    items = this.grid.getItems();
+		HashMap<UUID,Item> items = this.grid.getItems();
 		String[] types = this.conf.getTypes();
 		double[] count_i = new double[types.length];
-		for (int j=0; j<items.length; j++)
+		for (UUID key : items.keySet()) 
 			for (int i=0; i<types.length;i++)
-				if (items[j].getType().equals(types[i])) count_i[i]++;
+				if (items.get(key).getType().equals(types[i])) count_i[i]++;
 		double[][] prec = new double[types.length][p.length];
 		double[][] recl = new double[types.length][p.length];
 		double[][] F = new double[types.length][p.length];
@@ -408,7 +415,7 @@ public class Simulation extends JPanel implements Runnable  {
 		}
 		double F_measure = 0;
 			for (int i=0;i<types.length;i++)
-				F_measure += count_i[i] / items.length * F_max[i];	
+				F_measure += count_i[i] / items.size() * F_max[i];	
 		return F_measure;
 	}
 	
@@ -417,31 +424,32 @@ public class Simulation extends JPanel implements Runnable  {
 	*/
 	public double computeRand() {
 		Cluster[] p = this.grid.getClusters();
-		int[] part = new int[conf.getnitems()];
-		int[] clust = new int[conf.getnitems()];
+		HashMap<UUID,Integer> part = new HashMap<UUID,Integer>();
+		HashMap<UUID,Integer> clust = new HashMap<UUID,Integer>();
 		for (int i=0; i< p.length; i++)
 			if (p[i]!= null){
 				LinkedList<Item> items = p[i].getItems();
 				Iterator<Item> it = items.iterator();
-				while(it.hasNext()) part[it.next().getID()]=i+1;
+				while(it.hasNext()) part.put(it.next().getID(),i+1);
 			}
 
-		Item[] items = this.grid.getItems();
+		HashMap<UUID,Item> items = this.grid.getItems();
 		String[] types = this.conf.getTypes();
-		for (int i=0; i<items.length;i++)
-			for (int j=0; j< this.conf.getTypes().length; j++)
-				if (items[i].getType().equals(types[j])) clust[items[i].getID()]=j+1;
+		for (UUID key : items.keySet())
+			for (int i=0; i< this.conf.getTypes().length; i++)
+				if (items.get(key).getType().equals(types[i])) clust.put(key,i+1);
 		
 		int a=0;
 		int b=0;
 		int c=0;
 		int d=0;
-		for (int i=0; i<items.length-1;i++)
-			for (int j=i+1; j<items.length;j++){
-					if (clust[i]==clust[j] && part[i]==part[j]) a++;
-					if (clust[i]==clust[j] && part[i]!=part[j]) b++;
-					if (clust[i]!=clust[j] && part[i]==part[j]) c++;
-					if (clust[i]!=clust[j] && part[i]!=part[j]) d++;
+		for (UUID key : items.keySet())
+			for (UUID key1 : items.keySet()){
+					if (key == key1) continue;
+					if (clust.get(key)==clust.get(key1) && part.get(key)==part.get(key1)) a++;
+					if (clust.get(key)==clust.get(key1) && part.get(key)!=part.get(key1)) b++;
+					if (clust.get(key)!=clust.get(key1) && part.get(key)==part.get(key1)) c++;
+					if (clust.get(key)!=clust.get(key1) && part.get(key)!=part.get(key1)) d++;
 				}
 		return ((double)(a+d))/((double) (a+b+c+d));
 	}
@@ -478,7 +486,7 @@ public class Simulation extends JPanel implements Runnable  {
 		for (int i=0; i< p.length; i++) 
 			if (p[i]!= null) {
 				Double[] c = centers[i];
-				centroids[i]= new Item(-1, this.conf,(int)centers_xy[i][0],(int)centers_xy[i][1],"",0, Arrays.asList(c));
+				centroids[i]= new Item(UUID.randomUUID(), this.conf,(int)centers_xy[i][0],(int)centers_xy[i][1],"",0, Arrays.asList(c));
 			}
 		double sum = 0;
 		double inc = 0.0;

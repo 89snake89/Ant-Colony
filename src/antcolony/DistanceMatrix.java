@@ -35,54 +35,45 @@
 
 package antcolony;
 
+import java.util.HashMap;
+import java.util.UUID;
+
 public class DistanceMatrix {
 
 	private double scaleFactor;
-	private Item[] items;
+	private HashMap<UUID,Item> items;
+	private HashMap<UUID,Integer> dictionary;
 	private double [][] matrix;
 
 	public DistanceMatrix(Data data, Configuration conf) {
 		items = data.getItems();
-		matrix = new double[items.length][items.length];
+		dictionary = new HashMap<UUID,Integer>();
+		int i=0;
+		for (UUID key: items.keySet()) {
+			dictionary.put(key, i);
+			i++;
+		}
+		matrix = new double[items.size()][items.size()];
 
-		for (int i=0; i<items.length; i++) matrix[i] = new double[i+1];
+		for (UUID key: items.keySet())  matrix[dictionary.get(key)] = new double[items.size()];
 		scaleFactor = 0;
-		for (int i=1; i<=items.length; i++) {
-			for (int j=0; j<i; j++) {
-				matrix[i-1][j] = (double)items[i-1].distance(items[j],conf.getDMeasure());
-				scaleFactor += matrix[i-1][j];
+		for (UUID key: items.keySet())  {
+			for (UUID key1: items.keySet()) {
+				double d = (double)items.get(key).distance(items.get(key1),2);
+				matrix[dictionary.get(key)][dictionary.get(key1)] = d;
+				scaleFactor += d;
 			}
 		}
-		// compute the scale factor (average over all inter-item distances)
-		scaleFactor /= 0.5*(double)(items.length*(items.length - 1));
+		scaleFactor /= (double)(items.size()*(items.size() - 1));
 	}
 
 	public double getScaleFactor(){
 		return scaleFactor;
 	}
 	
-	public double get(int i, int j) {
+	public double get(UUID i, UUID j) {
 		if (i==j) return 0;
-		if (i < j) return matrix[j-1][i];
-		else return matrix[i-1][j];
+		else return matrix[dictionary.get(i)][dictionary.get(j)];
 	}
-
-	public void set(int i, int j, double value) {
-		if (i==j) return;
-		if (i < j) matrix[j-1][i]=(float)value;
-		else matrix[i-1][j]=(float)value;
-	}
-	public void mult(int i, int j, double value) {
-		if (i==j) return;
-		if (i < j) matrix[j-1][i]*=(float)value;
-		else matrix[i-1][j]*=(float)value;
-	}
-	public void add(int i, int j, double value) {
-		if (i==j) return;
-		if (i < j) matrix[j-1][i]+=(float)value;
-		else matrix[i-1][j]+=(float)value;
-	}
-
-
 
 }

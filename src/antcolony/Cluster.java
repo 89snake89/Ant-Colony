@@ -35,13 +35,16 @@
 
 package antcolony;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 
 
 public class Cluster {
 	
-	private LinkedList<Item> items; 	// The list of items belonging to this clutser
+	private LinkedList<Item> items; 	// The list of items belonging to this cluster
+	private String type;
 	
 	
 
@@ -53,13 +56,47 @@ public class Cluster {
 	public Cluster(Item[] items){
 		this.items = new LinkedList<Item>();
 		for (int i=0; i<items.length; i++) this.items.add(items[i]);
+		computeType();
+	}
+	
+	/** Constructor for a singleton*/
+	
+	public Cluster(Item it){
+		this.items = new LinkedList<Item>();
+		this.items.add(it);
+		computeType();
 	}
 
 	
 /*********** Access & Modification Functions **********************************************************/
 	
-/****** item data *********/
+	public String getType(){
+		return this.type;
+	}
 	
+	
+	/****** item data *********/
+	
+	public void computeType(){
+		HashMap<String,Integer> map = new HashMap<String,Integer>();
+		Iterator<Item> it = this.items.iterator();
+		while (it.hasNext()) {
+			String k = it.next().getType();
+			if (map.containsKey(k)) map.put(k, map.get(k)+1);
+			else map.put(k, 1);
+		}
+		Map.Entry<String, Integer> maxEntry = null;
+
+		for (Map.Entry<String, Integer> entry : map.entrySet())
+		{
+		    if (maxEntry == null || entry.getValue().compareTo(maxEntry.getValue()) > 0)
+		    {
+		        maxEntry = entry;
+		    }
+		}
+		
+		this.type = maxEntry.getKey();
+	}
 
 	public LinkedList<Item> getItems() {
 		return this.items;
@@ -68,35 +105,36 @@ public class Cluster {
 	
 	public void addElements(LinkedList<Item> items){
 		this.items.addAll(items);
+		this.computeType();
+	}
+	
+	public void addSingleton(Item it){
+		this.items.add(it);
+		this.computeType();
 	}
 
 /*********** Calculate values ****************************************************************************/
 
 
-	public double[] computeWeightedDistance(Cluster c){
+	public double computeWeightedDistance(Cluster c){
 		Iterator<Item> it1 = this.items.iterator();
 		Iterator<Item> it2 = c.getItems().iterator();
 		double min_dist=Double.MAX_VALUE;
 		Item item1,item2;
-		double id1=0;
-		double id2=0;
 		while (it1.hasNext()) {
 			item1 = it1.next();
 			while(it2.hasNext()){
 			item2 = it2.next();
 			if (item1.getID()!= item2.getID()){
 				double dist= item1.distance(item2,1);
-				//if (dist==0) System.out.println("item1:"+item1.getID()+" x: "+item1.getX()+" y: "+item1.getY()+
-				//		"item2:"+item2.getID()+" x: "+item2.getX()+" y: "+item2.getY()+"\n");
 				if (dist < min_dist) {
-					id1 = item1.getID();
-					id2 = item2.getID();
 					min_dist = dist;
 				}
 				}
 			}
 		}
 		min_dist = min_dist*(1.0 + Math.log10(1.0 + 9.0 * (double)this.items.size()/(double)c.getItems().size()));
-		return new double[]{min_dist,id1,id2};
+		return min_dist;
 	}
 }
+

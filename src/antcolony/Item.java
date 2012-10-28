@@ -37,6 +37,7 @@ package antcolony;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.UUID;
 
 
 /** Stores the data for an item
@@ -45,7 +46,7 @@ import java.util.List;
 
 public class Item {
 	
-	private int id;
+	private UUID id;
 	private int x,y;						// position on the grid
 	private int x_init,y_init;				// starting position
 	private int xsize, ysize;				// size of grid
@@ -57,8 +58,8 @@ public class Item {
 /*********** Constructor ****************************************************************************/
 
 	/** Default Constructor */
-	public Item(int i, Configuration c, String t, int cl, List<Double> a) {
-		this.id = i;
+	public Item(UUID key, Configuration c, String t, int cl, List<Double> a) {
+		this.id = key;
 		this.xsize = c.getxsize();
 		this.ysize = c.getysize();
 		this.x_init = (int)(Math.random()* xsize);
@@ -71,8 +72,8 @@ public class Item {
 	}
 
 	/** Constructor given a grid position and initial data*/
-	public Item(int i, Configuration c, int x_i, int y_i, String t,int cl, List<Double> a) {
-		this.id = i;
+	public Item(UUID key, Configuration c, int x_i, int y_i, String t,int cl, List<Double> a) {
+		this.id = key;
 		this.xsize = c.getxsize();
 		this.ysize = c.getysize();
 		this.x_init = x_i;
@@ -188,7 +189,7 @@ public class Item {
 	/** Get the id  of the item
 	 * @return h - the heap id
 	*/
-	public int getID() {
+	public UUID getID() {
 		return this.id;
 	}
 

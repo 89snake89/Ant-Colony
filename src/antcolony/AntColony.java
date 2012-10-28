@@ -78,7 +78,7 @@ public class AntColony {
 	/** The ant-algorithm 
 	 */
 	
-	public void sort() {
+	public void sort(boolean heap_f) {
 		switch (model){
 		
 		case LUMERFAIETA_S : for (int a = 0; a< conf.getnants(); a++) {
@@ -92,7 +92,7 @@ public class AntColony {
 										f = ants[a].pick_lumer_faieta();
 										ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_S);
 									}
-									ants[a].move_lumer_faieta(false,Configuration.Models.LUMERFAIETA_S);
+									ants[a].move_random_item(false,ants[a].getLoad());
 									}
 								}
 								break;
@@ -100,7 +100,7 @@ public class AntColony {
 		case LUMERFAIETA_M : for (int a = 0; a< conf.getnants(); a++) {
 								if ( ants[a].hasLoad()) {
 									if (ants[a].drop_lumer_faieta() == true) 
-										ants[a].move_random(true);
+										ants[a].move_lumer_faieta(true,Configuration.Models.LUMERFAIETA_M);
 								}
 								else {
 									boolean f = false;
@@ -131,9 +131,9 @@ public class AntColony {
 		case ANTCLASS 		: for (int a = 0; a< conf.getnants(); a++) {
 								ants[a].move_ant_class();
 								if ( ants[a].hasLoad())
-									ants[a].drop_ant_class();
+									ants[a].drop_ant_class(heap_f);
 								else
-									ants[a].pick_ant_class();
+									ants[a].pick_ant_class(heap_f);
 								}
 								break;
 		}	

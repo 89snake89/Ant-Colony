@@ -36,6 +36,7 @@ package antcolony;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.UUID;
 
 
 /** Stores the data for an individual document
@@ -43,23 +44,25 @@ import java.util.LinkedList;
 	 */
 
 public class Heap {
-	private int id;							// id of the heap
+	private UUID id;							// id of the heap
 	private int x,y;						// coordinates of the heap
 	private Configuration conf;
 	private double max_distance;			// the maximum distance between two objects
 	private double[]  center_of_mass;			// the object corresponding to the center of mass of this heap
-	private int most_dissimilar; 			// the most dissimilar object
+	private UUID most_dissimilar; 			// the most dissimilar object
 	private double max_dissimilar;
 	private double mean_distance;			// mean distance between all the objects and the center of mass
 	private LinkedList<Item> items; 		// data carried by the item
+	private int pheromone;
+	private boolean picked;
 
 /*********** Constructor ****************************************************************************/
 
 
 	/** Constructor given a grid position and two initial items*/
-	public Heap(int i, Configuration c, int x_i, int y_i, Item it1, Item it2) {
+	public Heap(Configuration c, int x_i, int y_i, Item it1, Item it2) {
 		this.conf = c;
-		this.id = i;
+		this.id = java.util.UUID.randomUUID();
 		this.x = x_i;
 		this.y = y_i;
 		this.items = new LinkedList<Item>();
@@ -67,18 +70,22 @@ public class Heap {
 		this.items.add(it1);
 		this.center_of_mass = new double[conf.getnkeys()];
 		this.putItem(it2);
+		this.pheromone = 500;
+		this.picked = false;
 	}
 	
 	/** Constructor given a grid position and initial item*/
 	public Heap(int i, Configuration c, int x_i, int y_i, Item it1) {
 		this.conf = c;
-		this.id = i;
+		this.id = java.util.UUID.randomUUID();
 		this.x = x_i;
 		this.y = y_i;
 		this.items = new LinkedList<Item>();
 		it1.setXY(x_i, y_i);
 		this.items.add(it1);
 		this.center_of_mass = new double[conf.getnkeys()];
+		this.pheromone = 500;
+		this.picked = false;
 	}
 			
 /*********** Access & Modification Functions ****************************************************************************/
@@ -110,14 +117,14 @@ public class Heap {
 	/** get the most dissimilar item
 	 * @return the measure
 	 */
-	public int getMostDissimilar() {
+	public UUID getMostDissimilar() {
 		return this.most_dissimilar;
 	}
 	
 	/** Get id of the heap
 	 * @return the associated document vector
 	 */
-	public int getID() {
+	public UUID getID() {
 	return this.id;
 	}
 	
@@ -139,6 +146,20 @@ public class Heap {
 	public int getSize() {
 		return this.items.size();
 	}
+	
+	/** Get the size this heap
+	*/
+	public int getPheromone() {
+		return this.pheromone;
+	}
+	
+	/** Get the size this heap
+	*/
+	public boolean isPicked() {
+		return this.picked;
+	}
+
+	
 	
 	/****** heap position *********/
 	
@@ -185,6 +206,12 @@ public double computeDistanceCenterMass(Item i){
 		return Math.sqrt(sum);
 }
 
+public double computeDistanceCenterMassVector(double[] v){
+	double sum = 0.0;
+	for (int i=0; i<v.length; i++) sum += Math.pow(this.center_of_mass[i] - v[i],2);
+	return Math.sqrt(sum);
+}
+
 public void computeMostDissimilar(){
 	Iterator<Item> it = this.items.iterator();
 	this.max_dissimilar = 0;
@@ -219,7 +246,12 @@ public void putItem(Item i){
 	this.computeMostDissimilar();
 }
 
-public Item getItem(int id){
+public void putItems(LinkedList<Item> items){
+	Iterator<Item> it = this.items.iterator();
+	while (it.hasNext()) this.putItem(it.next());	
+}
+
+public Item getItem(UUID id){
 	Item r = null;
 	Iterator<Item> it = this.items.iterator();
 	done: while (it.hasNext()) {
@@ -234,6 +266,19 @@ public Item getItem(int id){
 	it = list.iterator();
 	while(it.hasNext()) this.putItem(it.next());
 	return r;
+}
+
+public void setPicked(boolean f){
+	this.picked = f;
+}
+
+public void setPheromone(int p){
+	this.pheromone = p;
+}
+
+public void decPheromone(){
+	this.pheromone--;
+	if (this.pheromone<=0) this.pheromone=0;
 }
 
 }
