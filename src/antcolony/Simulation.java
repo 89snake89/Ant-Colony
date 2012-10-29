@@ -199,26 +199,18 @@ public class Simulation extends JPanel implements Runnable  {
 		double F_m;
 		double rand;
 		double InnVar;
-		boolean heap_f = false;
         while (!stop) {
             try {            	
-            	this.antColony.sort(heap_f);
-            	this.grid.decPheromone();
+            	this.antColony.sort(tick);
             	this.repaint();
             	if (this.tick%100==0) {
-                	if (this.conf.getModel()==Configuration.Models.ANTCLASS) {
-                		this.grid.kmeans();
-                		heap_f = !heap_f;
-                		this.antColony.cleanMemories();
-                	}
-                	this.clustering.setText(this.grid.printStats());
                 	pearson = computePearson(true);
                 	this.clustering.setPearsons(pearson);
                 	entropy = computeEntropy(true);
                 	this.clustering.setEntropy(entropy);
-            		this.grid.calculateClusters();
+            		int t = this.grid.calculateClusters();
+                	this.clustering.setText(this.grid.printStats());
             		F_m = computeFMeasure();
-            		if (F_m>0.9) System.exit(-1);
             		this.clustering.setF(F_m);
             		rand = computeRand();
             		this.clustering.setRand(rand);
@@ -228,21 +220,23 @@ public class Simulation extends JPanel implements Runnable  {
                 		this.record[0][tick]=pearson;
                 		this.record[1][tick]=entropy;
                 	}
+                	if (F_m > conf.getMinF()) this.clustering.stop();	
             	}
 
             	this.clustering.setTick(tick);
-            	tick++;
+            	tick++;           	
             	if (interrupted) {
             		synchronized(this) {
             			while (interrupted)
             				wait();
-            		}
-            	}
+           		}
+          }
             } 
             catch (InterruptedException e){
+            	e.printStackTrace();
             }
         }
-
+        stop = false;
 		interrupted = true;
 	}
 

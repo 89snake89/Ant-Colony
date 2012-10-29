@@ -247,7 +247,7 @@ public void putItem(Item i){
 }
 
 public void putItems(LinkedList<Item> items){
-	Iterator<Item> it = this.items.iterator();
+	Iterator<Item> it = items.iterator();
 	while (it.hasNext()) this.putItem(it.next());	
 }
 

@@ -52,9 +52,11 @@ public class Configuration {
 	private int maxitemsize = 10;
 	
 	// Simulation parameters
-	private int xsize = 30;
-	private int ysize = 30;
+	private int xsize = 100;
+	private int ysize = 100;
 	private int[] colors = new int[]{0,255,65280,16711680,16776960,16711935,65535,16753920,16729344};
+	private int cicle = 3000;
+	private double min_f = 0.85;
 	
 	// Model parameters
 	public enum Models {LUMERFAIETA_S, LUMERFAIETA_M, LUMERFAIETA_R, ANTCLASS};
@@ -64,7 +66,7 @@ public class Configuration {
 	private int nants = 30;
 	private int max_speed = 20;
 	private int memsize = 5;
-	private int sigma = 5;
+	private int sigma = 2;
 	private double kd = 0.001;
 	private double kp = 0.001;
 	private double alpha = 1.0;
@@ -217,6 +219,14 @@ public class Configuration {
 		this.filename = value;
 	}
 	
+	public void setCicle(int value){
+		this.cicle = value;
+	}
+	
+	public void setMinF(double value){
+		this.min_f = value;
+	}
+	
 	public void setParameters(String k, double v){
 		if (k == "X size") 		this.setxsize((int)v); 
 		if (k == "Y size") 		this.setysize((int)v);
@@ -245,6 +255,8 @@ public class Configuration {
 		if (k == "T Remove low") this.setTRemoveLow(v);
 		if (k == "T Remove range") this.setTRemoveRange(v);
 		if (k == "Memory Size") this.setMemsize((int)v);
+		if (k == "Cicle") this.setCicle((int)v);
+		if (k == "Minimum F")this.setMinF(v);	
 	}
 	
 /********** simple access functions ********************************************************************/	
@@ -355,6 +367,12 @@ public class Configuration {
 	public String getFilename() {
 		return this.filename;
 	}
+	public int getCicle(){
+		return this.cicle;
+	}
+	public double getMinF(){
+		return this.min_f;
+	}
 	public HashMap<String,Double> getParameters(){
 		HashMap<String,Double> r = new HashMap<String,Double>();
 		switch(this.model){
@@ -365,6 +383,7 @@ public class Configuration {
 						   	 r.put("Kd", this.getKd());
 						   	 r.put("Kp", this.getKp());
 						   	 r.put("Max Speed", new Double(this.getMaxSpeed()));
+						   	 r.put("Minimum F", new Double(this.getMinF()));	
 						   	 break;
 		case LUMERFAIETA_M : r.put("X size", new Double(this.getxsize()));
 		   					 r.put("Y size", new Double(this.getysize()));
@@ -374,6 +393,7 @@ public class Configuration {
 		   					 r.put("Kp", this.getKp());
 		   					 r.put("Max Speed", new Double(this.getMaxSpeed()));
 		   					 r.put("Memory Size", new Double(this.getmemsize()));
+		   					 r.put("Minimum F", new Double(this.getMinF()));	
 		   					 break;
 		case LUMERFAIETA_R : 	r.put("X size", new Double(this.getxsize()));
 		   						r.put("Y size", new Double(this.getysize()));
@@ -381,6 +401,7 @@ public class Configuration {
 		   						r.put("Sigma", new Double(this.getSigma()));
 		   						r.put("Kd", this.getKd());
 		   						r.put("Kp", this.getKp());
+		   						r.put("Minimum F", new Double(this.getMinF()));	
 		   					break;
 		case ANTCLASS : 	r.put("X size", new Double(this.getxsize()));
 							r.put("Y size", new Double(this.getysize()));
@@ -404,6 +425,8 @@ public class Configuration {
 							r.put("T Remove low", new Double(this.getTRemoveLow()));
 							r.put("T Remove range", new Double(this.getTRemoveRange()));
 		   					r.put("Memory Size", new Double(this.getmemsize()));
+							r.put("Cicle", new Double(this.getCicle()));
+		   					r.put("Minimum F", new Double(this.getMinF()));	   					
 							break;
 		}
 		return r;

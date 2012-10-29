@@ -46,6 +46,11 @@ public class AntColony {
 	// Pointers to the environment
 	private Configuration conf;   			                    
 	private Configuration.Models model;
+	private Grid grid;
+	private int phase;
+	private int cicle;
+	private boolean tg;
+
 	
 	
 /************** Constructor ************************************************************/	
@@ -58,6 +63,10 @@ public class AntColony {
 	
 		this.conf = conf;
 		this.model = conf.getModel();
+		this.grid = grid;
+		this.phase = 0;
+		this.cicle = conf.getCicle();
+		this.tg = true;
 		this.ants = new Ant[this.conf.getnants()];
 		for (int i = 0; i < this.conf.getnants(); i++) ants[i] = new Ant(grid,conf);
 	}
@@ -78,7 +87,7 @@ public class AntColony {
 	/** The ant-algorithm 
 	 */
 	
-	public void sort(boolean heap_f) {
+	public void sort(int tick) {
 		switch (model){
 		
 		case LUMERFAIETA_S : for (int a = 0; a< conf.getnants(); a++) {
@@ -128,14 +137,34 @@ public class AntColony {
 								}
 								}
 								break;
-		case ANTCLASS 		: for (int a = 0; a< conf.getnants(); a++) {
-								ants[a].move_ant_class();
-								if ( ants[a].hasLoad())
-									ants[a].drop_ant_class(heap_f);
-								else
-									ants[a].pick_ant_class(heap_f);
+								
+		case ANTCLASS 		: 	if (phase==1 && tg) {phase = 2; tg=false;}
+								if (phase==1 && !tg) {phase = 0; tg=true;}
+								if (tick%this.cicle==0) phase=1;
+								for (int a = 0; a< conf.getnants(); a++) {
+			
+								switch (phase){
+									case 0: ants[a].move_ant_class();
+											if ( ants[a].hasLoad())
+												ants[a].drop_ant_class();
+											else
+												ants[a].pick_ant_class();
+											break;
+											
+									case 1: this.grid.kmeans();
+											break;
+										
+									case 2: ants[a].move_ant_class();
+									  		this.grid.decPheromone();
+											if ( ants[a].hasHeap())
+												ants[a].drop_ant_class_heap();
+											else
+												ants[a].pick_ant_class_heap();
+											break;
 								}
-								break;
+							  }
+							  this.cleanMemories();
+							  break;
 		}	
 	}
 	

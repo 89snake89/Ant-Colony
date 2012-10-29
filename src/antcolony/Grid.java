@@ -250,6 +250,7 @@ public class Grid {
 		int sum3=0;
 		int sum4=0;
 		int sum5=0;
+		int sum6=0;
 		this.num_clusters=0;
 		int maxh=0;
 		for (int i=0; i< conf.getxsize();i++)
@@ -264,28 +265,31 @@ public class Grid {
 			if (h!=null) {
 				sum4++;
 				if (h.getSize()>maxh) maxh=h.getSize();
+				if (h.isPicked()) sum6++;
 				sum5+= h.getSize();
 			}
 		}
 		for (int i=0; i<partition.length; i++) if (partition[i]!=null) this.num_clusters++;
-		if (sum2 < sum4) System.out.println("sum wrong");
 
-		return "Cells occupied by items: "+ sum1+"\nCells occupied by heaps: "+
-		sum2+"   \nItems picked: "+sum3+"\nNumber of heaps: "+ sum4+
-		"\nAverage heap size: "+ sum5/(sum4+1)+"\nMaximum heap size: "+ maxh+
-		"\nNumber of clusters: "+ num_clusters +"\n";
+		return "Number of items: "+this.items.size()+"\nCells occupied by items: "+ sum1+
+				"\nCells occupied by heaps: "+ sum2+"   \nItems picked: "+sum3+
+				"\nHeaps picked: "+sum6+ "\nNumber of heaps: "+ sum4+
+				"\nAverage heap size: "+ sum5/(sum4+1)+"\nMaximum heap size: "+ maxh+
+				"\nNumber of clusters: "+ num_clusters +"\n";
 	}
 	
-	public void calculateClusters(){
+	public int calculateClusters(){
+		int r = 0;
 		if (conf.getModel()== Configuration.Models.ANTCLASS){
 			for (int i=0; i<this.items.size(); i++) this.partition[i]=null;
 			Iterator<Heap> it=this.heaps.iterator();
 			int j=0;
 			while (it.hasNext()){
 				LinkedList<Item> list= it.next().getItems();
-				partition[j]= new Cluster(list.toArray(new Item[list.size()]));
+				partition[j]= new Cluster(list.toArray(new Item[0]));
 				j++;
 			}
+			r = j;
 		}
 		else {
 		 int c=0;
@@ -314,7 +318,7 @@ public class Grid {
 				partition[c1].addElements(partition[c2].getItems());
 				partition[c2]=null;
 				}
-
+			for (int i=0; i<this.items.size(); i++) if (this.partition[i]!=null) r++;
 			for (int i=0; i<this.items.size(); i++)
 				if (this.partition[i]!=null)
 					if (this.partition[i].getItems().size() > this.items.size()/this.conf.getntypes()) {
@@ -323,6 +327,7 @@ public class Grid {
 			}		
 		}
 		}
+		return r;
 	}
 
 	
@@ -357,11 +362,19 @@ public class Grid {
 				heaps_temp[min].putItem(this.items.get(key));
 		}
 		clear_cells();
-		this.heaps = new LinkedList<Heap>();
 		clear_heaps();
+		this.heaps = new LinkedList<Heap>();
 		for (int l=0; l<i; l++) 
-			if (heaps_temp[l]!= null)
-				put_heap(heaps_temp[l].getX(),heaps_temp[l].getY(),heaps_temp[l]);
+			if (heaps_temp[l]!= null){
+				int x, y;
+				while(true){
+						x = (int)Math.floor(this.conf.getxsize() * Math.random());
+						y = (int)Math.floor(this.conf.getysize() * Math.random());
+						if ( this.hcells[x][y]== null) {
+							put_heap(x,y,heaps_temp[l]);
+							break;
+						}}
+			}		
 		}
 	}
 	
@@ -387,7 +400,9 @@ public class Grid {
 	*/
 	
 	public void put_heap(int x, int y, Heap heap) {
-		if (this.hcells[x][y]!=null) System.out.println("Alarm tried to stack heaps");
+		if (this.hcells[x][y]!=null) {
+			System.out.println("Alarm tried to stack heaps");
+		}
 		this.hcells[x][y]= heap.getID();
 		this.heaps.add(heap);
 	}
@@ -397,7 +412,6 @@ public class Grid {
 	*/
 	
 	public void remove_item(int x, int y) {
-		//this.items[this.cells[x][y]].setXY(0, 0);
 		this.cells[x][y] = null;
 
 	}

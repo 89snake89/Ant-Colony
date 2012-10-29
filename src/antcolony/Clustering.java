@@ -80,6 +80,7 @@ public class Clustering {
 	private JTable table, table_1;
 	private JLabel lblNewLabel;
 	private JTextPane textPane;
+	private JToggleButton tglbtnStart;
 
 	/**
 	 * Launch the application.
@@ -131,7 +132,7 @@ public class Clustering {
 		lblDataset.setBounds(33, 11, 46, 14);
 		frame.getContentPane().add(lblDataset);
 		
-		JToggleButton tglbtnStart = new JToggleButton("Start");
+		tglbtnStart = new JToggleButton("Start");
 		tglbtnStart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				JToggleButton bt = (JToggleButton) e.getSource();
@@ -205,7 +206,7 @@ public class Clustering {
 		
 		JLabel lblVariables = new JLabel("Measures");
 		lblVariables.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblVariables.setBounds(24, 529, 76, 14);
+		lblVariables.setBounds(24, 624, 76, 14);
 		frame.getContentPane().add(lblVariables);
 		
 		JLabel lblParameters = new JLabel("Model Parameters");
@@ -245,7 +246,7 @@ public class Clustering {
 				"Parameter", "Value"
 			}
 		) );
-		table.setBounds(25, 162, 340, 356);
+		table.setBounds(25, 162, 340, 451);
 		frame.getContentPane().add(table);
 		
 		JComboBox comboBox_1 = new JComboBox();
@@ -364,7 +365,6 @@ public class Clustering {
 				{null, null},
 				{null, null},
 				{null, null},
-				{null, null},
 			},
 			new String[] {
 				"Measure", "Value"
@@ -377,7 +377,7 @@ public class Clustering {
 		table_1.setValueAt("Rand", 3, 0);
 		table_1.setValueAt("Inner Cluster Variance", 4, 0);
 		
-		table_1.setBounds(24, 554, 341, 175);
+		table_1.setBounds(24, 649, 341, 80);
 		frame.getContentPane().add(table_1);
 		
 		JButton btnNewButton_1 = new JButton("Apply");
@@ -472,5 +472,15 @@ public class Clustering {
 	
 	public void setText(String s){
 		textPane.setText(s);
+	}
+	
+	public void stop(){
+		textPane.setText(textPane.getText()+"\n Reached minimum F");
+		synchronized (simul){
+			simul.setInterrupted(true);
+			simul.notify();
+		}
+		btnStop.setText("Restart");
+		tglbtnStart.setSelected(false);
 	}
 }
