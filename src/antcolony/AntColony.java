@@ -140,7 +140,7 @@ public class AntColony {
 								
 		case ANTCLASS 		: 	if (phase==1 && tg) {phase = 2; tg=false;}
 								if (phase==1 && !tg) {phase = 0; tg=true;}
-								if (tick%this.cicle==0) phase=1;
+								if (tick%this.cicle==0 && tick >0) phase=1;
 								for (int a = 0; a< conf.getnants(); a++) {
 			
 								switch (phase){

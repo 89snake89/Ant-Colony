@@ -59,8 +59,8 @@ public class Configuration {
 	private double min_f = 0.85;
 	
 	// Model parameters
-	public enum Models {LUMERFAIETA_S, LUMERFAIETA_M, LUMERFAIETA_R, ANTCLASS};
-	private Models model = Models.LUMERFAIETA_S;
+	public enum Models {ANTCLASS,LUMERFAIETA_S, LUMERFAIETA_M, LUMERFAIETA_R};
+	private Models model = Models.ANTCLASS;
 	
 	// Ant parameters
 	private int nants = 30;
