@@ -319,7 +319,7 @@ public class Clustering {
 			}
 		});
 		chckbxDisplyOriginalSet.setSelected(true);
-		chckbxDisplyOriginalSet.setBounds(24, 66, 180, 23);
+		chckbxDisplyOriginalSet.setBounds(24, 66, 123, 23);
 		frame.getContentPane().add(chckbxDisplyOriginalSet);
 				
 		JButton btnNewButton = new JButton("+");
@@ -407,6 +407,18 @@ public class Clustering {
 		
 		HashMap<String,Double> h = conf.getParameters();
 		table.setModel(toTableModel(h));
+		
+		JCheckBox chckbxDisplayClusters = new JCheckBox("Display clusters");
+		chckbxDisplayClusters.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JCheckBox cb = (JCheckBox) arg0.getSource();
+				simul.setClusters(cb.isSelected());
+				simul.repaint();	
+			}
+		});
+		chckbxDisplayClusters.setSelected(true);
+		chckbxDisplayClusters.setBounds(152, 66, 123, 23);
+		frame.getContentPane().add(chckbxDisplayClusters);
 	
 	}
 	

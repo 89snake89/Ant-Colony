@@ -69,6 +69,7 @@ public class Simulation extends JPanel implements Runnable  {
 	private Grid grid;
 	private int[] colors;
 	private boolean  original = true;
+	private boolean  clusters = false;
 	private double scale;
 	private boolean stop;
 	private boolean interrupted;
@@ -145,6 +146,14 @@ public class Simulation extends JPanel implements Runnable  {
 		this.original = f;
 	}
 	
+	/** Update the original display flag
+	* @param the flag
+	*/
+
+	public void setClusters(boolean f) {
+		this.clusters = f;
+	}
+	
 	/** Update the interrupted flag
 	* @param the flag
 	*/
@@ -203,12 +212,12 @@ public class Simulation extends JPanel implements Runnable  {
             try {            	
             	this.antColony.sort(tick);
             	this.repaint();
-            	if (this.tick%100==0) {
+            	if (this.tick%100==0 && this.tick > 0) {
                 	pearson = computePearson(true);
                 	this.clustering.setPearsons(pearson);
                 	entropy = computeEntropy(true);
                 	this.clustering.setEntropy(entropy);
-            		int t = this.grid.calculateClusters();
+            		this.grid.calculateClusters();
                 	this.clustering.setText(this.grid.printStats());
             		F_m = computeFMeasure();
             		this.clustering.setF(F_m);
@@ -257,11 +266,15 @@ public class Simulation extends JPanel implements Runnable  {
 	      super.paint(g);
 	          HashMap<UUID,Item> items = this.grid.getItems();
 	          for (Item it : items.values()){
-	        	  	g.setColor(new Color(colors[it.getColor()]));
-	    			  if (this.original)
+	    			  if (this.original){
+	    				  g.setColor(new Color(colors[it.getColor()]));
 	    				  g.fillRect((int)(it.getinitX()*this.scale), (int)(it.getinitY()*this.scale),5,5);
-	    			  else
-	    				  g.fillRect((int)(it.getX()*this.scale), (int)(it.getY()*this.scale),5,5);			  
+	    				  }
+	    			  else {
+	    				  if (this.clusters)g.setColor(new Color(colors[it.getCluster()]));
+	    				  else g.setColor(new Color(colors[it.getColor()]));
+	    				  g.fillRect((int)(it.getX()*this.scale), (int)(it.getY()*this.scale),5,5);
+	    			  }
 	    	  }
 	  }
 

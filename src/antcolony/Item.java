@@ -54,6 +54,8 @@ public class Item {
 	private int color;						// the color of the item to display
 	private List<Double> data; 				// data carried by the item
 	private boolean isPicked = false;		// flag whether document is picked
+	private boolean isCenter = false;
+	private int cluster;
 
 /*********** Constructor ****************************************************************************/
 
@@ -68,6 +70,7 @@ public class Item {
 		this.y = this.y_init;
 		this.type = t;
 		this.color = cl;
+		this.cluster = 0;
 		this.data = a;
 	}
 
@@ -191,6 +194,22 @@ public class Item {
 	*/
 	public UUID getID() {
 		return this.id;
+	}
+	
+	public void setCenter(boolean f){
+		this.isCenter = f;
+	}
+	
+	public boolean isCenter(){
+		return this.isCenter;
+	}
+	
+	public void setCluster(int c){
+		this.cluster = c;
+	}
+	
+	public int getCluster(){
+		return this.cluster;
 	}
 
 /****** item position *********/

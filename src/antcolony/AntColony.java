@@ -151,7 +151,7 @@ public class AntColony {
 												ants[a].pick_ant_class();
 											break;
 											
-									case 1: this.grid.kmeans();
+									case 1: this.grid.kmeans_heaps();
 											break;
 										
 									case 2: ants[a].move_ant_class();

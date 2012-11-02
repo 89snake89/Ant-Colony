@@ -45,12 +45,24 @@ public class Cluster {
 	
 	private LinkedList<Item> items; 	// The list of items belonging to this cluster
 	private String type;
+	private double[] center;
 	
 	
 
 /*********** Constructor ****************************************************************************/
 
-
+	/** Constructor given a grid position and initial data*/
+	
+	public Cluster(Item[] items, double[] center, int c){
+		this.items = new LinkedList<Item>();
+		for (int i=0; i<items.length; i++) {
+			items[i].setCluster(c);
+			this.items.add(items[i]);
+		}
+		this.center = center;
+		computeType();
+	}
+	
 	/** Constructor given a grid position and initial data*/
 	
 	public Cluster(Item[] items){
@@ -112,6 +124,10 @@ public class Cluster {
 		this.items.add(it);
 		this.computeType();
 	}
+
+    public double[] getCenter() {
+        return this.center;
+    }
 
 /*********** Calculate values ****************************************************************************/
 

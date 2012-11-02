@@ -86,7 +86,7 @@ public class Grid {
 		for (int i=0; i<this.items.size(); i++) this.partition[i]=new Cluster(this.items.values().toArray(new Item[0]));
 		this.heaps = new LinkedList<Heap>();
 		this.cells = new UUID[this.conf.getxsize()][this.conf.getysize()];
-		this.hcells = new UUID[this.conf.getxsize()][this.conf.getysize()];			
+		this.hcells = new UUID[this.conf.getxsize()][this.conf.getysize()];
 		for (int i=0; i < conf.getxsize(); i++)
 			for (int j=0; j< conf.getysize(); j++){
 				this.cells[i][j] = null;
@@ -278,61 +278,26 @@ public class Grid {
 				"\nNumber of clusters: "+ num_clusters +"\n";
 	}
 	
-	public int calculateClusters(){
-		int r = 0;
+	public void calculateClusters(){
 		if (conf.getModel()== Configuration.Models.ANTCLASS){
-			for (int i=0; i<this.items.size(); i++) this.partition[i]=null;
-			Iterator<Heap> it=this.heaps.iterator();
+			this.partition = new Cluster[heaps.size()];
 			int j=0;
-			while (it.hasNext()){
-				LinkedList<Item> list= it.next().getItems();
+			for (Heap h : this.heaps){
+				LinkedList<Item> list = h.getItems();
 				partition[j]= new Cluster(list.toArray(new Item[0]));
 				j++;
 			}
-			r = j;
 		}
 		else {
-		 int c=0;
-		 for (UUID key : this.items.keySet()){
-			 this.partition[c]=new Cluster(new Item[]{items.get(key)});
-			 c++;
-		 }
-		 Collections.shuffle(Arrays.asList(partition));
-		 boolean flag=true;
-		 while (flag){
-			int c1=0;
-			int c2=0;
-			double min_dist= Double.MAX_VALUE;
-			for (int i=0; i<this.partition.length-1;i++){
-				for (int j=i+1; j<this.partition.length;j++){
-					if (partition[i]!=null && partition[j]!=null){
-					double d = partition[i].computeWeightedDistance(partition[j]);
-					if (d < min_dist){
-						min_dist = d;
-						c1 = i;
-						c2 = j;
-					}}
-				}
-				}
-			if (c1!=c2) {
-				partition[c1].addElements(partition[c2].getItems());
-				partition[c2]=null;
-				}
-			for (int i=0; i<this.items.size(); i++) if (this.partition[i]!=null) r++;
-			for (int i=0; i<this.items.size(); i++)
-				if (this.partition[i]!=null)
-					if (this.partition[i].getItems().size() > this.items.size()/this.conf.getntypes()) {
-						flag=false;
-						break;
-			}		
-		}
-		}
-		return r;
+			KMeans km = new KMeans(this.items,this.conf.getntypes(),100,2500,1);
+			km.compute();
+			this.partition = km.getClusters();
+			System.out.println("Nº clusters: "+this.partition.length);
+			}
 	}
 
 	
-	
-	public void kmeans(){
+	public void kmeans_heaps(){
 		if (this.heaps.size()>0){
 		double[][] centers = new double[this.heaps.size()][conf.getnkeys()];
 		int[][] centers_xy = new int[this.heaps.size()][2];
