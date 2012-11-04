@@ -289,10 +289,9 @@ public class Grid {
 			}
 		}
 		else {
-			KMeans km = new KMeans(this.items,this.conf.getntypes(),100,2500,1);
+			KMeans km = new KMeans(this.conf,this.items,this.conf.getntypes(),100,2500,0);
 			km.compute();
 			this.partition = km.getClusters();
-			System.out.println("Nº clusters: "+this.partition.length);
 			}
 	}
 

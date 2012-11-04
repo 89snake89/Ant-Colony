@@ -43,6 +43,11 @@ public class KMeans {
     
     // The type of seed centering
     private int type;
+    
+    // The configuration
+    private Configuration conf;
+    
+    private int xsize, ysize;
   
     /**
      * Constructor
@@ -52,7 +57,10 @@ public class KMeans {
      * @param maxIterations the maximum number of clustering iterations.
      * @param randomSeed seed used with the random number generator.
      */
-    public KMeans(HashMap<UUID,Item> it, int k, int maxIterations, long randomSeed, int t) {
+    public KMeans(Configuration conf, HashMap<UUID,Item> it, int k, int maxIterations, long randomSeed, int t) {
+    	this.conf = conf;
+    	this.xsize = conf.getxsize();
+    	this.ysize = conf.getysize();
     	mCoordinates = new double[it.size()][3];
     	dictionary = new UUID[it.size()];
     	items = it;
@@ -91,13 +99,13 @@ public class KMeans {
             long startTime = System.currentTimeMillis();
             
             //postKMeansMessage("K-Means clustering started");
-            System.out.println("K-Means clustering started");
+            //System.out.println("K-Means clustering started");
             // Randomly initialize the cluster centers creating the
             // array mProtoClusters.
             initCenters();
             
             //postKMeansMessage("... centers initialized");
-            System.out.println("... centers initialized");
+            //System.out.println("... centers initialized");
 
             // Perform the initial computation of distances.
             computeDistances();
@@ -132,7 +140,7 @@ public class KMeans {
                 it++;
                 
                 //postKMeansMessage("... iteration " + it + " moves = " + moves);
-                System.out.println("... iteration " + it + " moves = " + moves);
+                //System.out.println("... iteration " + it + " moves = " + moves);
 
             } while (moves > 0 && it < mMaxIterations);
 
@@ -143,7 +151,7 @@ public class KMeans {
             long executionTime = System.currentTimeMillis() - startTime;
             
             //postKMeansComplete(mClusters, executionTime);
-            System.out.println("Execution time "+ executionTime);
+            //System.out.println("Execution time "+ executionTime);
             
         } catch (Throwable t) {
            
@@ -210,7 +218,7 @@ public class KMeans {
             					for (int j=0; j< coordCount; j++){
             						if (ind.contains(j)) continue;
             							for (int l=0; l<i; l++){
-            							double d = distance(mCoordinates[j],mProtoClusters[l].mCenter);
+            							double d = distance(mCoordinates[j],mProtoClusters[l].mCenter,this.xsize,this.ysize);
             						if (d > maxDist) {
             							maxDist= d;
             							max = j;
@@ -220,7 +228,7 @@ public class KMeans {
                 				ind.add(max);
             					}}
             				}
-            				System.out.println("Proto cluster "+i+" center: x="+mProtoClusters[i].mCenter[0]+" y="+mProtoClusters[i].mCenter[1]);
+            				//System.out.println("Proto cluster "+i+" center: x="+mProtoClusters[i].mCenter[0]+" y="+mProtoClusters[i].mCenter[1]);
 							break;
            }
         }
@@ -280,7 +288,7 @@ public class KMeans {
                 ProtoCluster cluster = mProtoClusters[clust];
                 if (cluster.getConsiderForAssignment() && cluster.needsUpdate()) {
                     mDistanceCache[coord][clust] = 
-                        distance(mCoordinates[coord], cluster.getCenter());
+                        distance(mCoordinates[coord], cluster.getCenter(), this.xsize, this.ysize);
                 }
             }
         }
@@ -343,14 +351,12 @@ public class KMeans {
     /**
      * Compute the euclidean distance between the two arguments.
      */
-    private static double distance(double[] coord, double[] center) {
-        int len = coord.length;
-        double sumSquared = 0.0;
-        for (int i=0; i<len; i++) {
-            double v = coord[i] - center[i];
-            sumSquared += v*v;
-        }
-        return Math.sqrt(sumSquared);
+    private static double distance(double[] coord, double[] center, int xsize, int ysize) {
+    	double xdiff = Math.abs(center[0] - coord[0]);
+		xdiff = Math.min(xdiff, xsize-xdiff);
+		double ydiff = Math.abs(center[1] - coord[1]);
+		ydiff = Math.min(ydiff, ysize-ydiff);
+		return Math.sqrt(xdiff*xdiff + ydiff*ydiff);
     }
 
     /**
@@ -360,8 +366,7 @@ public class KMeans {
      */
     private Cluster[] generateFinalClusters() {
         
-        int numClusters = mProtoClusters.length;
-        System.out.println("Nº protoCl: "+ numClusters);
+        int numClusters = mProtoClusters.length; 
         
         // Convert the proto-clusters to the final Clusters.
         //
@@ -380,7 +385,6 @@ public class KMeans {
                 Cluster cluster = new Cluster(list, pcluster.getCenter(), c);
                 clusterList.add(cluster);
             }
-            else System.out.println("vazio");
         }
     
         // - convert list to an array.
