@@ -319,7 +319,7 @@ public class Clustering {
 			}
 		});
 		chckbxDisplyOriginalSet.setSelected(true);
-		chckbxDisplyOriginalSet.setBounds(24, 66, 123, 23);
+		chckbxDisplyOriginalSet.setBounds(24, 66, 154, 23);
 		frame.getContentPane().add(chckbxDisplyOriginalSet);
 				
 		JButton btnNewButton = new JButton("+");
@@ -417,7 +417,7 @@ public class Clustering {
 			}
 		});
 		chckbxDisplayClusters.setSelected(true);
-		chckbxDisplayClusters.setBounds(152, 66, 123, 23);
+		chckbxDisplayClusters.setBounds(186, 66, 123, 23);
 		frame.getContentPane().add(chckbxDisplayClusters);
 	
 	}

@@ -168,6 +168,9 @@ public class AntColony {
 		}	
 	}
 	
+	public void drop(){
+		for (int a = 0; a< conf.getnants(); a++) ants[a].drop();
+	}
 	
 	public void cleanMemories(){
 		for (int a = 0; a< conf.getnants(); a++) ants[a].cleanMemory();

@@ -179,6 +179,7 @@ public boolean drop_lumer_faieta() {
 	if ((fail == 100) || (Math.random() < pdrop(f))) {
 		if (!grid.occupied_item(this.x,this.y)) {
 			this.load.setPicked(false);
+			this.load.setDensity(f);
 			grid.put_item(this.x, this.y, this.load);
 			this.load = null;
 			fail = 0;
@@ -328,7 +329,9 @@ public void pick_ant_class(){
 							this.load = l.removeLast();
 							this.load.setPicked(true);
 							this.has_load = 1;
-							grid.put_item(x_coor,y_coor,l.removeLast());
+							Item it2 = l.removeLast();
+							it2.setPicked(false);
+							grid.put_item(x_coor,y_coor,it2);
 							grid.remove_heap(x_coor, y_coor);
 							break done;
 						}}
@@ -379,6 +382,7 @@ public void drop_ant_class(){
 				
 				if (!grid.occupied(x_coor, y_coor)) {
 					if ((Math.random()< this.p_drop || this.has_load > this.max_carry)){
+						this.load.setPicked(false);
 						grid.put_item(x_coor, y_coor, this.load);
 						this.load = null;
 						this.has_load = 0;
@@ -389,6 +393,8 @@ public void drop_ant_class(){
 					Item it = grid.getItemAt(x_coor, y_coor);
 					if (it.distance(this.load, 2)/this.d_max < this.t_create){
 						grid.remove_item(x_coor, y_coor);
+						this.load.setPicked(false);
+						it.setPicked(false);
 						grid.put_heap(x_coor, y_coor, new Heap(conf,x_coor,y_coor,it,this.load));
 						this.load=null;
 						this.has_load = 0;
@@ -399,6 +405,7 @@ public void drop_ant_class(){
 					Heap h = grid.heapAt(x_coor, y_coor);
 					this.updateMemoryHeap(h);
 					if (h.computeDistanceCenterMass(this.load) < h.getMaxDissimilar()){
+						this.load.setPicked(false);
 						h.putItem(this.load);
 						this.load=null;
 						this.has_load = 0;
@@ -442,6 +449,40 @@ public void drop_ant_class_heap(){
 			}
 }
 
+public void drop(){
+	if (this.load != null)
+	{
+		int step = 2;
+		done: while (true) {
+			for (int i = 0; i< 10; i++) {
+				int xpart = (int)Math.round(step * Math.random());
+				int ypart = step - xpart;
+							
+				if (Math.random() < 0.5) xpart = -xpart;
+				if (Math.random() < 0.5) ypart = -ypart;
+							
+				int x_coor = this.x + xpart;
+				int	y_coor = this.y + ypart;
+				if (x_coor < 0) x_coor = xsize + x_coor%xsize;
+				if (x_coor >= xsize) x_coor = x_coor%xsize;
+				if (y_coor < 0) y_coor = ysize + y_coor%ysize;
+				if (y_coor >= ysize) y_coor = y_coor%ysize;
+
+				if (grid.occupied_item(x_coor,y_coor) == false) {
+					this.x = x_coor;
+					this.y = y_coor;
+					this.load.setPicked(false);
+					this.grid.put_item(x_coor, y_coor, this.load);
+					this.load = null;
+					this.has_load = 0;
+					break done;
+				}
+
+			}
+			step++;
+		}
+	}
+}
 
 private void updateMemoryHeap(Heap hp){
 	this.memory_h.addLast(hp);

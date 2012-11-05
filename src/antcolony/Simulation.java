@@ -97,7 +97,7 @@ public class Simulation extends JPanel implements Runnable  {
 		this.original = true;
 		this.antColony = new AntColony(conf, grid);
 		this.clustering = clt;
-		this.record = new double[2][10000];
+		this.record = new double[5][10000];
 		this.rec = false;
 	
 	}
@@ -213,6 +213,8 @@ public class Simulation extends JPanel implements Runnable  {
             	this.antColony.sort(tick);
             	this.repaint();
             	if (this.tick%100==0 && this.tick > 0) {
+            		synchronized(antColony){
+            		this.antColony.drop();}
                 	pearson = computePearson(true);
                 	this.clustering.setPearsons(pearson);
                 	entropy = computeEntropy(true);
@@ -228,6 +230,9 @@ public class Simulation extends JPanel implements Runnable  {
                 	if (this.rec && tick < 10000){
                 		this.record[0][tick]=pearson;
                 		this.record[1][tick]=entropy;
+                		this.record[2][tick]=F_m;
+                		this.record[3][tick]=rand;
+                		this.record[4][tick]=InnVar;
                 	}
                 	if (F_m > conf.getMinF()) this.clustering.stop();	
             	}
@@ -276,6 +281,15 @@ public class Simulation extends JPanel implements Runnable  {
 	    				  g.fillRect((int)(it.getX()*this.scale), (int)(it.getY()*this.scale),5,5);
 	    			  }
 	    	  }
+	          if (this.clusters){
+	        	  g.setColor(Color.BLACK);
+	        	  LinkedList<double[]> centers = this.grid.getCenters();
+	        	  if (centers!=null){
+	        	  for (double[] c : centers){
+	        		  g.drawOval((int)(c[0]*this.scale), (int)(c[1]*this.scale),10,10);
+	        		  g.fillOval((int)(c[0]*this.scale)+2, (int)(c[1]*this.scale)+2,6,6);
+	        	  }
+	        	  }}
 	  }
 
 	  
@@ -300,12 +314,12 @@ public class Simulation extends JPanel implements Runnable  {
 				  out.println("Data:\n");
 				  out.println("********************************************************\n");
 				  out.print("Tick "+'\t');
-				  for(String s: new String[]{"Entropy","Pearson"})
+				  for(String s: new String[]{"Entropy","Pearson", "F Measure","Rand Index", "Inner Variance"})
 					  out.print(s + '\t');
 				  out.println();
 				  for (int i=0; i< this.tick;i++){
 					  out.print(Integer.toString(i) +'\t');
-					  for (int j=0; j< 2; j++)
+					  for (int j=0; j<5; j++)
 						  out.print(Double.toString(this.record[j][i])+'\t');
 					  out.println();
 					  }

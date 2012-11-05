@@ -93,7 +93,7 @@ private void generate_items() {
 		// Hard-coded test distribution (Uniform Distribution)
 	
 		case UNIFORM9 :	items = new HashMap<UUID,Item>();
-						this.conf.setnkeys(5);
+						this.conf.setnkeys(2);
 						centers[0][0] = this.conf.getxsize()/6; centers[0][1] = this.conf.getysize()/6;
 						centers[1][0] = this.conf.getxsize()/2; centers[1][1] = this.conf.getysize()/6;
 						centers[2][0] = this.conf.getxsize()/6 * 5; centers[2][1] = this.conf.getysize()/6;
@@ -109,8 +109,8 @@ private void generate_items() {
 							int x = centers[type][0]+(int)((generator.nextDouble()- 0.5)* this.conf.getxsize()/6);
 							int y = centers[type][1]+(int)((generator.nextDouble()- 0.5)* this.conf.getysize()/6);
 							UUID key = UUID.randomUUID();
-							items.put(key,new Item(key,this.conf,x,y,t,type,generate_map(x,y,5)));
-						}
+							items.put(key,new Item(key,this.conf,x,y,t,type,generate_map(x,y)));
+							}
 						conf.setTypes(new String[]{"0","1","2","3","4","5","6","7","8"});
 						conf.setntypes(9);
 						break;
@@ -118,7 +118,7 @@ private void generate_items() {
 		// Hard-coded test distribution (Normal Distribution)
 									
 		case NORMAL4 :	items = new HashMap<UUID,Item>();
-						conf.setnkeys(5);
+						conf.setnkeys(2);
 						centers[0][0] = this.conf.getxsize()/4; centers[0][1] = this.conf.getysize()/4;
 						centers[1][0] = this.conf.getxsize()/4 * 3; centers[1][1] = this.conf.getysize()/4;
 						centers[2][0] = this.conf.getxsize()/4; centers[2][1] = this.conf.getysize()/4 * 3;
@@ -129,7 +129,7 @@ private void generate_items() {
 						int x = centers[type][0]+(int)(generator.nextGaussian()* this.conf.getxsize()/12);
 						int y = centers[type][1]+(int)(generator.nextGaussian()* this.conf.getysize()/12);
 						UUID key = UUID.randomUUID();
-						items.put(key,new Item(key,this.conf,x,y,t,type,generate_map(x,y,5)));
+						items.put(key,new Item(key,this.conf,x,y,t,type,generate_map(x,y)));
 						}
 						conf.setTypes(new String[]{"0","1","2","3"});
 						conf.setntypes(4);
@@ -320,11 +320,12 @@ private void generate_items() {
 		}
 }
 
-private List<Double> generate_map(int x, int y, int l){
+private List<Double> generate_map(int x, int y){
 	List<Double> m = new ArrayList<Double>();
 	double a = (double)x/(double)conf.getxsize();
 	double b = (double)y/(double)conf.getysize();
-	for (int i=0; i<l; i++) m.add(i, (a+b)/2);
+	m.add(a);
+	m.add(b);
 	return m;
 }
 

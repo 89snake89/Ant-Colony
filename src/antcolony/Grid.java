@@ -59,7 +59,8 @@ import java.util.UUID;
 public class Grid {
 
 	private Configuration conf;			// Current configuration
-	private HashMap<UUID,Item> items;				// Current document collection
+	private HashMap<UUID,Item> items;	// Current document collection
+	private LinkedList<double[]> centers;
 	private Cluster[] partition;		// partitions
 	private int num_clusters;
 	private LinkedList<Heap> heaps;
@@ -289,9 +290,16 @@ public class Grid {
 			}
 		}
 		else {
-			KMeans km = new KMeans(this.conf,this.items,this.conf.getntypes(),100,2500,0);
+			LinkedList<UUID> list = new LinkedList<UUID>();
+			for (Item it : items.values()) 
+				if (it.getDensity()> conf.getMinD())
+					list.add(it.getID());
+			if (list.size()>1){
+			KMeans km = new KMeans(this.conf,this.items,0, list,100,2500,2);
 			km.compute();
+			this.centers = km.getCenters();
 			this.partition = km.getClusters();
+			}
 			}
 	}
 
@@ -377,6 +385,16 @@ public class Grid {
 	
 	public void remove_item(int x, int y) {
 		this.cells[x][y] = null;
+
+	}
+	
+	
+	/** Remove item at a given position from the grid
+	* @param x, y the document position on the grid
+	*/
+	
+	public LinkedList<double[]> getCenters() {
+		return this.centers;
 
 	}
 	

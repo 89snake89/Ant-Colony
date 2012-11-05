@@ -54,9 +54,35 @@ public class Configuration {
 	// Simulation parameters
 	private int xsize = 100;
 	private int ysize = 100;
-	private int[] colors = new int[]{0,255,65280,16711680,16776960,16711935,65535,16753920,16729344};
+	private int[] colors = new int[]{16763904,13382502,10066329,6723942,3381606,10053375,13421823,
+									6697830,6684723,6684927,13311,65280,3381708,13395456,65382,10066431,
+									3394611,52428,6737100,16724991,3368703,3381555,16711935,10066176,
+									13421619,6710835,13408512,6750003,16724889,16737996,6724095,13434828,
+									16737843,10079334,10079283,10092339,10053222,16737894,6697881,3381657,
+									13209,52275,39423,10079385,39270,10066380,16711833,16764108,16777011,
+									26367,6697728,3368499,10040217,16763955,10053324,13382655,3394713,
+									16711884,6736998,6697779,6737049,255,16724787,13434624,10053273,
+									6684825,16724940,6710937,3342540,3355596,13369344,10040115,6684672,
+									10040064,13395507,6711039,6723993,3407718,10092441,3368550,13369599,
+									16750950,26316,16750848,3407820,10027008,10053120,26265,6710886,16737945,
+									13382553,10066227,16777215,10066278,26112,3407871,3381504,10027110,
+									16777062,6750207,10027263,3342489,16737792,6684876,13382451,13369548,
+									10079436,3394764,16764159,13434879,3407667,3394815,13056,13408767,
+									6723840,65331,10040268,13421670,3407769,13382604,65535,16750899,
+									153,16724736,102,10027059,10040319,10079487,16711731,3355392,13395609,
+									39321,13408563,3342336,10040166,65433,3368601,51,13421721,6724044,
+									10027212,52326,6736947,26163,13369497,3368448,52377,52224,16764006,
+									10053171,10079232,16776960,13434675,39219,13395711,13382400,26214,
+									16777164,3407616,6749952,10092390,13369446,13434726,6750105,39168,6710988,
+									6697932,6710784,10092492,13260,10092543,16751103,16764057,3355545,
+									13408614,204,10027161,3394662,13421568,10092288,3342387,16711680,
+									13434777,3381759,52479,3355647,16724838,16777113,6750054,16738047,
+									6684774,13395558,3342438,6750156,13408716,6697983,16751052,6723891,
+									13158,3342591,13395660,3394560,6736896,16751001,13107,13421772,39372,
+									6737151,13369395,3355443,65484,16711782,3368652,3355494,13408665};
 	private int cicle = 3000;
 	private double min_f = 0.85;
+	private double min_d = 0.1;
 	
 	// Model parameters
 	public enum Models {ANTCLASS,LUMERFAIETA_S, LUMERFAIETA_M, LUMERFAIETA_R};
@@ -227,6 +253,10 @@ public class Configuration {
 		this.min_f = value;
 	}
 	
+	public void setMinD(double value){
+		this.min_d = value;
+	}
+	
 	public void setParameters(String k, double v){
 		if (k == "X size") 		this.setxsize((int)v); 
 		if (k == "Y size") 		this.setysize((int)v);
@@ -256,7 +286,8 @@ public class Configuration {
 		if (k == "T Remove range") this.setTRemoveRange(v);
 		if (k == "Memory Size") this.setMemsize((int)v);
 		if (k == "Cicle") this.setCicle((int)v);
-		if (k == "Minimum F")this.setMinF(v);	
+		if (k == "Minimum F")this.setMinF(v);
+		if (k == "Minimum Density")this.setMinD(v);
 	}
 	
 /********** simple access functions ********************************************************************/	
@@ -373,6 +404,11 @@ public class Configuration {
 	public double getMinF(){
 		return this.min_f;
 	}
+	
+	public double getMinD(){
+		return this.min_d;
+	}
+	
 	public HashMap<String,Double> getParameters(){
 		HashMap<String,Double> r = new HashMap<String,Double>();
 		switch(this.model){
@@ -383,7 +419,8 @@ public class Configuration {
 						   	 r.put("Kd", this.getKd());
 						   	 r.put("Kp", this.getKp());
 						   	 r.put("Max Speed", new Double(this.getMaxSpeed()));
-						   	 r.put("Minimum F", new Double(this.getMinF()));	
+						   	 r.put("Minimum F", new Double(this.getMinF()));
+						   	 r.put("Minimum Density", new Double(this.getMinD()));
 						   	 break;
 		case LUMERFAIETA_M : r.put("X size", new Double(this.getxsize()));
 		   					 r.put("Y size", new Double(this.getysize()));
@@ -393,7 +430,8 @@ public class Configuration {
 		   					 r.put("Kp", this.getKp());
 		   					 r.put("Max Speed", new Double(this.getMaxSpeed()));
 		   					 r.put("Memory Size", new Double(this.getmemsize()));
-		   					 r.put("Minimum F", new Double(this.getMinF()));	
+		   					 r.put("Minimum F", new Double(this.getMinF()));
+		   					 r.put("Minimum Density", new Double(this.getMinD()));
 		   					 break;
 		case LUMERFAIETA_R : 	r.put("X size", new Double(this.getxsize()));
 		   						r.put("Y size", new Double(this.getysize()));
@@ -401,7 +439,8 @@ public class Configuration {
 		   						r.put("Sigma", new Double(this.getSigma()));
 		   						r.put("Kd", this.getKd());
 		   						r.put("Kp", this.getKp());
-		   						r.put("Minimum F", new Double(this.getMinF()));	
+		   						r.put("Minimum F", new Double(this.getMinF()));
+		   						r.put("Minimum Density", new Double(this.getMinD()));
 		   					break;
 		case ANTCLASS : 	r.put("X size", new Double(this.getxsize()));
 							r.put("Y size", new Double(this.getysize()));

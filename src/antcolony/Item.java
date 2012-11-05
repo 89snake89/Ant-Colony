@@ -56,6 +56,7 @@ public class Item {
 	private boolean isPicked = false;		// flag whether document is picked
 	private boolean isCenter = false;
 	private int cluster;
+	private double density;
 
 /*********** Constructor ****************************************************************************/
 
@@ -72,6 +73,7 @@ public class Item {
 		this.color = cl;
 		this.cluster = 0;
 		this.data = a;
+		this.isPicked = false;
 	}
 
 	/** Constructor given a grid position and initial data*/
@@ -86,6 +88,7 @@ public class Item {
 		this.type = t;
 		this.color = cl;
 		this.data = a;
+		this.isPicked = false;
 	}
 		
 	
@@ -210,6 +213,14 @@ public class Item {
 	
 	public int getCluster(){
 		return this.cluster;
+	}
+	
+	public double getDensity(){
+		return this.density;
+	}
+	
+	public void setDensity(double v){
+		this.density = v;
 	}
 
 /****** item position *********/

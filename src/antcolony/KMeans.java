@@ -44,10 +44,11 @@ public class KMeans {
     // The type of seed centering
     private int type;
     
-    // The configuration
-    private Configuration conf;
-    
     private int xsize, ysize;
+    
+    private LinkedList<double[]> centers;
+    
+    private LinkedList<UUID> init_centers;
   
     /**
      * Constructor
@@ -57,8 +58,8 @@ public class KMeans {
      * @param maxIterations the maximum number of clustering iterations.
      * @param randomSeed seed used with the random number generator.
      */
-    public KMeans(Configuration conf, HashMap<UUID,Item> it, int k, int maxIterations, long randomSeed, int t) {
-    	this.conf = conf;
+    public KMeans(Configuration conf, HashMap<UUID,Item> it, int k, LinkedList<UUID> list, int maxIterations, long randomSeed, int t) {
+
     	this.xsize = conf.getxsize();
     	this.ysize = conf.getysize();
     	mCoordinates = new double[it.size()][3];
@@ -72,8 +73,9 @@ public class KMeans {
         	dictionary[i] = entry.getValue().getID();
         	i++;
         }
-        // Can't have more clusters than coordinates.
-        mK = Math.min(k, mCoordinates.length);
+        init_centers = list;
+        if (k==0) mK = list.size();
+        else mK = Math.min(k, mCoordinates.length);
         mMaxIterations = maxIterations;
         mRandomSeed = randomSeed;
     }
@@ -86,6 +88,16 @@ public class KMeans {
      */
     public Cluster[] getClusters() {
         return mClusters;
+    }
+    
+    /**
+     * Get the clusters computed by the algorithm.  This method should
+     * not be called until clustering has completed successfully.
+     * 
+     * @return an array of Cluster objects.
+     */
+    public LinkedList<double[]> getCenters() {
+        return centers;
     }
     
     /**
@@ -203,6 +215,7 @@ public class KMeans {
         mProtoClusters = new ProtoCluster[mK];
         ArrayList<Integer> ind = new ArrayList<Integer>();
         for (int i=0; i<mK; i++) {
+        	double max_density =0;
             int coordIndex = indices[i];
             switch (type){
             case 0 : 		mProtoClusters[i] = new ProtoCluster(mCoordinates[coordIndex], coordIndex);
@@ -228,6 +241,10 @@ public class KMeans {
                 				ind.add(max);
             					}}
             				}
+            case 2:			int l=0;
+            				while (!dictionary[l].equals(init_centers.get(i))) l++;
+            				mProtoClusters[i] = new ProtoCluster(mCoordinates[l], l);
+        					mClusterAssignments[indices[l]] = i;
             				//System.out.println("Proto cluster "+i+" center: x="+mProtoClusters[i].mCenter[0]+" y="+mProtoClusters[i].mCenter[1]);
 							break;
            }
@@ -267,6 +284,7 @@ public class KMeans {
         }
     }
 
+    
     /** 
      * Compute distances between coodinates and cluster centers,
      * storing them in the distance cache.  Only distances that
@@ -366,7 +384,9 @@ public class KMeans {
      */
     private Cluster[] generateFinalClusters() {
         
-        int numClusters = mProtoClusters.length; 
+        int numClusters = mProtoClusters.length;
+        
+        this.centers = new LinkedList<double[]>();
         
         // Convert the proto-clusters to the final Clusters.
         //
@@ -376,6 +396,7 @@ public class KMeans {
             ProtoCluster pcluster = mProtoClusters[c];
             if (!pcluster.isEmpty()) {
             	int[] members = pcluster.getMembership();
+            	centers.add(pcluster.mCenter);
             	Item[] list = new Item[members.length];
             	int i=0;
             	for (int k : members) {
