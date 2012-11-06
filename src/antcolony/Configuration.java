@@ -91,8 +91,8 @@ public class Configuration {
 	// Ant parameters
 	private int nants = 30;
 	private int max_speed = 20;
-	private int memsize = 5;
-	private int sigma = 2;
+	private int memsize = 8;
+	private int sigma = 5;
 	private double kd = 0.001;
 	private double kp = 0.001;
 	private double alpha = 1.0;
@@ -420,7 +420,7 @@ public class Configuration {
 						   	 r.put("Kp", this.getKp());
 						   	 r.put("Max Speed", new Double(this.getMaxSpeed()));
 						   	 r.put("Minimum F", new Double(this.getMinF()));
-						   	 r.put("Minimum Density", new Double(this.getMinD()));
+//						   	 r.put("Minimum Density", new Double(this.getMinD()));
 						   	 break;
 		case LUMERFAIETA_M : r.put("X size", new Double(this.getxsize()));
 		   					 r.put("Y size", new Double(this.getysize()));
@@ -431,7 +431,7 @@ public class Configuration {
 		   					 r.put("Max Speed", new Double(this.getMaxSpeed()));
 		   					 r.put("Memory Size", new Double(this.getmemsize()));
 		   					 r.put("Minimum F", new Double(this.getMinF()));
-		   					 r.put("Minimum Density", new Double(this.getMinD()));
+//		   					 r.put("Minimum Density", new Double(this.getMinD()));
 		   					 break;
 		case LUMERFAIETA_R : 	r.put("X size", new Double(this.getxsize()));
 		   						r.put("Y size", new Double(this.getysize()));
@@ -440,7 +440,7 @@ public class Configuration {
 		   						r.put("Kd", this.getKd());
 		   						r.put("Kp", this.getKp());
 		   						r.put("Minimum F", new Double(this.getMinF()));
-		   						r.put("Minimum Density", new Double(this.getMinD()));
+//		   						r.put("Minimum Density", new Double(this.getMinD()));
 		   					break;
 		case ANTCLASS : 	r.put("X size", new Double(this.getxsize()));
 							r.put("Y size", new Double(this.getysize()));

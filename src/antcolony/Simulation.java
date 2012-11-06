@@ -213,8 +213,7 @@ public class Simulation extends JPanel implements Runnable  {
             	this.antColony.sort(tick);
             	this.repaint();
             	if (this.tick%100==0 && this.tick > 0) {
-            		synchronized(antColony){
-            		this.antColony.drop();}
+            		this.antColony.drop();
                 	pearson = computePearson(true);
                 	this.clustering.setPearsons(pearson);
                 	entropy = computeEntropy(true);

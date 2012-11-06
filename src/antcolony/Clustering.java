@@ -409,8 +409,8 @@ public class Clustering {
 		table.setModel(toTableModel(h));
 		
 		JCheckBox chckbxDisplayClusters = new JCheckBox("Display clusters");
-		chckbxDisplayClusters.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
+		chckbxDisplayClusters.addChangeListener(new ChangeListener() {
+			public void stateChanged(ChangeEvent arg0) {
 				JCheckBox cb = (JCheckBox) arg0.getSource();
 				simul.setClusters(cb.isSelected());
 				simul.repaint();	

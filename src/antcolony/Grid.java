@@ -42,11 +42,11 @@
 
 package antcolony;
 
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.TreeMap;
 import java.util.UUID;
 
 
@@ -279,6 +279,20 @@ public class Grid {
 				"\nNumber of clusters: "+ num_clusters +"\n";
 	}
 	
+	
+	public static <K, V extends Comparable<V>> TreeMap<K, V> sortByValues(final TreeMap<K, V> map) {
+	    Comparator<K> valueComparator =  new Comparator<K>() {
+	        public int compare(K k1, K k2) {
+	            int compare = map.get(k2).compareTo(map.get(k1));
+	            if (compare == 0) return 1;
+	            else return compare;
+	        }
+	    };
+	    TreeMap<K, V> sortedByValues = new TreeMap<K, V>(valueComparator);
+	    sortedByValues.putAll(map);
+	    return sortedByValues;
+	}
+	
 	public void calculateClusters(){
 		if (conf.getModel()== Configuration.Models.ANTCLASS){
 			this.partition = new Cluster[heaps.size()];
@@ -290,16 +304,20 @@ public class Grid {
 			}
 		}
 		else {
+			TreeMap<UUID,Double> map = new TreeMap<UUID,Double>();
+			for (Item it : items.values()) map.put(it.getID(), this.densityRawAt(it.getX(), it.getinitY()));
+			map = sortByValues(map);
 			LinkedList<UUID> list = new LinkedList<UUID>();
-			for (Item it : items.values()) 
-				if (it.getDensity()> conf.getMinD())
-					list.add(it.getID());
-			if (list.size()>1){
+			int i=0;
+			for (UUID k : map.keySet()) {
+				list.add(k);
+				i++;
+				if (i==conf.getntypes()) break;
+			}
 			KMeans km = new KMeans(this.conf,this.items,0, list,100,2500,2);
 			km.compute();
 			this.centers = km.getCenters();
 			this.partition = km.getClusters();
-			}
 			}
 	}
 
@@ -455,6 +473,42 @@ public class Grid {
 				Item it1 = this.getItemAt(jh, ih);
 				sum += (1 - distance.get(it.getID(),it1.getID())/div);
 				}
+					
+			}
+		}	
+		double size = sigma*2+1;
+		size *= size;
+		size -= 1;
+		return Math.max(0.0, (sum/size));
+
+	}
+    
+    public double densityRawAt(int x, int y ) {
+    	
+    	int xsize = this.conf.getxsize();
+		int ysize = this.conf.getysize();
+		int sigma = xsize/5;
+		int xhigh = x + sigma;
+		int yhigh = y + sigma;
+		int xlow = x - sigma;
+		int ylow = y - sigma;
+		
+
+		
+		int ih, jh;
+		double sum = 0;
+
+		for (int i = ylow; i <= yhigh; i++) {
+			for (int j = xlow; j <= xhigh; j++) {
+				ih = i;
+				jh = j;
+				
+				if (jh < 0) jh = xsize + jh%xsize;
+				if (jh >= xsize) jh = jh%xsize;
+				if (ih < 0) ih = ysize + ih%ysize;
+				if (ih >= ysize) ih = ih%ysize;
+				
+				if ( occupied_item(jh,ih) && (jh != x || ih != y) ) sum++;
 					
 			}
 		}	

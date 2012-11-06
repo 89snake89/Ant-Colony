@@ -179,7 +179,6 @@ public boolean drop_lumer_faieta() {
 	if ((fail == 100) || (Math.random() < pdrop(f))) {
 		if (!grid.occupied_item(this.x,this.y)) {
 			this.load.setPicked(false);
-			this.load.setDensity(f);
 			grid.put_item(this.x, this.y, this.load);
 			this.load = null;
 			fail = 0;
@@ -201,8 +200,10 @@ public void move_lumer_faieta(boolean f, Configuration.Models model) {
 	
 	switch (model) {
 	
-	case LUMERFAIETA_M : 	if (this.load != null && this.memory_i.size() > 0){
-								Item i = this.getMostSimilar(this.load);
+	case LUMERFAIETA_M : 	if (this.memory_i.size() > 0){
+								Item i = null;
+								if (this.hasLoad())i = this.getMostSimilar(this.load);
+								else i = memory_i.removeFirst();
 								this.x = i.getX();
 								this.y = i.getY();
 							}
@@ -242,7 +243,7 @@ public void move_random_item(boolean f, Item it){
 	while (loop) {
 		int x_coor = (int)(Math.random()*conf.getxsize());
 		int	y_coor = (int)(Math.random()*conf.getysize());
-		if (grid.occupied_item(x_coor,y_coor) == f && this.grid.densityAt(x_coor, y_coor, it)> 0.0) {
+		if (grid.occupied_item(x_coor,y_coor) == f) {
 			this.x = x_coor;
 			this.y = y_coor;
 			loop = false;
@@ -501,12 +502,13 @@ public void cleanMemory(){
 
 private Item getMostSimilar(Item it){
 	double min_dist = Double.MAX_VALUE;
-	int min=0;
-	for (int i=0; i< this.memory_i.size();i++){
-		double d = this.memory_i.get(i).distance(it, 2);
+	Item min = null;
+	System.out.println(memory_i.size());
+	for (Item i: this.memory_i){
+		double d = i.distance(it, 2);
 		if (d < min_dist) {min_dist=d; min=i;}
 	}
-	return this.memory_i.remove(min);
+	return this.memory_i.get(this.memory_i.indexOf(min));
 }
 
 }
