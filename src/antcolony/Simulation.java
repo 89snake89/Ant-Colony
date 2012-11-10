@@ -384,11 +384,11 @@ public class Simulation extends JPanel implements Runnable  {
 		}
 		double sum = 0;
 		double log2 = Math.log(2);
-		for (int i=0; i < xdim; i++) 
+		for (int i=0; i < xdim; i++) {
 			for (int j=0; j < ydim; j++) {
 				double p = bins[i][j]/count;
 				if (p > 0) sum += p * Math.log(p)/log2;
-			}
+			}}
 		return -sum;
 	}
 
@@ -424,11 +424,11 @@ public class Simulation extends JPanel implements Runnable  {
 				}
 			}
 			}
-		for (int j=0; j< p.length;j++)
+		for (int j=0; j< p.length;j++){
 			for (int i=0;i<types.length;i++)
 				if (p[j]!= null) 
 					F[i][j]= 2* prec[i][j] * recl[i][j] / (prec[i][j] + recl[i][j]);
-		
+		}
 		for (int i=0;i<types.length;i++){
 			F_max[i]=0;
 			for (int j=0; j< p.length;j++)if (F[i][j] > F_max[i]) F_max[i]=F[i][j];
@@ -463,14 +463,14 @@ public class Simulation extends JPanel implements Runnable  {
 		int b=0;
 		int c=0;
 		int d=0;
-		for (UUID key : items.keySet())
+		for (UUID key : items.keySet()){
 			for (UUID key1 : items.keySet()){
 					if (key == key1) continue;
 					if (clust.get(key)==clust.get(key1) && part.get(key)==part.get(key1)) a++;
 					if (clust.get(key)==clust.get(key1) && part.get(key)!=part.get(key1)) b++;
 					if (clust.get(key)!=clust.get(key1) && part.get(key)==part.get(key1)) c++;
 					if (clust.get(key)!=clust.get(key1) && part.get(key)!=part.get(key1)) d++;
-				}
+				}}
 		return ((double)(a+d))/((double) (a+b+c+d));
 	}
 	

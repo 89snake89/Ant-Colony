@@ -80,13 +80,13 @@ public class Configuration {
 									6684774,13395558,3342438,6750156,13408716,6697983,16751052,6723891,
 									13158,3342591,13395660,3394560,6736896,16751001,13107,13421772,39372,
 									6737151,13369395,3355443,65484,16711782,3368652,3355494,13408665};
-	private int cicle = 3000;
+	private int cicle = 1000;
 	private double min_f = 0.85;
 	private double min_d = 0.1;
 	
 	// Model parameters
-	public enum Models {ANTCLASS,LUMERFAIETA_S, LUMERFAIETA_M, LUMERFAIETA_R};
-	private Models model = Models.ANTCLASS;
+	public enum Models {ANTCLASS1, ANTCLASS2 ,LUMERFAIETA_S, LUMERFAIETA_M, LUMERFAIETA_R};
+	private Models model = Models.ANTCLASS1;
 	
 	// Ant parameters
 	private int nants = 30;
@@ -442,7 +442,7 @@ public class Configuration {
 		   						r.put("Minimum F", new Double(this.getMinF()));
 //		   						r.put("Minimum Density", new Double(this.getMinD()));
 		   					break;
-		case ANTCLASS : 	r.put("X size", new Double(this.getxsize()));
+		case ANTCLASS1 : 	r.put("X size", new Double(this.getxsize()));
 							r.put("Y size", new Double(this.getysize()));
 							r.put("N of ants", new Double(this.getnants()));
 							r.put("N of items", new Double(this.getnitems()));
@@ -466,6 +466,31 @@ public class Configuration {
 		   					r.put("Memory Size", new Double(this.getmemsize()));
 							r.put("Cicle", new Double(this.getCicle()));
 		   					r.put("Minimum F", new Double(this.getMinF()));	   					
+							break;
+		case ANTCLASS2 : 	r.put("X size", new Double(this.getxsize()));
+							r.put("Y size", new Double(this.getysize()));
+							r.put("N of ants", new Double(this.getnants()));
+							r.put("N of items", new Double(this.getnitems()));
+							r.put("N of keys", new Double(this.getnkeys()));
+							r.put("Max Carry low", new Double(this.getMaxCarryLow()));
+							r.put("Max Carry range", new Double(this.getMaxCarryRange()));
+							r.put("Speed low", new Double(this.getSpeedLow()));
+							r.put("Speed range", new Double(this.getSpeedRange()));
+							r.put("P Load low", new Double(this.getPLoadLow()));
+							r.put("P Load range", new Double(this.getPLoadRange()));
+							r.put("P Drop low", new Double(this.getPDropLow()));
+							r.put("P Drop range", new Double(this.getPDropRange()));
+							r.put("P Destroy low", new Double(this.getPDestroyLow()));
+							r.put("P Destroy range", new Double(this.getPDestroyRange()));
+							r.put("P Direction low", new Double(this.getPDirectionLow()));
+							r.put("P Direction range", new Double(this.getPDirectionRange()));
+							r.put("T Create low", new Double(this.getTCreateLow()));
+							r.put("T Create range", new Double(this.getTCreateRange()));
+							r.put("T Remove low", new Double(this.getTRemoveLow()));
+							r.put("T Remove range", new Double(this.getTRemoveRange()));
+							r.put("Memory Size", new Double(this.getmemsize()));
+							r.put("Cicle", new Double(this.getCicle()));
+							r.put("Minimum F", new Double(this.getMinF()));	   					
 							break;
 		}
 		return r;

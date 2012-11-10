@@ -306,7 +306,7 @@ public void move_ant_class(){
 }
 
 public void pick_ant_class(){
-	done: for (int i= -1 ; i<=1; i++)
+	done: for (int i= -1 ; i<=1; i++){
 			for (int j= -1; j<=1; j++){
 				int x_coor = this.x + i;
 				int	y_coor = this.y + j;
@@ -344,12 +344,12 @@ public void pick_ant_class(){
 						}
 					}
 							
-			}
+			}}
 	}
 
 
 public void pick_ant_class_heap(){
-	done: for (int i= -1 ; i<=1; i++)
+	done: for (int i= -1 ; i<=1; i++){
 			for (int j= -1; j<=1; j++){
 				int x_coor = this.x + i;
 				int	y_coor = this.y + j;
@@ -367,12 +367,12 @@ public void pick_ant_class_heap(){
 						break done;
 					}
 				}
-			}
+			}}
 
 }
 
 public void drop_ant_class(){
-	done: for (int i= -1 ; i<=1; i++)
+	done: for (int i= -1 ; i<=1; i++){
 			for (int j= -1; j<=1; j++){
 				int x_coor = this.x + i;
 				int	y_coor = this.y + j;
@@ -413,11 +413,11 @@ public void drop_ant_class(){
 						break done;
 					}
 				}
-			}
+			}}
 }
 
 public void drop_ant_class_heap(){
-	done: for (int i= -1 ; i<=1; i++)
+	done: for (int i= -1 ; i<=1; i++){
 			for (int j= -1; j<=1; j++){
 				int x_coor = this.x + i;
 				int	y_coor = this.y + j;
@@ -447,7 +447,7 @@ public void drop_ant_class_heap(){
 					break done;
 				}
 
-			}
+			}}
 }
 
 public void drop(){
@@ -503,7 +503,6 @@ public void cleanMemory(){
 private Item getMostSimilar(Item it){
 	double min_dist = Double.MAX_VALUE;
 	Item min = null;
-	System.out.println(memory_i.size());
 	for (Item i: this.memory_i){
 		double d = i.distance(it, 2);
 		if (d < min_dist) {min_dist=d; min=i;}

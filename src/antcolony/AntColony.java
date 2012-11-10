@@ -138,7 +138,7 @@ public class AntColony {
 								}
 								break;
 								
-		case ANTCLASS 		: 	if (phase==1 && tg) {phase = 2; tg=false;}
+		case ANTCLASS1 		: 	if (phase==1 && tg) {phase = 2; tg=false;}
 								if (phase==1 && !tg) {phase = 0; tg=true;}
 								if (tick%this.cicle==0 && tick >0) phase=1;
 								for (int a = 0; a< conf.getnants(); a++) {
@@ -165,6 +165,26 @@ public class AntColony {
 							  }
 							  this.cleanMemories();
 							  break;
+		case ANTCLASS2 		: 	phase = 0;
+								if (tick%this.cicle==0 && tick >0) phase=1;
+								for (int a = 0; a< conf.getnants(); a++) {
+
+									switch (phase){
+									case 0: ants[a].move_ant_class();
+											if ( ants[a].hasLoad())
+												ants[a].drop_ant_class();
+											else
+												ants[a].pick_ant_class();
+											break;
+					
+									case 1: this.grid.kmeans_heaps();
+											this.grid.cluster_heaps();
+											break;
+
+		}
+	  }
+	  this.cleanMemories();
+	  break;
 		}	
 	}
 	

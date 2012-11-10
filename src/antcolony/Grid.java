@@ -42,6 +42,7 @@
 
 package antcolony;
 
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -88,11 +89,11 @@ public class Grid {
 		this.heaps = new LinkedList<Heap>();
 		this.cells = new UUID[this.conf.getxsize()][this.conf.getysize()];
 		this.hcells = new UUID[this.conf.getxsize()][this.conf.getysize()];
-		for (int i=0; i < conf.getxsize(); i++)
+		for (int i=0; i < conf.getxsize(); i++){
 			for (int j=0; j< conf.getysize(); j++){
 				this.cells[i][j] = null;
 				this.hcells[i][j] = null;
-				}
+				}}
 		this.distance = new DistanceMatrix(data, conf);
 		scatterItems();
 	}
@@ -123,21 +124,21 @@ public class Grid {
 	* Clear the grid
 	*/
 	public void clear_cells() {
-		for (int i=0; i<conf.getxsize(); i++)
+		for (int i=0; i<conf.getxsize(); i++){
 			for (int j=0; j<conf.getysize(); j++){
 				this.cells[i][j]=null;
 				}
-	}
+	}}
 	
 	/**
 	* Clear the grid
 	*/
 	public void clear_heaps() {
-		for (int i=0; i<conf.getxsize(); i++)
+		for (int i=0; i<conf.getxsize(); i++){
 			for (int j=0; j<conf.getysize(); j++){
 				this.hcells[i][j]=null;
 				}
-	}
+	}}
 
 	/**** simple access functions *********************************************************/
 	 
@@ -254,11 +255,11 @@ public class Grid {
 		int sum6=0;
 		this.num_clusters=0;
 		int maxh=0;
-		for (int i=0; i< conf.getxsize();i++)
+		for (int i=0; i< conf.getxsize();i++){
 			for (int j=0; j< conf.getxsize();j++){
 				if (occupied_item(i,j)) sum1++;
 				if (occupied_heap(i,j)) sum2++;
-				}
+				}}
 		for (UUID key : this.items.keySet()) if (items.get(key).isPicked()) sum3++;
 		Iterator<Heap> it = this.heaps.iterator();
 		while (it.hasNext()) {
@@ -294,7 +295,7 @@ public class Grid {
 	}
 	
 	public void calculateClusters(){
-		if (conf.getModel()== Configuration.Models.ANTCLASS){
+		if (conf.getModel()== Configuration.Models.ANTCLASS1 || conf.getModel()== Configuration.Models.ANTCLASS2){
 			this.partition = new Cluster[heaps.size()];
 			int j=0;
 			for (Heap h : this.heaps){
@@ -368,6 +369,51 @@ public class Grid {
 		}
 	}
 	
+	public void cluster_heaps(){
+		int l = this.heaps.size();
+		if (l>1){
+		double[][] mat = new double[l][l];
+		for (int i=0; i<l-1; i++){
+			for (int j=i+1; j<l;j++)
+				mat[i][j]= this.heaps.get(i).computeDistanceCenterMassVector(this.heaps.get(j).getCenterMass());
+			}
+		for (int i=0; i<l-1; i++){
+			for (int j=i+1; j<l; j++){
+				if (this.heaps.get(i)!=null){
+				if (mat[i][j] < this.heaps.get(i).getMaxDissimilar()){
+					this.heaps.get(i).putItems(this.heaps.get(j).getItems());
+					for(int n=0; n<l; n++) mat[n][j]= Double.MAX_VALUE;
+					this.heaps.set(j, null);
+				}
+			}}
+		}
+		this.heaps.removeAll(Collections.singletonList(null));
+		clear_heaps();
+		for (Heap h : this.heaps) this.hcells[h.getX()][h.getY()]= h.getID();
+		}
+		else if (l==1){
+			LinkedList<Item> ite = this.heaps.getFirst().getItems();
+			Iterator<Item> it = ite.iterator();
+			while (it.hasNext()){
+				Item i = it.next();
+				boolean f = true;
+				while (f){
+					int x_coor = (int)(Math.random()* this.conf.getxsize());
+					int y_coor = (int)(Math.random()* this.conf.getysize());
+					if (this.occupied_item(x_coor, y_coor)){
+						i.setXY(x_coor, y_coor);
+						this.put_item(i.getX(), i.getY(), i);
+						this.items.put(i.getID(), i);
+						f = false;
+					}
+				}	
+			}
+			clear_heaps();
+			this.heaps.clear();
+		}
+			
+		}
+	
 	/**** simple manipulation *******************************************************/
 	
 	
@@ -393,6 +439,7 @@ public class Grid {
 		if (this.hcells[x][y]!=null) {
 			System.out.println("Alarm tried to stack heaps");
 		}
+		heap.setXY(x, y);
 		this.hcells[x][y]= heap.getID();
 		this.heaps.add(heap);
 	}
