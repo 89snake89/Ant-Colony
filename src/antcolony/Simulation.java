@@ -77,6 +77,7 @@ public class Simulation extends JPanel implements Runnable  {
 	private double[][] record;
 	private PrintWriter out;
 	private boolean rec;
+	private int cicle;
 
 		
 /********************** Constructor **************************************************************/
@@ -233,11 +234,12 @@ public class Simulation extends JPanel implements Runnable  {
                 		this.record[3][tick]=rand;
                 		this.record[4][tick]=InnVar;
                 	}
-                	if (F_m > conf.getMinF()) this.clustering.stop();	
+                	if (F_m > conf.getMinF()) this.clustering.stop("\nReached minimum F");
             	}
 
             	this.clustering.setTick(tick);
-            	tick++;           	
+            	tick++;
+            	if (tick > conf.getCicle2() || (tick>conf.getCicle1() && conf.getModel()== Configuration.Models.ANTCLASS2) ) this.clustering.stop("\nEnd of Simulation");
             	if (interrupted) {
             		synchronized(this) {
             			while (interrupted)

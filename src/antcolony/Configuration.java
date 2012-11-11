@@ -80,7 +80,8 @@ public class Configuration {
 									6684774,13395558,3342438,6750156,13408716,6697983,16751052,6723891,
 									13158,3342591,13395660,3394560,6736896,16751001,13107,13421772,39372,
 									6737151,13369395,3355443,65484,16711782,3368652,3355494,13408665};
-	private int cicle = 1000;
+	private int cicle1 = 2000;
+	private int cicle2 = 5000;
 	private double min_f = 0.85;
 	private double min_d = 0.1;
 	
@@ -245,8 +246,12 @@ public class Configuration {
 		this.filename = value;
 	}
 	
-	public void setCicle(int value){
-		this.cicle = value;
+	public void setCicle1(int value){
+		this.cicle1 = value;
+	}
+	
+	public void setCicle2(int value){
+		this.cicle2 = value;
 	}
 	
 	public void setMinF(double value){
@@ -285,7 +290,8 @@ public class Configuration {
 		if (k == "T Remove low") this.setTRemoveLow(v);
 		if (k == "T Remove range") this.setTRemoveRange(v);
 		if (k == "Memory Size") this.setMemsize((int)v);
-		if (k == "Cicle") this.setCicle((int)v);
+		if (k == "Cicle 1") this.setCicle1((int)v);
+		if (k == "Cicle 2") this.setCicle2((int)v);
 		if (k == "Minimum F")this.setMinF(v);
 		if (k == "Minimum Density")this.setMinD(v);
 	}
@@ -398,8 +404,11 @@ public class Configuration {
 	public String getFilename() {
 		return this.filename;
 	}
-	public int getCicle(){
-		return this.cicle;
+	public int getCicle1(){
+		return this.cicle1;
+	}
+	public int getCicle2(){
+		return this.cicle2;
 	}
 	public double getMinF(){
 		return this.min_f;
@@ -464,7 +473,8 @@ public class Configuration {
 							r.put("T Remove low", new Double(this.getTRemoveLow()));
 							r.put("T Remove range", new Double(this.getTRemoveRange()));
 		   					r.put("Memory Size", new Double(this.getmemsize()));
-							r.put("Cicle", new Double(this.getCicle()));
+							r.put("Cicle 1", new Double(this.getCicle1()));
+							r.put("Cicle 2", new Double(this.getCicle2()));
 		   					r.put("Minimum F", new Double(this.getMinF()));	   					
 							break;
 		case ANTCLASS2 : 	r.put("X size", new Double(this.getxsize()));
@@ -489,7 +499,8 @@ public class Configuration {
 							r.put("T Remove low", new Double(this.getTRemoveLow()));
 							r.put("T Remove range", new Double(this.getTRemoveRange()));
 							r.put("Memory Size", new Double(this.getmemsize()));
-							r.put("Cicle", new Double(this.getCicle()));
+							r.put("Cicle 1", new Double(this.getCicle1()));
+							r.put("Cicle 2", new Double(this.getCicle2()));
 							r.put("Minimum F", new Double(this.getMinF()));	   					
 							break;
 		}

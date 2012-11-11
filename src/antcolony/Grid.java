@@ -47,6 +47,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
 
@@ -315,7 +316,7 @@ public class Grid {
 				i++;
 				if (i==conf.getntypes()) break;
 			}
-			KMeans km = new KMeans(this.conf,this.items,0, list,100,2500,2);
+			KMeans km = new KMeans(this.conf,this.items,0, list,10,2500,2);
 			km.compute();
 			this.centers = km.getCenters();
 			this.partition = km.getClusters();
@@ -371,47 +372,26 @@ public class Grid {
 	
 	public void cluster_heaps(){
 		int l = this.heaps.size();
-		if (l>1){
-		double[][] mat = new double[l][l];
+		if (l>2){
+		TreeMap<Double,int[]> map = new TreeMap<Double,int[]>();
 		for (int i=0; i<l-1; i++){
 			for (int j=i+1; j<l;j++)
-				mat[i][j]= this.heaps.get(i).computeDistanceCenterMassVector(this.heaps.get(j).getCenterMass());
+				map.put(this.heaps.get(i).computeDistanceCenterMassVector(this.heaps.get(j).getCenterMass()),new int[]{i,j});
 			}
-		for (int i=0; i<l-1; i++){
-			for (int j=i+1; j<l; j++){
-				if (this.heaps.get(i)!=null){
-				if (mat[i][j] < this.heaps.get(i).getMaxDissimilar()){
-					this.heaps.get(i).putItems(this.heaps.get(j).getItems());
-					for(int n=0; n<l; n++) mat[n][j]= Double.MAX_VALUE;
-					this.heaps.set(j, null);
-				}
-			}}
+		LinkedList<Integer> done = new LinkedList<Integer>();
+		for (Map.Entry<Double,int[]> entry: map.entrySet()){
+			if (!done.contains(entry.getValue()[0]) && !done.contains(entry.getValue()[1]) && done.size() < l-3)
+			if (entry.getKey() < this.heaps.get(entry.getValue()[1]).getMaxDissimilar()){
+				this.heaps.get(entry.getValue()[0]).putItems(this.heaps.get(entry.getValue()[1]).getItems());
+				done.add(entry.getValue()[1]);
+				this.heaps.set(entry.getValue()[1], null);
+			}
 		}
 		this.heaps.removeAll(Collections.singletonList(null));
 		clear_heaps();
 		for (Heap h : this.heaps) this.hcells[h.getX()][h.getY()]= h.getID();
 		}
-		else if (l==1){
-			LinkedList<Item> ite = this.heaps.getFirst().getItems();
-			Iterator<Item> it = ite.iterator();
-			while (it.hasNext()){
-				Item i = it.next();
-				boolean f = true;
-				while (f){
-					int x_coor = (int)(Math.random()* this.conf.getxsize());
-					int y_coor = (int)(Math.random()* this.conf.getysize());
-					if (this.occupied_item(x_coor, y_coor)){
-						i.setXY(x_coor, y_coor);
-						this.put_item(i.getX(), i.getY(), i);
-						this.items.put(i.getID(), i);
-						f = false;
-					}
-				}	
-			}
-			clear_heaps();
-			this.heaps.clear();
-		}
-			
+
 		}
 	
 	/**** simple manipulation *******************************************************/

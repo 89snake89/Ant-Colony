@@ -486,8 +486,8 @@ public class Clustering {
 		textPane.setText(s);
 	}
 	
-	public void stop(){
-		textPane.setText(textPane.getText()+"\n Reached minimum F");
+	public void stop(String text){
+		textPane.setText(textPane.getText()+text);
 		synchronized (simul){
 			simul.setInterrupted(true);
 			simul.notify();

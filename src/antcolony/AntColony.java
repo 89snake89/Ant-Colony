@@ -48,7 +48,6 @@ public class AntColony {
 	private Configuration.Models model;
 	private Grid grid;
 	private int phase;
-	private int cicle;
 	private boolean tg;
 
 	
@@ -65,7 +64,6 @@ public class AntColony {
 		this.model = conf.getModel();
 		this.grid = grid;
 		this.phase = 0;
-		this.cicle = conf.getCicle();
 		this.tg = true;
 		this.ants = new Ant[this.conf.getnants()];
 		for (int i = 0; i < this.conf.getnants(); i++) ants[i] = new Ant(grid,conf);
@@ -138,9 +136,11 @@ public class AntColony {
 								}
 								break;
 								
-		case ANTCLASS1 		: 	if (phase==1 && tg) {phase = 2; tg=false;}
-								if (phase==1 && !tg) {phase = 0; tg=true;}
-								if (tick%this.cicle==0 && tick >0) phase=1;
+		case ANTCLASS1 		: 	phase = 0;
+								if (tick == conf.getCicle1()) phase = 1;
+								if (tick > conf.getCicle1()) phase = 2;
+								if (tick == conf.getCicle2()) phase = 1;
+								if (tick > conf.getCicle2()) break;
 								for (int a = 0; a< conf.getnants(); a++) {
 			
 								switch (phase){
@@ -166,7 +166,8 @@ public class AntColony {
 							  this.cleanMemories();
 							  break;
 		case ANTCLASS2 		: 	phase = 0;
-								if (tick%this.cicle==0 && tick >0) phase=1;
+								if (tick==conf.getCicle1()) phase=1;
+								if (tick > conf.getCicle1()) break;
 								for (int a = 0; a< conf.getnants(); a++) {
 
 									switch (phase){
