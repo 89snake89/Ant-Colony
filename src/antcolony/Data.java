@@ -1,32 +1,3 @@
-/*  
-    Copyright (C) 2012 Antonio Fonseca
-    Email: Julia.Handl@gmx.de
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-*/
-
-/*****************************************************************
-	Antonio Fonseca
-	antoniofilipefonseca@gmail.com
-	"Data.java"
-	Package: JavaAnts
-	
-	Super Class for the Representation of Item Collections
-*****************************************************************/
-
 package antcolony;
 
 import java.io.BufferedReader;
@@ -44,31 +15,53 @@ import antcolony.Configuration.Datasets;
 
 
 /**
-* Super Class for the Representation of Document Collections
-*/
+ * The Data class is class to build the datasets used by the application.
+ * This class needs the following files in the same directory of the running applications:
+ * <ul>
+ * <li> <b>Iris.csv</b> a file with the Iris dataset with all features scaled between in the interval [0,1],
+ * the last column should be a string with the class for each instance. 4 attributes, 3 classes.
+ * <li> <b>Wine.csv</b> a file with the Iris dataset with all features scaled between in the interval [0,1],
+ * the last column should be a string with the class for each instance. 13 attributes, 3 classes.
+ * <li> <b>Glass.csv</b> a file with the Iris dataset with all features scaled between in the interval [0,1],
+ * the last column should be a string with the class for each instance. 9 attributes, 6 classes.
+ * <li> <b>Breast.csv</b> a file with the Iris dataset with all features scaled between in the interval [0,1],
+ * the last column should be a string with the class for each instance. 9 attributes, 2 classes.
+ * </ul>
+ * <p>
+ * The fist two datasets <b>UNIFORM9</b> and <b>NORMAL4</b> are built by this class, all the others are loaded from the files.
+ * 
+ * @author      António Fonseca
+ * @version     1.2
+ * @since       1.0
+ * */
 public class Data {
 	
 	private Configuration conf;
 	private HashMap<UUID,Item> items;          // document collection
-	//private Double [] keys;
 	private List<List<String>> csvData;
 	
 
 	
     /** 
-    * Create new document collection from provided data */
-    
+    * Constructor using one configuration
+    * @param c the configuration
+    * */
 	public Data(Configuration c) {
 		this.conf = c;
 		generate_items();
 	}
 
-	/** get the number of items */
+	/** Get the number of items
+	 *  in the current data.
+	 *  @return number of items
+	 * */
 	public int getnitems() {
 		return this.items.size();
 	}
 	
-	/** retrieve all items */
+	/** Retrieve all items
+	 * @return HashMap with items IDs and the items
+	 * */
 	public HashMap<UUID,Item> getItems() {
 		return this.items;
 	}
@@ -77,8 +70,6 @@ public class Data {
 /*********** hardcoded generation of artificial data *************************************/
 
 /** Generate the hardcoded data for the test distributions
-* @param dist switch between the three possible distributions (0, 1 or 2)
-* @return the generated test data
 */
 
 private void generate_items() {
@@ -320,6 +311,9 @@ private void generate_items() {
 		}
 }
 
+
+/** Generate a map of the synthetic item to include in the data
+*/
 private List<Double> generate_map(int x, int y){
 	List<Double> m = new ArrayList<Double>();
 	double a = (double)x/(double)conf.getxsize();
@@ -329,7 +323,8 @@ private List<Double> generate_map(int x, int y){
 	return m;
 }
 
-
+/** Read a csv file with the data for the UCI datasets
+*/
 private int readCsvFile(String csvFileName) throws IOException {
 
     String line = null;

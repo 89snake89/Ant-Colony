@@ -1,45 +1,3 @@
-/*  
-    Copyright (C) 2012 Antonio Fonseca
-    Email: antoniofilipefonseca@gmail.com
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-*/
-
-/*****************************************************************
-	Antonio Fonseca
-	antoniofilipefonseca@gmail.com
-
-	File: Grid.java
-	Package: antcolony
-
-	Description: 
-
-	* Represents the grid underlying a simulation, provides functions
-	  for access and manipulation
-	* Stores all essential information (ant and item positions)
-
-	* Generates:
-		- initial random distribution for items
-	* Provides functions used by ants:
-		- density function
-
-
-*****************************************************************/
-
-
 package antcolony;
 
 import java.util.Collections;
@@ -52,12 +10,17 @@ import java.util.TreeMap;
 import java.util.UUID;
 
 
-
-/**  Represents the grid underlying a simulation, provides functions
-*	  for access and manipulation
-*/
-
-
+/**
+ * This is a complex class that not also represents the grid underlying a simulation,
+ * but also provides functions for access and manipulation but also other algorithms
+ * of the application.
+ * <p>
+ * This class is used by all the other classes as a medium for running the simulations
+ * 
+ * @author      António Fonseca
+ * @version     2.1
+ * @since       1.0
+ * */
 public class Grid {
 
 	private Configuration conf;			// Current configuration
@@ -73,11 +36,9 @@ public class Grid {
 	
 	/**** Constructor and Initialisation **************************************************************/
 
-
-	
 	/** Constructor
 	* @param conf the current parameter settings
-	* @param items in the current document data
+	* @param data in the current dataset
 	*/
 	public Grid(Configuration conf, Data data) {
 
@@ -101,7 +62,7 @@ public class Grid {
 
 	
 	/**
-	* Advise random position on the grid to all items
+	* Scatters the items over the grid
 	*/
 	public void scatterItems() {
 		int x, y;
@@ -122,7 +83,7 @@ public class Grid {
 	
 	
 	/**
-	* Clear the grid
+	* Clear items in the grid
 	*/
 	public void clear_cells() {
 		for (int i=0; i<conf.getxsize(); i++){
@@ -132,7 +93,7 @@ public class Grid {
 	}}
 	
 	/**
-	* Clear the grid
+	* Clear the heaps in the grid
 	*/
 	public void clear_heaps() {
 		for (int i=0; i<conf.getxsize(); i++){
@@ -145,9 +106,9 @@ public class Grid {
 	 
 
 	/**
-	* Get the distance matrix
+	* Get the distance matrix stored in this grid
+	* @return distance matrix
 	*/
-	
 	public DistanceMatrix getDistanceMatrix() {
 		return this.distance;
 	}
@@ -155,7 +116,7 @@ public class Grid {
 	/** Get the Item for a given grid position
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
-	* @return the document null if empty
+	* @return the item null if empty
 	*/
 	public Item getItemAt(int x, int y) {
 		return this.items.get(cells[x][y]);
@@ -164,7 +125,7 @@ public class Grid {
 	/** Get the Heap for a given grid position
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
-	* @return the document null if empty
+	* @return the heap null if empty
 	*/
 	public Heap heapAt(int x, int y) {
 		UUID id = hcells[x][y];
@@ -184,9 +145,8 @@ public class Grid {
 	/** Check if a cell is occupied by a item
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
-	* @return the state of occupation
+	* @return the boolean state of occupation
 	*/
-
 	public boolean occupied_item(int x, int y) {
 		return (this.cells[x][y] != null);
 	}
@@ -194,9 +154,8 @@ public class Grid {
 	/** Check if a cell is occupied by an heap
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
-	* @return the state of occupation
+	* @return the boolean state of occupation
 	*/
-
 	public boolean occupied_heap(int x, int y) {
 		return (this.hcells[x][y] != null);
 	}
@@ -204,48 +163,43 @@ public class Grid {
 	/** Check if a cell is occupied by an heap
 	* @param x the provided grid x-coordinate
 	* @param y the provided grid y-coordinate
-	* @return the state of occupation
+	* @return the boolean state of occupation
 	*/
-
 	public boolean occupied(int x, int y) {
 		return (this.hcells[x][y] != null || this.cells[x][y]!= null);
 	}
 
-	/** Get the item number by id
-	* @param x the provided grid x-coordinate
-	* @param y the provided grid y-coordinate
-	* @return the Item object
-	*/
-
-	public Item getById(int id) {
-		return this.items.get(id);
-	}
-
-	/** Get the colection of items
+	/** Get the collection of items
+	 * @return the collection of items
 	*/
 	public HashMap<UUID,Item> getItems() {
 		return this.items;
 	}
 	
-	/** Get the partition of clusters
-	*/
-	public Cluster[] getClusters() {
-		return this.partition;
-	}
-	
-	/** Get the colection of heaps
+	/** Get the collection of heaps
+	 * @return the collection of heaps
 	*/
 	public LinkedList<Heap> getHeaps() {
 		return this.heaps;
 	}
 	
-	
+	/** Get the partition of clusters
+	 * @return the existing clusters in this grid
+	*/
+	public Cluster[] getClusters() {
+		return this.partition;
+	}
+
+	/** Decrement the pheromone in all the heaps in this grid.
+	*/
 	public void decPheromone(){
 		Iterator<Heap> it = this.heaps.iterator();
 		while (it.hasNext()) it.next().decPheromone();
 	}
 	
 	/** print short statistics about the grid
+	 * to be shown in the panel
+	 * @return a string with the satistics
 	*/
 	public String printStats(){
 		int sum1=0;
@@ -281,7 +235,10 @@ public class Grid {
 				"\nNumber of clusters: "+ num_clusters +"\n";
 	}
 	
-	
+	/** Sort by values a Tree Map
+	 * @param map the TreeMap to be sorted
+	 * @return the sorted map
+	*/
 	public static <K, V extends Comparable<V>> TreeMap<K, V> sortByValues(final TreeMap<K, V> map) {
 	    Comparator<K> valueComparator =  new Comparator<K>() {
 	        public int compare(K k1, K k2) {
@@ -295,6 +252,11 @@ public class Grid {
 	    return sortedByValues;
 	}
 	
+	
+	/** Compute the clusters that exist in this grid for measurement purposes,
+	 *  in case of ANTCLASS models make them equal to the already existing heaps
+	 *  in the case LUMERFAIETA apply K-Means to group items by clusters.
+	 */
 	public void calculateClusters(){
 		if (conf.getModel()== Configuration.Models.ANTCLASS1 || conf.getModel()== Configuration.Models.ANTCLASS2){
 			this.partition = new Cluster[heaps.size()];
@@ -323,7 +285,9 @@ public class Grid {
 			}
 	}
 
-	
+	/** Perform K-Means using heaps centers as seed for K-means clustering, 
+	 * remove all the object from the heaps and cluster in new heaps.
+	*/
 	public void kmeans_heaps(){
 		if (this.heaps.size()>0){
 		double[][] centers = new double[this.heaps.size()][conf.getnkeys()];
@@ -349,7 +313,7 @@ public class Grid {
 				}
 				}
 			if (heaps_temp[min]== null)
-				heaps_temp[min]= new Heap(min, this.conf,centers_xy[min][0],centers_xy[min][1], this.items.get(key));
+				heaps_temp[min]= new Heap(this.conf,centers_xy[min][0],centers_xy[min][1], this.items.get(key));
 			else
 				heaps_temp[min].putItem(this.items.get(key));
 		}
@@ -370,6 +334,8 @@ public class Grid {
 		}
 	}
 	
+	/** Cluster the heaps for ANTCLASS2, try to merge heaps that have close centers.
+	*/
 	public void cluster_heaps(){
 		int l = this.heaps.size();
 		if (l>2){
@@ -399,10 +365,10 @@ public class Grid {
 	
 	
 	/** Place a item at a given position on the grid
-	* @param x, y the position of the item
+	* @param x the x position of the item
+	* @param y the y position of the item
 	* @param item the Item
 	*/
-	
 	public void put_item(int x, int y, Item item) {
 		if (this.cells[x][y]!=null) System.out.println("Alarm tried to stack items");
 		item.setPicked(false);
@@ -411,11 +377,11 @@ public class Grid {
 		this.items.get(key).setXY(x, y);
 	}
 	
-	/** Place a item at a given position on the grid
-	* @param x, y the position of the item
-	* @param item the Item
+	/** Place a heap at a given position on the grid
+	* @param x the x position of the item
+	* @param y the y position of the item
+	* @param heap the Heap
 	*/
-	
 	public void put_heap(int x, int y, Heap heap) {
 		if (this.hcells[x][y]!=null) {
 			System.out.println("Alarm tried to stack heaps");
@@ -425,51 +391,48 @@ public class Grid {
 		this.heaps.add(heap);
 	}
 	
-	/** Remove item at a given position from the grid
-	* @param x, y the document position on the grid
+	/** Remove an item at a given position on the grid
+	* @param x the x position of the item
+	* @param y the y position of the item
 	*/
-	
 	public void remove_item(int x, int y) {
 		this.cells[x][y] = null;
 
 	}
 	
-	
-	/** Remove item at a given position from the grid
-	* @param x, y the document position on the grid
+	/** Remove an heap at a given position on the grid
+	* @param x the x position of the heap
+	* @param y the y position of the heap
 	*/
+	public void remove_heap(int x, int y) {
+		UUID id = hcells[x][y];
+		Iterator<Heap> it = this.heaps.iterator();
+		done: while (it.hasNext()) 
+			 	if (it.next().getID() == id) {
+			 		it.remove();
+			 		this.hcells[x][y]=null;
+			 		break done;
+			 	}
+	}
 	
+	/** Get the centers of this Grid
+	* @return centers of the grid
+	*/
 	public LinkedList<double[]> getCenters() {
 		return this.centers;
 
 	}
 	
-	/** Remove item at a given position from the grid
-	* @param x, y the document position on the grid
-	*/
-	
-	public void remove_heap(int x, int y) {
-		UUID id = hcells[x][y];
-		Iterator<Heap> it = this.heaps.iterator();
-		boolean  f = false;
-		done: while (it.hasNext()) 
-			 	if (it.next().getID() == id) {
-			 		it.remove();
-			 		this.hcells[x][y]=null;
-			 		f=true;
-			 		break done;
-			 	}
-		if (!f) System.out.println("Error, did not find heap to remove!");
-	}
-	
+
 	/**** measures on the grid *******************************************************/
 	
 	/** Informs ant about the density and similarity  of items in a neighborhood of cells
-	* @param x, y the cell coordinates
-	* @param the item to compare to
+	 * computes the density of items of a given type
+	* @param x the cell x coordinates
+	* @param y the cell y coordinates
+	* @param it the item to compare to
 	* @return the density 
 	* */
-
     public double densityAt(int x, int y , Item it) {
 	
     	int xsize = this.conf.getxsize();
@@ -479,17 +442,14 @@ public class Grid {
 		int yhigh = y + sigma;
 		int xlow = x - sigma;
 		int ylow = y - sigma;
-		
-
-		
+	
 		int ih, jh;
 		double sum = 0;
 
 		for (int i = ylow; i <= yhigh; i++) {
 			for (int j = xlow; j <= xhigh; j++) {
 				ih = i;
-				jh = j;
-				
+				jh = j;			
 				if (jh < 0) jh = xsize + jh%xsize;
 				if (jh >= xsize) jh = jh%xsize;
 				if (ih < 0) ih = ysize + ih%ysize;
@@ -510,7 +470,13 @@ public class Grid {
 		return Math.max(0.0, (sum/size));
 
 	}
-    
+
+	/** Compute the density of items at a given position in the grid
+	 * independently of item type
+	* @param x the cell x coordinates
+	* @param y the cell y coordinates
+	* @return the density 
+	* */
     public double densityRawAt(int x, int y ) {
     	
     	int xsize = this.conf.getxsize();
@@ -546,7 +512,6 @@ public class Grid {
 		return Math.max(0.0, (sum/size));
 
 	}	
-
 }
 
 

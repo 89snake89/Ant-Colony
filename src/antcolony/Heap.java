@@ -1,37 +1,3 @@
-/*  
-    Copyright (C) 2012 Antonio Fonseca
-    Email: antoniofilipefonseca@gmail.com
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-*/
-
-/*****************************************************************
-	Antonio Fonseca
-	antoniofilipefonseca@gmail.com
-
-	File: Heap.java
-	Package: antcolony
-
-	Description:
-
-	* Represents a heap of items
-	* Stores all essential information e.g. grid position
-                                                                                                                        	
-*****************************************************************/
-
 package antcolony;
 
 import java.util.Iterator;
@@ -39,10 +5,20 @@ import java.util.LinkedList;
 import java.util.UUID;
 
 
-/** Stores the data for an individual document
-	using compressed storage format for sparse document vectors
-	 */
-
+/**
+ * The Heap class represents an heap of items as is defined in the AntClass paper.
+ * The class stores all the items but also some metrics of the heap, namely:
+ * <p>
+ * <ul>
+ * <li> Most dissimilar item
+ * <li> The heap center
+ * <li> The maximum dissimilarity between items
+ * </ul>
+ * 
+ * @author      António Fonseca
+ * @version     1.6
+ * @since       1.0
+ * */
 public class Heap {
 	private UUID id;							// id of the heap
 	private int x,y;						// coordinates of the heap
@@ -59,7 +35,13 @@ public class Heap {
 /*********** Constructor ****************************************************************************/
 
 
-	/** Constructor given a grid position and two initial items*/
+	/** Constructor given a grid position and two initial items
+	 * @param c current configuration of the simulation
+	 * @param x_i coordinate to build this heap
+	 * @param y_i coordinate to build this heap
+	 * @param it1 first item of the heap
+	 * @param it2 second item of the heap
+	 * */
 	public Heap(Configuration c, int x_i, int y_i, Item it1, Item it2) {
 		this.conf = c;
 		this.id = java.util.UUID.randomUUID();
@@ -74,8 +56,13 @@ public class Heap {
 		this.picked = false;
 	}
 	
-	/** Constructor given a grid position and initial item*/
-	public Heap(int i, Configuration c, int x_i, int y_i, Item it1) {
+	/** Constructor given a grid position and just one initial items
+	 * @param c current configuration of the simulation
+	 * @param x_i coordinate to build this heap
+	 * @param y_i coordinate to build this heap
+	 * @param it1 first item of the heap
+	 * */
+	public Heap(Configuration c, int x_i, int y_i, Item it1) {
 		this.conf = c;
 		this.id = java.util.UUID.randomUUID();
 		this.x = x_i;
@@ -93,67 +80,71 @@ public class Heap {
 
 /****** item data *********/
 	
-	/** get the maximum distance
-	 * @return the measure
+	/** get the maximum distance between items in thsi heap
+	 * @return measure of maximum distance
 	 */
 	public double getMaxDistance() {
 		return this.max_distance;
 	}
 	
-	/** get the maximum dissimilar distance
-	 * @return the measure
+	/** get the distance between center and most dissimilar
+	 * @return the measure of distance most dissimilar
 	 */
 	public double getMaxDissimilar() {
 		return this.max_dissimilar;
 	}
 	
 	/** get the center of mass
-	 * @return the measure
+	 * @return the center of mass
 	 */
 	public double[] getCenterMass() {
 		return this.center_of_mass;
 	}
 	
 	/** get the most dissimilar item
-	 * @return the measure
+	 * @return the most dissimilar item UUID
 	 */
 	public UUID getMostDissimilar() {
 		return this.most_dissimilar;
 	}
 	
 	/** Get id of the heap
-	 * @return the associated document vector
+	 * @return the UUID of the heap
 	 */
 	public UUID getID() {
 	return this.id;
 	}
 	
-	/** get the maximum distance
-	 * @return the measure
+	/** get the mean distance between items
+	 * @return the mean distance
 	 */
 	public double getMeanDistance() {
 		return this.mean_distance;
 	}
 	
 	/** Get the items on this heap
+	 * @return a linked list with the ietms
 	*/
 	public LinkedList<Item> getItems() {
 		return this.items;
 	}
 	
 	/** Get the size this heap
+	 * @return the int size of this heap
 	*/
 	public int getSize() {
 		return this.items.size();
 	}
 	
-	/** Get the size this heap
+	/** Get the pheromone of this heap
+	 * @return the pheromone level
 	*/
 	public int getPheromone() {
 		return this.pheromone;
 	}
 	
-	/** Get the size this heap
+	/** Is this heap picked
+	 * @return the picked status of this heap
 	*/
 	public boolean isPicked() {
 		return this.picked;
@@ -177,7 +168,10 @@ public class Heap {
 		return this.y;
 	}
 
-	
+	/** Set the heap position
+	* @param x the position coordinate
+	* @param y the position coordinate 
+	*/
 	public void setXY(int x, int y){
 		this.x = x;
 		this.y = y;
@@ -185,6 +179,9 @@ public class Heap {
 
 /*********** Calculate values ****************************************************************************/
 
+	
+/** Compute the center of mass of this heap and store it on the heap
+*/
 public void computeCenterMass(){
 	for (int i=0; i<conf.getnkeys(); i++) this.center_of_mass[i]=0;
 	Iterator<Item> it = this.items.iterator();
@@ -200,6 +197,10 @@ public void computeCenterMass(){
 	for (int i=0; i<conf.getnkeys(); i++) center_of_mass[i]=center_of_mass[i]/(double)this.items.size();
 }
 
+/** Compute the distance from this item to the center of mass of this heap
+ * @param i the item
+ * @return the distance
+*/
 public double computeDistanceCenterMass(Item i){
 		Iterator<Double> it = i.getData().iterator();
 		int j=0;
@@ -211,12 +212,18 @@ public double computeDistanceCenterMass(Item i){
 		return Math.sqrt(sum);
 }
 
+/** Compute the distance from a vector to the center of mass of this heap
+ * @param v the vector
+ * @return the distance
+*/
 public double computeDistanceCenterMassVector(double[] v){
 	double sum = 0.0;
 	for (int i=0; i<v.length; i++) sum += Math.pow(this.center_of_mass[i] - v[i],2);
 	return Math.sqrt(sum);
 }
 
+/** Compute the most dissimilar item and store his reference on the heap
+*/
 public void computeMostDissimilar(){
 	Iterator<Item> it = this.items.iterator();
 	this.max_dissimilar = 0;
@@ -230,6 +237,8 @@ public void computeMostDissimilar(){
 	}	
 }
 
+/** Compute the mean distance between items and store it on the heap
+*/
 public void computeMeanDistance(){
 	Iterator<Item> it = this.items.iterator();
 	double mean_d = 0;
@@ -237,6 +246,9 @@ public void computeMeanDistance(){
 	this.mean_distance = mean_d / (double)this.items.size();
 }
 
+/** Put an item on the heap and update all the heap metrics
+ * @param i item to put
+*/
 public void putItem(Item i){
 	Iterator<Item> it = this.items.iterator();
 	while (it.hasNext()){
@@ -251,11 +263,19 @@ public void putItem(Item i){
 	this.computeMostDissimilar();
 }
 
+/** Put a list of items on the heap and update all the heap metrics
+ * @param items list of items to put
+*/
 public void putItems(LinkedList<Item> items){
 	Iterator<Item> it = items.iterator();
 	while (it.hasNext()) this.putItem(it.next());	
 }
 
+
+/** Get an item from this heap by its UUID and remove it
+ * @param id of the item
+ * @return item
+*/
 public Item getItem(UUID id){
 	Item r = null;
 	Iterator<Item> it = this.items.iterator();
@@ -273,14 +293,22 @@ public Item getItem(UUID id){
 	return r;
 }
 
+/** Set the picked status of this heap
+ * @param f boolean status
+*/
 public void setPicked(boolean f){
 	this.picked = f;
 }
 
+/** Set the pheromone level of this heap
+ * @param p the pheromone level
+*/
 public void setPheromone(int p){
 	this.pheromone = p;
 }
 
+/** Decrement the pheromone level of this heap
+*/
 public void decPheromone(){
 	this.pheromone--;
 	if (this.pheromone<=0) this.pheromone=0;

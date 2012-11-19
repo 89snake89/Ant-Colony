@@ -3,6 +3,7 @@ Copyright (C) 2012 Antonio Fonseca
 Email: antoniofilipefonseca@gmail.com
 
 */
+package antcolony;
 
 /*****************************************************************
 Antonio Fonseca
@@ -23,12 +24,32 @@ Description:
                                                                                                                     	
 *****************************************************************/
 
-package antcolony;
+
 
 import java.util.LinkedList;
 
 
-/** Ant Model - Represents an individual agent */
+/** Ant Model - Represents an individual agent
+* 
+* Each Ant has a corresponding running configuration and
+* a corresponding running model.
+* 
+* Each Ant also stores all essential information for is functioning as agent
+* namely:
+* <ul>
+* <li> Current Position
+* <li> Current Load
+* <li> Direction
+* <li> Heap and Item memory
+* <li> Model parameters
+* </ul>
+* Stores pointer to the environment and the grid environment provides all necessary
+* information (e.g. density)
+* 
+* @author      António Fonseca
+* @version     1.7
+* @since       1.0
+* */
 public class Ant {
 
 

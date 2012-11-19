@@ -1,39 +1,3 @@
-/*  
-    Copyright (C) 2012 Antonio Fonseca
-    Email: antoniofilipefonseca@gmail.com
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-*/
-
-/*****************************************************************
-	Antonio Fonseca
-	antoniofilipefonseca@gmail.com
-
-	File: Clustering.java
-	Package: antcolony
-
-	Description:
-
-	* Represents the main panel for the application
-	* Stores the configuration, the data and the simulation variables
-	* Performs actions according to user commands
-		
-                                                                                                                        	
-*****************************************************************/
-
 package antcolony;
 
 import java.awt.Color;
@@ -68,7 +32,56 @@ import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import javax.swing.JTextPane;
 
-
+/**
+ * Clustering is the base class for all graphics display
+ * which allow the manipulation of the application; the drawing of the 
+ * grid where items are clustered by the ants and the displaying
+ * of current parameters and measures obtained at the modulo 100 ticks.
+ * <p>
+ * A Swing JPanel object encapsulates some state information needed
+ * for the start of the simulation.  This
+ * state information includes:
+ * <ul>
+ * <li>The dataset used on the simulation
+ * <li>The model used on the simulation
+ * <li>The start or pause state of the simulation
+ * <li>The filename of the file used to write results
+ * </ul>
+ * <p>
+ * On the right side of the panel a rectangular windows displays the
+ * grid on which the ants and the items move. Two <b>Zoom</b> buttons allow the
+ * zooming in and out the window to examine in more detail the movements on the grid.
+ * When using Lumer and Faieta models, and if the corresponding check box
+ * under the <b>Model</b> dropdown is checked,  the display of the clusters used for the
+ * calculation of the similarity measures are shown together with their 
+ * and their respective centers. If the checkbox is unchecked the pure items
+ * colored by their type are shown.
+ * <p>
+ * The checkbox under the <b>Dataset</b> dropdown determines if the window will display
+ * the items at their original position as determined by its inner similarity or
+ * if the window displays the items as they are moved on the grid.
+ * <p>
+ * The <b>Start</b> button initiates a running of the application. Once the application
+ * is started it can be pause by clicking again on this button. When paused, and after
+ * being started the application can be restarted clicking on the button <b>Restart</b>.
+ * This button should also be used to initialize the simulations once the dataset is changed
+ * or the model is changed.
+ * <p>
+ * The parameter grid shows all the parameters used in the simulation corresponding to each model.
+ * Each parameter can be changed by changing is value in the right cell, pressing Enter. Only after
+ * the <b>Apply</b> button is pressed the parameters are committed to the simulation running configuration.
+ * If the simulation is started without applying the changes the parameters are reversed to
+ * their former value.
+ * <p>
+ * Below the parameters table is the measures table showing the values of the measures
+ * after modulo 100 iterations of the simulation.
+ * <p>Below the measures table is a text box for entering the filename (with complete path) for
+ * the recording of the measures of the simulations.
+ * 
+ * @author      António Fonseca
+ * @version     1.4
+ * @since       1.0
+ * */
 public class Clustering {
 
 	private Configuration conf;
@@ -84,6 +97,7 @@ public class Clustering {
 
 	/**
 	 * Launch the application.
+	 * @param args the arguments
 	 */
 	public static void main(String[] args) {
 		EventQueue.invokeLater(new Runnable() {
@@ -423,10 +437,10 @@ public class Clustering {
 	}
 	
 	
-	/*
+	/**
 	 * The model for the table of parameters
+	 * @param map a map with the parameters names and values
 	 */
-	
 	public TableModel toTableModel(HashMap<String,Double> map) {
 	    DefaultTableModel model = new DefaultTableModel(
 	        new Object[] { "Parameter", "Value" }, 0
@@ -439,53 +453,59 @@ public class Clustering {
 	
 	/************* Access Functions *****************************************************************/	
 	
-	/* Set the pearson correlation value on measure table
-	 * @param pearson value
+	/** Set the pearson correlation value on measure table
+	 * @param v the pearson value
 	 */
 	public void setPearsons(double v){
 		table_1.setValueAt(v, 0, 1);
 	}
 	
 	
-	/* Set the entropy correlation value on measure table
-	 * @param entropy
+	/** Set the entropy correlation value on measure table
+	 * @param v the entropy value
 	 */
 	public void setEntropy(double v){
 		table_1.setValueAt(v, 1, 1);
 	}
 	
-	/* Set the F measure value on measure table
-	 * @param F measure
+	/** Set the F measure value on measure table
+	 * @param v the F measure
 	 */
 	public void setF(double v){
 		table_1.setValueAt(v, 2, 1);
 	}
 	
-	/* Set the rand index value on measure table
-	 * @param rand index value
+	/** Set the rand index value on measure table
+	 * @param v the index value
 	 */
 	public void setRand(double v){
 		table_1.setValueAt(v, 3, 1);
 	}
 	
-	/* Set the inner cluster variance value on measure table
-	 * @param rand index value
+	/** Set the inner cluster variance value on measure table
+	 * @param v the inner variance value
 	 */
 	public void setInnerCV(double v){
 		table_1.setValueAt(v, 4, 1);
 	}
 	
-	/* Set tick value on panel
-	 * @param tick value
+	/** Set tick value on panel
+	 * @param v the tick value
 	 */
 	public void setTick(int v){
 		lblNewLabel.setText("Tick : "+ v);
 	}
 	
+	/**Set text value on window below grid
+	 * @param s string to display in window
+	 */
 	public void setText(String s){
 		textPane.setText(s);
 	}
 	
+	/** Stop the simulation and update panel
+	 * @param text text to display in window
+	 */
 	public void stop(String text){
 		textPane.setText(textPane.getText()+text);
 		synchronized (simul){
