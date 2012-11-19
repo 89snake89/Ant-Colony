@@ -25,7 +25,6 @@ Description:
 
 package antcolony;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 
 
@@ -54,7 +53,6 @@ private double d_max;
 private int max_carry;
 private int fail;
 private int has_load;
-private int has_load_heap;
 private Grid grid;
 private Configuration conf;
 
@@ -63,7 +61,7 @@ private Configuration conf;
 	
 /** Constructor
 * @param grid pointer to the ant's environment
-* @param simulation configuration
+* @param conf simulation configuration
 */
 public Ant(Grid grid, Configuration conf) {
 
@@ -101,28 +99,29 @@ public Ant(Grid grid, Configuration conf) {
 
 
 /** What do I currently carry?
-* @return document number of currently carried document or -1
+* @return item carried by the ant
 */
 public Item getLoad() {
 	return this.load;
 }
 
-/** What do I currently carry?
-* @return document number of currently carried document or -1
+/** What do I carry anything?
+* @return boolean flag
 */
 public boolean hasLoad() {
 	return this.load != null;
 }
 
-/** What do I currently carry?
-* @return document number of currently carried document or -1
+/** Do I carry an Heap?
+* @return boolean flag
 */
 public boolean hasHeap() {
 	return this.load_heap != null;
 }
 
 /** Set the coordinates of this ant
-* @param x, y coordinates
+* @param x coordinate
+* @param y coordinate
 */
 public void setXY(int x, int y) {
 	this.x = x;
@@ -151,10 +150,9 @@ private double pdrop(double f) {
 }
 
 
-/** Try to pick up a item
+/** Try to pick up a item according to the Lumer and Faieta algorithm
 * @return report on the success of pickup operation
 * */
-
 public boolean pick_lumer_faieta() {
 	if (grid.occupied_item(this.x,this.y)) {	
     double f = grid.densityAt(this.x,this.y, grid.getItemAt(this.x, this.y));
@@ -173,7 +171,6 @@ public boolean pick_lumer_faieta() {
 /** Drop a item according to a probability after 100 tentatives drop
 * @return report on the success of drop operation
 */
-
 public boolean drop_lumer_faieta() {
 	double f = grid.densityAt(this.x,this.y,this.load);	
 	if ((fail == 100) || (Math.random() < pdrop(f))) {
@@ -191,11 +188,11 @@ public boolean drop_lumer_faieta() {
 
 
 /** Moves an ant from its current (already occupied) position to the next position
-* which can be free or occupied according to the boolean flag f the model parameter
-* m determines the method of searching the new position
+* which can be free or occupied according to the boolean flag f 
+* the model parameter m determines the method of searching the new position
 * @param f flag for occupied or free position, m model of moving
+* @param model the Lumer Faieta type of model used to move the ant
 */
-    
 public void move_lumer_faieta(boolean f, Configuration.Models model) {	
 	
 	switch (model) {
@@ -238,19 +235,10 @@ public void move_lumer_faieta(boolean f, Configuration.Models model) {
 	}}
 
 
-public void move_random_item(boolean f, Item it){
-	boolean loop = true;
-	while (loop) {
-		int x_coor = (int)(Math.random()*conf.getxsize());
-		int	y_coor = (int)(Math.random()*conf.getysize());
-		if (grid.occupied_item(x_coor,y_coor) == f) {
-			this.x = x_coor;
-			this.y = y_coor;
-			loop = false;
-		}
-	}
-}
-
+/** Moves an ant from its current position randomly
+* which can be free or occupied according to the boolean flag f 
+* @param f flag for occupied or free position, m model of moving
+*/
 public void move_random(boolean f){
 	boolean loop = true;
 	while (loop) {
@@ -263,7 +251,10 @@ public void move_random(boolean f){
 		}
 	}
 }
-						
+
+/** Scatter the ants over the grid
+*
+*/					
 public void scatter() {
 	
 	done: while(true) {
@@ -278,6 +269,9 @@ public void scatter() {
 }
 
 
+/** Moves an ant from its current (already occupied) position to the next position
+* according to the AntClass algorithm
+*/
 public void move_ant_class(){
 
 	if (this.has_load > 0 && this.memory_h.size() > 0){
@@ -305,6 +299,10 @@ public void move_ant_class(){
 	this.has_load++;
 }
 
+
+/** Try to pick up a item according to the AntClass algorithm
+* 
+* */
 public void pick_ant_class(){
 	done: for (int i= -1 ; i<=1; i++){
 			for (int j= -1; j<=1; j++){
@@ -348,6 +346,9 @@ public void pick_ant_class(){
 	}
 
 
+/** Try to pick up a heap according to the AntClass algorithm
+* 
+* */
 public void pick_ant_class_heap(){
 	done: for (int i= -1 ; i<=1; i++){
 			for (int j= -1; j<=1; j++){
@@ -362,7 +363,6 @@ public void pick_ant_class_heap(){
 					if (h.getPheromone() == 0 && this.load_heap==null && Math.random()< this.p_load) {
 						this.load_heap = h;
 						this.load_heap.setPicked(true);
-						this.has_load_heap=1;
 						grid.remove_heap(x_coor, y_coor);
 						break done;
 					}
@@ -371,6 +371,9 @@ public void pick_ant_class_heap(){
 
 }
 
+/** Try to drop an item according to the AntClass algorithm
+* 
+* */
 public void drop_ant_class(){
 	done: for (int i= -1 ; i<=1; i++){
 			for (int j= -1; j<=1; j++){
@@ -416,6 +419,9 @@ public void drop_ant_class(){
 			}}
 }
 
+/** Try to drop an heap according to the AntClass algorithm
+* 
+* */
 public void drop_ant_class_heap(){
 	done: for (int i= -1 ; i<=1; i++){
 			for (int j= -1; j<=1; j++){
@@ -433,7 +439,6 @@ public void drop_ant_class_heap(){
 						h.putItems(this.load_heap.getItems());
 						grid.put_heap(x_coor, y_coor, h);
 						this.load_heap=null;
-						this.has_load_heap = 0;
 						break done;
 					}
 				}
@@ -443,13 +448,15 @@ public void drop_ant_class_heap(){
 					this.load_heap.setPheromone(500);
 					grid.put_heap(x_coor, y_coor, this.load_heap);
 					this.load_heap=null;
-					this.has_load_heap = 0;
 					break done;
 				}
 
 			}}
 }
 
+/** Drop the item carried unconditionally in the nearest neighborhood
+*  into an empty cell of the grid
+* */
 public void drop(){
 	if (this.load != null)
 	{
@@ -485,21 +492,36 @@ public void drop(){
 	}
 }
 
+
+/** Update the memory of heaps with the current visited heap
+ * @param  hp - the visited heap
+* */
 private void updateMemoryHeap(Heap hp){
 	this.memory_h.addLast(hp);
 	if (this.memory_h.size() > conf.getmemsize()) this.memory_h.removeFirst();
 }
 
-private void updateMemoryItem(Item i){
-	this.memory_i.addLast(i);
+
+/** Update the memory of items with the current visited item
+ * @param  it - the visited item
+* */
+private void updateMemoryItem(Item it){
+	this.memory_i.addLast(it);
 	if (this.memory_i.size() > conf.getmemsize()) this.memory_i.removeFirst();
 }
 
+
+/** Clean the memory of items and the memory of heaps
+* */
 public void cleanMemory(){
 	this.memory_h = new LinkedList<Heap>();
 	this.memory_i = new LinkedList<Item>();
 }
 
+
+/** Get the most similar item in the memory of items to the item to compare
+ * @param  it - the item to compare
+* */
 private Item getMostSimilar(Item it){
 	double min_dist = Double.MAX_VALUE;
 	Item min = null;

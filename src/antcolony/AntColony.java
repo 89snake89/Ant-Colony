@@ -38,7 +38,7 @@
 
 package antcolony;
 
-
+/** Ant Colony - Represents a colony of agents */
 public class AntColony {
 
 	private Ant [] ants;					
@@ -48,7 +48,6 @@ public class AntColony {
 	private Configuration.Models model;
 	private Grid grid;
 	private int phase;
-	private boolean tg;
 
 	
 	
@@ -56,7 +55,7 @@ public class AntColony {
 
 	/** Constructor
 	* @param conf the current parameter setting
-	* @param grid the colony's environment
+	* @param grid the colony's grid environment
 	*/
 	public AntColony(Configuration conf, Grid grid) {
 	
@@ -64,7 +63,6 @@ public class AntColony {
 		this.model = conf.getModel();
 		this.grid = grid;
 		this.phase = 0;
-		this.tg = true;
 		this.ants = new Ant[this.conf.getnants()];
 		for (int i = 0; i < this.conf.getnants(); i++) ants[i] = new Ant(grid,conf);
 	}
@@ -72,19 +70,20 @@ public class AntColony {
 
 /************* small access function *****************************************************************/	
 	
-	/** Tell me all the members of this colony
+	/** Get me all the members of this colony
 	* @return array of all ants
 	*/
-	public Ant [] getAnts() {
+	public Ant[] getAnts() {
 		return this.ants;
 	}
 
 
 /************* Sorting functions *****************************************************************/		
 
-	/** The ant-algorithm 
+	/** The ant-algorithm used by this colony
+	 * @param tick - the tick number of the simulation in order to implement clustering
+	 * strategy change in the AntClass model
 	 */
-	
 	public void sort(int tick) {
 		switch (model){
 		
@@ -189,10 +188,17 @@ public class AntColony {
 		}	
 	}
 	
+	
+	
+	/** Make the ants drop all the loads
+	 */
 	public void drop(){
 		for (int a = 0; a< conf.getnants(); a++) ants[a].drop();
 	}
 	
+	
+	/** Clean the memory of the ants
+	 */
 	public void cleanMemories(){
 		for (int a = 0; a< conf.getnants(); a++) ants[a].cleanMemory();
 	}

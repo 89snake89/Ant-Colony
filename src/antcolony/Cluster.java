@@ -35,12 +35,13 @@
 
 package antcolony;
 
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
 
-
+/** Represents a cluster of items */
 public class Cluster {
 	
 	private LinkedList<Item> items; 	// The list of items belonging to this cluster
@@ -51,8 +52,11 @@ public class Cluster {
 
 /*********** Constructor ****************************************************************************/
 
-	/** Constructor given a grid position and initial data*/
-	
+	/** Constructor given a collection of items a center and a number of the cluster
+	 * @param items collection of items
+	 * @param center array with the dimension of an item representing the center
+	 * @param c id of the cluster
+	 * */
 	public Cluster(Item[] items, double[] center, int c){
 		this.items = new LinkedList<Item>();
 		for (int i=0; i<items.length; i++) {
@@ -63,16 +67,18 @@ public class Cluster {
 		computeType();
 	}
 	
-	/** Constructor given a grid position and initial data*/
-	
+	/** Constructor given a collection of items 
+	 * @param items collection of items
+	 * */
 	public Cluster(Item[] items){
 		this.items = new LinkedList<Item>();
 		for (int i=0; i<items.length; i++) this.items.add(items[i]);
 		computeType();
 	}
 	
-	/** Constructor for a singleton*/
-	
+	/** Constructor given a single item
+	 * @param it the item to initiate the cluster
+	 * */
 	public Cluster(Item it){
 		this.items = new LinkedList<Item>();
 		this.items.add(it);
@@ -82,13 +88,18 @@ public class Cluster {
 	
 /*********** Access & Modification Functions **********************************************************/
 	
+	
+	/** Which type are the majority of items in this cluster?
+	 * @return Type of the cluster
+	 * */
 	public String getType(){
 		return this.type;
 	}
 	
 	
-	/****** item data *********/
-	
+	/** Compute the type of the cluster by counting the most frequent type
+	 * 
+	 * */
 	public void computeType(){
 		HashMap<String,Integer> map = new HashMap<String,Integer>();
 		Iterator<Item> it = this.items.iterator();
@@ -110,6 +121,8 @@ public class Cluster {
 		this.type = maxEntry.getKey();
 	}
 
+	
+	
 	public LinkedList<Item> getItems() {
 		return this.items;
 	}
