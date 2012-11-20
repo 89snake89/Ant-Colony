@@ -174,6 +174,9 @@ public class Simulation extends JPanel implements Runnable  {
 	*/
 	public void run() {
 		
+		if (this.clustering.getOptimize() && this.conf.getModel().equals(Configuration.Models.ANTCLASS2))
+			this.optimize();
+		else {
 	   	tick = 0;
 		double pearson;
 		double entropy;
@@ -224,8 +227,32 @@ public class Simulation extends JPanel implements Runnable  {
         }
         stop = false;
 		interrupted = true;
+		}
 	}
 
+	private void optimize(){
+		tick = 0;
+		while (!stop) {
+            try {            	
+            	this.antColony.sort(tick);
+            	this.clustering.setTick(tick);
+            	tick++;
+            	if (tick > conf.getCicle2() || (tick>conf.getCicle1() && conf.getModel()== Configuration.Models.ANTCLASS2) )
+            		this.clustering.stop("\nEnd of Optimization");
+            	if (interrupted) {
+            		synchronized(this) {
+            			while (interrupted)
+            				wait();
+           		}
+          }
+            } 
+            catch (InterruptedException e){
+            	e.printStackTrace();
+            }
+        }
+        stop = false;
+		interrupted = true;
+	}
 
 	/**
 	* Change drawing scale

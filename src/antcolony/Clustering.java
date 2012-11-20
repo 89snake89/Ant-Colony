@@ -92,8 +92,10 @@ public class Clustering {
 	private Thread runner;
 	private JTable table, table_1;
 	private JLabel lblNewLabel;
+	private JLabel lblRun;
 	private JTextPane textPane;
 	private JToggleButton tglbtnStart;
+	private JCheckBox chckbxOptimize;
 
 	/**
 	 * Launch the application.
@@ -174,7 +176,7 @@ public class Clustering {
 			}
 		});
 		tglbtnStart.setFont(new Font("Tahoma", Font.BOLD, 11));
-		tglbtnStart.setBounds(34, 105, 91, 23);
+		tglbtnStart.setBounds(24, 96, 91, 23);
 		frame.getContentPane().add(tglbtnStart);
 		
 		JToggleButton tglbtnRecord = new JToggleButton("Record");
@@ -260,7 +262,7 @@ public class Clustering {
 				"Parameter", "Value"
 			}
 		) );
-		table.setBounds(25, 162, 340, 451);
+		table.setBounds(25, 170, 340, 443);
 		frame.getContentPane().add(table);
 		
 		JComboBox comboBox_1 = new JComboBox();
@@ -321,7 +323,7 @@ public class Clustering {
 		});
 		btnStop.setToolTipText("Reset the simulation Conditions");
 		btnStop.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnStop.setBounds(146, 105, 91, 23);
+		btnStop.setBounds(125, 96, 91, 23);
 		frame.getContentPane().add(btnStop);
 		
 		JCheckBox chckbxDisplyOriginalSet = new JCheckBox("Display original set");
@@ -346,7 +348,7 @@ public class Clustering {
 				}
 			}
 		});
-		btnNewButton.setBounds(332, 34, 58, 29);
+		btnNewButton.setBounds(332, 34, 58, 23);
 		frame.getContentPane().add(btnNewButton);
 		
 		JButton button = new JButton("-");
@@ -359,7 +361,7 @@ public class Clustering {
 				}
 			}
 		});
-		button.setBounds(332, 65, 58, 29);
+		button.setBounds(332, 66, 58, 23);
 		frame.getContentPane().add(button);
 		
 		JLabel lblZoom = new JLabel("Zoom");
@@ -408,11 +410,11 @@ public class Clustering {
 			}
 		});
 		btnNewButton_1.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		btnNewButton_1.setBounds(273, 131, 91, 29);
+		btnNewButton_1.setBounds(273, 130, 91, 29);
 		frame.getContentPane().add(btnNewButton_1);
 		
 		lblNewLabel = new JLabel("Tick: 0");
-		lblNewLabel.setBounds(273, 106, 117, 16);
+		lblNewLabel.setBounds(282, 99, 76, 16);
 		frame.getContentPane().add(lblNewLabel);
 		
 		textPane = new JTextPane();
@@ -430,9 +432,18 @@ public class Clustering {
 				simul.repaint();	
 			}
 		});
-		chckbxDisplayClusters.setSelected(true);
+		chckbxDisplayClusters.setSelected(false);
 		chckbxDisplayClusters.setBounds(186, 66, 123, 23);
 		frame.getContentPane().add(chckbxDisplayClusters);
+		
+		chckbxOptimize = new JCheckBox("Optimize");
+		chckbxOptimize.setSelected(false);
+		chckbxOptimize.setBounds(172, 134, 82, 23);
+		frame.getContentPane().add(chckbxOptimize);
+		
+		lblRun = new JLabel("Run: 0");
+		lblRun.setBounds(226, 99, 46, 16);
+		frame.getContentPane().add(lblRun);
 	
 	}
 	
@@ -497,6 +508,13 @@ public class Clustering {
 		lblNewLabel.setText("Tick : "+ v);
 	}
 	
+	/** Set run value on panel
+	 * @param v the tick value
+	 */
+	public void setRun(int v){
+		lblRun.setText("Run : "+ v);
+	}
+	
 	/**Set text value on window below grid
 	 * @param s string to display in window
 	 */
@@ -504,6 +522,12 @@ public class Clustering {
 		textPane.setText(s);
 	}
 	
+	/**Get the status of the optimize checkbox
+	 * @return the selected state of the optimize checkbox
+	 */
+	public boolean getOptimize(){
+		return chckbxOptimize.isSelected();
+	}
 	/** Stop the simulation and update panel
 	 * @param text text to display in window
 	 */
