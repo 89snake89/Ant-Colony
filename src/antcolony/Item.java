@@ -1,37 +1,3 @@
-/*  
-    Copyright (C) 2012 Antonio Fonseca
-    Email: antoniofilipefonseca@gmail.com
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-*/
-
-/*****************************************************************
-	Antonio Fonseca
-	antoniofilipefonseca@gmail.com
-
-	File: Item.java
-	Package: antcolony
-
-	Description:
-
-	* Represents an individual item
-	* Stores all essential information e.g. grid position
-                                                                                                                        	
-*****************************************************************/
-
 package antcolony;
 
 import java.util.Iterator;
@@ -40,10 +6,22 @@ import java.util.List;
 import java.util.UUID;
 
 
-/** Stores the data for an item
-	using compressed storage format for sparse document vectors
-	 */
-
+/**
+ * The Item class represents an item of the dataset.
+ * The class stores all the data relevant for each instance, namely:
+ * <p>
+ * <ul>
+ * <li> The item intrinsic data for each of the attributes of the current dataset.
+ * <li> Initial and current coordinates of the item on the grid.
+ * <li> If it is picked
+ * <li> The cluster in which the irem belongs
+ * <li> The maximum dissimilarity between items
+ * </ul>
+ * 
+ * @author      António Fonseca
+ * @version     1.8
+ * @since       1.0
+ * */
 public class Item {
 	
 	private UUID id;
@@ -53,14 +31,18 @@ public class Item {
 	private String type;					// the type of the item
 	private int color;						// the color of the item to display
 	private List<Double> data; 				// data carried by the item
-	private boolean isPicked = false;		// flag whether document is picked
-	private boolean isCenter = false;
-	private int cluster;
-	private double density;
+	private boolean isPicked = false;		// flag whether item is picked
+	private int cluster;					// number of the cluster to which belong			//
 
 /*********** Constructor ****************************************************************************/
 
-	/** Default Constructor */
+	/** Constructor to build an Item at random in the grid
+	 * @param key The UUID of the item
+	 * @param c current configuration of the simulation
+	 * @param t the type of the item
+	 * @param cl the color of the item
+	 * @param a the list of data of this item
+	 * */
 	public Item(UUID key, Configuration c, String t, int cl, List<Double> a) {
 		this.id = key;
 		this.xsize = c.getxsize();
@@ -76,7 +58,15 @@ public class Item {
 		this.isPicked = false;
 	}
 
-	/** Constructor given a grid position and initial data*/
+	/** Constructor to build an Item at a given position in the grid
+	 * @param key The UUID of the item
+	 * @param c current configuration of the simulation
+	 * @param x_i initial position x coordinate
+	 * @param y_i initial position y coordinate
+	 * @param t the type of the item
+	 * @param cl the color of the item
+	 * @param a the list of data of this item
+	 * */
 	public Item(UUID key, Configuration c, int x_i, int y_i, String t,int cl, List<Double> a) {
 		this.id = key;
 		this.xsize = c.getxsize();
@@ -87,6 +77,7 @@ public class Item {
 		this.y = y_i;
 		this.type = t;
 		this.color = cl;
+		this.cluster = 0;
 		this.data = a;
 		this.isPicked = false;
 	}
@@ -94,11 +85,11 @@ public class Item {
 	
 /********** Distance functions********************************************************************************************/
 
-	/* The distance between this item and other
+	/** The distance between this item and other item
 	 * @param i other item
-	 * @parame type of measure, 0 - between initial positions, 1 - current position
+	 * @param measure 0 - between initial positions, 1 - current position, 2 - between data
+	 * @return the value of the distance
 	 */
-
 	public double distance(Item i, int measure) {
 
 		double d=0;
@@ -136,10 +127,10 @@ public class Item {
 	}
 	
 	
-	/* The distance between this item and a vector of item keys
+	/** The distance between this item and a vector of item keys
 	 * @param v - vector
+	 * @return the distance
 	 */
-
 	public double distance_vector(double[] v) {
 		Iterator<Double> it = this.data.iterator();
 		double sum = 0;
@@ -154,8 +145,6 @@ public class Item {
 /*********** Access & Modification Functions ****************************************************************************/
 
 
-/****** item data *********/
-	
 	/** Get type of the item
 	 * @return the associated document vector
 	 */
@@ -172,7 +161,7 @@ public class Item {
 	}
 	
 	/** Set type of the item
-	* @param t - the type of the item
+	* @param t the type of the item
 	*/
 	public void setType(String t) {
 		this.type = t;
@@ -186,44 +175,33 @@ public class Item {
 	}
 	
 	/** Set data of the item
-	 * @param a - the List representing the data carried by the tem
+	 * @param a - the List representing the data carried by the item
 	*/
 	public void setData(LinkedList<Double> a) {
 		this.data = a;
 	}
 	
 	/** Get the id  of the item
-	 * @return h - the heap id
+	 * @return UUID - the item id
 	*/
 	public UUID getID() {
 		return this.id;
 	}
-	
-	public void setCenter(boolean f){
-		this.isCenter = f;
-	}
-	
-	public boolean isCenter(){
-		return this.isCenter;
-	}
-	
+
+	/** Set the cluster id  of the item
+	 * @param c the cluster
+	*/
 	public void setCluster(int c){
 		this.cluster = c;
 	}
 	
+	/** Get the cluster  to which belong this item
+	 * @return the cluster id
+	*/
 	public int getCluster(){
 		return this.cluster;
 	}
-	
-	public double getDensity(){
-		return this.density;
-	}
-	
-	public void setDensity(double v){
-		this.density = v;
-	}
 
-/****** item position *********/
 		
 	/** Get item position
 	* @return the current document x position on the grid
@@ -263,10 +241,9 @@ public class Item {
 		this.y = y;
 	}
 
-/******** misc **********************/
 
 	/** Is this item currently being transported by an ant?
-	* @return truth value signalising whether item is being transported or not
+	* @return truth value signaling whether item is being transported or not
 	*/
 	public boolean isPicked() {
 		return isPicked;

@@ -8,6 +8,9 @@ import java.util.*;
  * Basic implementation of K-means clustering.  Since it's a Runnable, it's 
  * designed to be executed by a dedicated thread, but that thread
  * does not create any other threads to divide up the work.
+ * 
+ * @version     1.0
+ * @since       1.0
  */
 public class KMeans {
 
@@ -25,8 +28,10 @@ public class KMeans {
     // 0 ... (N-1)
     private int[] mClusterAssignments;
 
+    // List of items to be clustered
     private HashMap<UUID,Item> items;
     
+    // an auxiliary dictionary of item ids
     private UUID[] dictionary;
     
     // 2D array holding the coordinates to be clustered.
@@ -44,19 +49,25 @@ public class KMeans {
     // The type of seed centering
     private int type;
     
+    // The sizes of the grid
     private int xsize, ysize;
     
+    // A list of the centers
     private LinkedList<double[]> centers;
     
+    // A list of the seed centers
     private LinkedList<UUID> init_centers;
   
     /**
      * Constructor
      * 
-     * @param coordinates two-dimensional array containing the coordinates to be clustered.
+     * @param conf The configuration of the current running simulation
+     * @param it the list of items to be clustered
      * @param k  the number of desired clusters.
+     * @param list the list of initial centers
      * @param maxIterations the maximum number of clustering iterations.
      * @param randomSeed seed used with the random number generator.
+     * @param t the type of initial centers, 0 - random centers, 1 - k-means++ , 2 - given in the list
      */
     public KMeans(Configuration conf, HashMap<UUID,Item> it, int k, LinkedList<UUID> list, int maxIterations, long randomSeed, int t) {
 
@@ -91,10 +102,9 @@ public class KMeans {
     }
     
     /**
-     * Get the clusters computed by the algorithm.  This method should
-     * not be called until clustering has completed successfully.
+     * Get the current centers of the algorithm
      * 
-     * @return an array of Cluster objects.
+     * @return a List with centers.
      */
     public LinkedList<double[]> getCenters() {
         return centers;
@@ -107,76 +117,27 @@ public class KMeans {
 
         try {
             
-            // Note the start time.
-            long startTime = System.currentTimeMillis();
-            
-            //postKMeansMessage("K-Means clustering started");
-            //System.out.println("K-Means clustering started");
-            // Randomly initialize the cluster centers creating the
-            // array mProtoClusters.
             initCenters();
-            
-            //postKMeansMessage("... centers initialized");
-            //System.out.println("... centers initialized");
-
-            // Perform the initial computation of distances.
             computeDistances();
-
-            // Make the initial cluster assignments.
             makeAssignments();
 
             // Number of moves in the iteration and the iteration counter.
             int moves = 0, it = 0;
             
-            // Main Loop:
-            //
-            // Two stopping criteria:
-            // - no moves in makeAssignments 
-            //   (moves == 0)
-            // OR
-            // - the maximum number of iterations has been reached
-            //   (it == mMaxIterations)
-            //
             do {
-
-                // Compute the centers of the clusters that need updating.
                 computeCenters();
-                
-                // Compute the stored distances between the updated clusters and the
-                // coordinates.
                 computeDistances();
-
-                // Make this iteration's assignments.
                 moves = makeAssignments();
-
                 it++;
-                
-                //postKMeansMessage("... iteration " + it + " moves = " + moves);
-                //System.out.println("... iteration " + it + " moves = " + moves);
-
             } while (moves > 0 && it < mMaxIterations);
 
-            // Transform the array of ProtoClusters to an array
-            // of the simpler class Cluster.
             mClusters = generateFinalClusters();
             
-            long executionTime = System.currentTimeMillis() - startTime;
-            
-            //postKMeansComplete(mClusters, executionTime);
-            //System.out.println("Execution time "+ executionTime);
-            
         } catch (Throwable t) {
-           
-            //postKMeansError(t);
             System.out.println(t);
             t.printStackTrace();
             
-        } finally {
-
-            // Clean up temporary data structures used during the algorithm.
-            cleanup();
-
-        }
+        } finally {cleanup();}
     }
 
     /**
@@ -184,16 +145,10 @@ public class KMeans {
      */
     private void initCenters() {
 
-        Random random = new Random(mRandomSeed);
-        
+        Random random = new Random(mRandomSeed);     
         int coordCount = mCoordinates.length;
-
-        // The array mClusterAssignments is used only to keep track of the cluster 
-        // membership for each coordinate.  The method makeAssignments() uses it
-        // to keep track of the number of moves.
         if (mClusterAssignments == null) {
             mClusterAssignments = new int[coordCount];
-            // Initialize to -1 to indicate that they haven't been assigned yet.
             Arrays.fill(mClusterAssignments, -1);
         }
 
@@ -215,7 +170,6 @@ public class KMeans {
         mProtoClusters = new ProtoCluster[mK];
         ArrayList<Integer> ind = new ArrayList<Integer>();
         for (int i=0; i<mK; i++) {
-        	double max_density =0;
             int coordIndex = indices[i];
             switch (type){
             case 0 : 		mProtoClusters[i] = new ProtoCluster(mCoordinates[coordIndex], coordIndex);
@@ -245,7 +199,6 @@ public class KMeans {
             				while (!dictionary[l].equals(init_centers.get(i))) l++;
             				mProtoClusters[i] = new ProtoCluster(mCoordinates[l], l);
         					mClusterAssignments[indices[l]] = i;
-            				//System.out.println("Proto cluster "+i+" center: x="+mProtoClusters[i].mCenter[0]+" y="+mProtoClusters[i].mCenter[1]);
 							break;
            }
         }

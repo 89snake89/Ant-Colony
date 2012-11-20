@@ -1,22 +1,3 @@
-/*  
-    Copyright (C) 2012 Antonio Fonseca
-    Email: antoniofilipefonseca@gmail.com
-
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-*/
 
 /*****************************************************************
 	Antonio Fonseca
@@ -43,11 +24,9 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -57,9 +36,19 @@ import javax.swing.JPanel;
 import java.util.Iterator;
 
 
-/** Wrapping class for the item and ant data. Also contains the basic grid
+/** Wrapping class for the main functions in the application. This class contains the main components
+ * for running the following functions:
+ * <ul>
+ * <li> Run a simulation.
+ * <li> Paint the canvas of the grid.
+ * <li> Measure the results.
+ * <li> Write the result file.
+ * </ul>
+ * <p>
+ * @author      António Fonseca
+ * @version     1.8
+ * @since       1.0
 */
-
 public class Simulation extends JPanel implements Runnable  {
 
 	private Configuration conf;	
@@ -77,7 +66,6 @@ public class Simulation extends JPanel implements Runnable  {
 	private double[][] record;
 	private PrintWriter out;
 	private boolean rec;
-	private int cicle;
 
 		
 /********************** Constructor **************************************************************/
@@ -85,7 +73,6 @@ public class Simulation extends JPanel implements Runnable  {
 	
 	/** Constructor
 	* @param conf the current parameter settings
-	* @param data is the items
 	* @param clt the current underlying main application
 	*/
 	public Simulation(Configuration conf, Clustering clt) {
@@ -105,7 +92,6 @@ public class Simulation extends JPanel implements Runnable  {
 	
 	/** Update the current simulation with new data and new parameters
 	* @param conf the current parameter settings
-	* @param data is the items
 	*/
 	public void update(Configuration conf) {	
 		this.conf = conf;
@@ -118,69 +104,56 @@ public class Simulation extends JPanel implements Runnable  {
 /******************* access functions *************************************************************/
 	/**
 	* Get the original display flag
+	* @return the original flag
 	*/
-	
 	public boolean getOriginal() {
 		return this.original;
 	}
 
-	/** Return the underlying grid
+	/** Get the underlying grid
 	* @return the current grid
 	*/
 	public Grid getGrid() {
 		return this.grid;
 	}
 
-	/** Return the parameter settings
-	* @return the current configuration
+	/** Get the Ant Colony
+	* @return the ant colony
 	*/
 	public AntColony getColony() {
 		return this.antColony;
 	}
 
-	
 	/** Update the original display flag
-	* @param the flag
+	* @param f the original display flag
 	*/
-
 	public void setOriginal(boolean f) {
 		this.original = f;
 	}
 	
-	/** Update the original display flag
-	* @param the flag
+	/** Update the clusters display flag
+	* @param f the clusters display flag
 	*/
-
 	public void setClusters(boolean f) {
 		this.clusters = f;
 	}
 	
 	/** Update the interrupted flag
-	* @param the flag
+	* @param f the flag
 	*/
-
 	public void setInterrupted(boolean f) {
 		this.interrupted = f;
 	}
 	
-	/** Reset stopflag
-	* @param the flag
-	*/
-
-	public void reset() {
-		this.stop = false;
-	}
-	
 	/** Set record flag
-	* @param the flag
+	* @param f the flag
 	*/
-
 	public void setRec(boolean f) {
 		this.rec = f;
 	}
 	
-	/** Return the underlying grid
-	* @return the current record flag
+	/** Return the status of the record flag
+	* @return the status of current record flag
 	*/
 	public boolean getRec() {
 		return this.rec;
@@ -194,12 +167,10 @@ public class Simulation extends JPanel implements Runnable  {
 	/** Interrupt ant-based sorting process
 	*/
 	public void stop() {
-		  Thread thisThread = Thread.currentThread();
-		  thisThread = null;
 		  this.stop = true;
 	}
 
-	/** Start ant-based sorting process
+	/** Start ant-based clustering process
 	*/
 	public void run() {
 		
@@ -258,6 +229,7 @@ public class Simulation extends JPanel implements Runnable  {
 
 	/**
 	* Change drawing scale
+	* @param f zoom in or out
 	*/
 	  public void zoom(boolean f){
 		  if (f & this.scale < 10) this.scale+=0.2 ;
@@ -267,6 +239,7 @@ public class Simulation extends JPanel implements Runnable  {
 		
 	/**
 	* Paint the Grid
+	* @param g the Swing variable
 	*/
 	  public void paint(Graphics g){
 	      super.paint(g);
@@ -297,6 +270,7 @@ public class Simulation extends JPanel implements Runnable  {
 	  
 	  /**
 	   * Record the running
+	   * @param filename the full path name of the file
 	   */
 	  
 	  public void writeRecord(String filename){
@@ -333,7 +307,7 @@ public class Simulation extends JPanel implements Runnable  {
 		  }
 
 	  
-/************ Measurements & Plots ******************************************************/
+/************ Measurements ******************************************************/
 
 
 	/** Compute Pearson correlation
@@ -371,6 +345,7 @@ public class Simulation extends JPanel implements Runnable  {
 	}
 	
 	/** Compute Entropy
+	* @param ignore the positions of items that are currently picked up
 	* @return Entropy computed for the entire grid
 	*/
 	public double computeEntropy(boolean ignore) {

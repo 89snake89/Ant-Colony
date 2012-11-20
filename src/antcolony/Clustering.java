@@ -440,6 +440,7 @@ public class Clustering {
 	/**
 	 * The model for the table of parameters
 	 * @param map a map with the parameters names and values
+	 * @return a table model
 	 */
 	public TableModel toTableModel(HashMap<String,Double> map) {
 	    DefaultTableModel model = new DefaultTableModel(
