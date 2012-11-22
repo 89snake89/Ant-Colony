@@ -950,7 +950,7 @@ public class Configuration {
 							r.put("T Remove range", new Double(this.getTRemoveRange()));
 							r.put("Memory Size", new Double(this.getmemsize()));
 							r.put("Cicle 1", new Double(this.getCicle1()));
-							r.put("Cicle 2", new Double(this.getCicle2()));
+//							r.put("Cicle 2", new Double(this.getCicle2()));
 							r.put("Minimum F", new Double(this.getMinF()));	   					
 							break;
 		}

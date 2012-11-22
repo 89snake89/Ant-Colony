@@ -174,9 +174,6 @@ public class Simulation extends JPanel implements Runnable  {
 	*/
 	public void run() {
 		
-		if (this.clustering.getOptimize() && this.conf.getModel().equals(Configuration.Models.ANTCLASS2))
-			this.optimize();
-		else {
 	   	tick = 0;
 		double pearson;
 		double entropy;
@@ -227,31 +224,50 @@ public class Simulation extends JPanel implements Runnable  {
         }
         stop = false;
 		interrupted = true;
-		}
+
 	}
 
-	private void optimize(){
-		tick = 0;
-		while (!stop) {
-            try {            	
-            	this.antColony.sort(tick);
-            	this.clustering.setTick(tick);
-            	tick++;
-            	if (tick > conf.getCicle2() || (tick>conf.getCicle1() && conf.getModel()== Configuration.Models.ANTCLASS2) )
-            		this.clustering.stop("\nEnd of Optimization");
-            	if (interrupted) {
-            		synchronized(this) {
-            			while (interrupted)
-            				wait();
-           		}
-          }
-            } 
-            catch (InterruptedException e){
-            	e.printStackTrace();
-            }
-        }
-        stop = false;
-		interrupted = true;
+	/** Start genetic algorithm optimization
+	*/
+	public void optimize(){
+		String[] names = new String[]{"N of ants","Max Carry","Speed","P Load","P Drop","P Destroy","P Direction",
+				"T Create","T Remove","Memory Size"};
+		int N = 20;
+		HashMap<String,Double> parameters = conf.getParameters();
+		Double[] gene_seed = new Double[names.length];
+		Double[] gene_var = new Double[names.length];
+		
+		gene_seed[0]= parameters.get(names[0]);
+		gene_var[0] = 5.0; //N of ants
+		for (int i=1; i<(names.length-1);i++) {
+			gene_seed[i]= parameters.get(names[i]+" low");
+			gene_var[i]= parameters.get(names[i]+" range")/N;
+		}
+		gene_seed[names.length-1]= parameters.get(names[names.length-1]);
+		gene_var[names.length-1] = 1.0; // memory
+		LinkedList<HashMap<Integer,Double>> population = new LinkedList<HashMap<Integer,Double>>();
+		double fitness = 0;
+		double f_threshold = 1.0;
+		int run = 0;
+		while (fitness < f_threshold) {
+			run++;
+			this.clustering.setRun(run);
+			for (HashMap<Integer,Double> indiv : population) {
+				conf.setParameters("N of ants", indiv.get("N of ants"));
+				conf.setParameters("Memory Size", indiv.get("Memory Size"));
+				for (int i=1; i<(names.length-1);i++) {
+					conf.setParameters(names[i]+" low",indiv.get(names[i]+" low"));
+					conf.setParameters(names[i]+" range",0);
+				}
+				tick=0;
+				while (tick < conf.getCicle1()){
+					this.clustering.setTick(tick);
+					this.antColony.sort(tick);
+					tick++;
+				}
+				double F_m = computeFMeasure();
+			}
+		}
 	}
 
 	/**

@@ -1,29 +1,4 @@
-/*  
-Copyright (C) 2012 Antonio Fonseca 
-Email: antoniofilipefonseca@gmail.com
-
-*/
 package antcolony;
-
-/*****************************************************************
-Antonio Fonseca
-antoniofilipefonseca@gmail.com
-
-File: Ant.java
-Package: antcolony
-
-Description:
-
-* Represents an individual agent
-* Stores all essential information
-	- Current Position
-	- Current Load
-* Stores pointer to the environment
-* Environment provides all necessary information (e.g. density)
-	
-                                                                                                                    	
-*****************************************************************/
-
 
 
 import java.util.LinkedList;

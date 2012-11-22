@@ -95,7 +95,7 @@ public class Clustering {
 	private JLabel lblRun;
 	private JTextPane textPane;
 	private JToggleButton tglbtnStart;
-	private JCheckBox chckbxOptimize;
+	private JButton btnOptimize;
 
 	/**
 	 * Launch the application.
@@ -272,7 +272,10 @@ public class Clustering {
 				conf.setModel((Models)cb.getSelectedItem());
 				simul.update(conf);
 				HashMap<String,Double> h = conf.getParameters();
-				table.setModel(toTableModel(h));			
+				table.setModel(toTableModel(h));
+				if (cb.getSelectedItem().equals(Configuration.Models.ANTCLASS2))
+					btnOptimize.setText("Optimize");
+				else btnOptimize.setText("");
 			}
 		});
 		comboBox_1.setModel(new DefaultComboBoxModel(Models.values()));
@@ -307,7 +310,6 @@ public class Clustering {
 						}
 					}
 					else {
-						//runner.stop();
 						runner = null;
 						synchronized (simul) {
 							simul.update(conf);
@@ -436,14 +438,28 @@ public class Clustering {
 		chckbxDisplayClusters.setBounds(186, 66, 123, 23);
 		frame.getContentPane().add(chckbxDisplayClusters);
 		
-		chckbxOptimize = new JCheckBox("Optimize");
-		chckbxOptimize.setSelected(false);
-		chckbxOptimize.setBounds(172, 134, 82, 23);
-		frame.getContentPane().add(chckbxOptimize);
-		
 		lblRun = new JLabel("Run: 0");
 		lblRun.setBounds(226, 99, 46, 16);
 		frame.getContentPane().add(lblRun);
+		
+		btnOptimize = new JButton("");
+		btnOptimize.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				if (btnOptimize.getText()=="Optimize"){
+					if (runner == null)	
+					synchronized (simul) {
+						simul.update(conf);
+						simul.optimize();
+						}
+					HashMap<String,Double> h = conf.getParameters();
+					table.setModel(toTableModel(h));
+				}
+
+			}
+		});
+		btnOptimize.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnOptimize.setBounds(183, 130, 82, 29);
+		frame.getContentPane().add(btnOptimize);
 	
 	}
 	
@@ -522,12 +538,6 @@ public class Clustering {
 		textPane.setText(s);
 	}
 	
-	/**Get the status of the optimize checkbox
-	 * @return the selected state of the optimize checkbox
-	 */
-	public boolean getOptimize(){
-		return chckbxOptimize.isSelected();
-	}
 	/** Stop the simulation and update panel
 	 * @param text text to display in window
 	 */
