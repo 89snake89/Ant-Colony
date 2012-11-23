@@ -92,10 +92,9 @@ public class Clustering {
 	private Thread runner;
 	private JTable table, table_1;
 	private JLabel lblNewLabel;
-	private JLabel lblRun;
 	private JTextPane textPane;
 	private JToggleButton tglbtnStart;
-	private JButton btnOptimize;
+	private JToggleButton btnOptimize;
 
 	/**
 	 * Launch the application.
@@ -416,7 +415,7 @@ public class Clustering {
 		frame.getContentPane().add(btnNewButton_1);
 		
 		lblNewLabel = new JLabel("Tick: 0");
-		lblNewLabel.setBounds(282, 99, 76, 16);
+		lblNewLabel.setBounds(226, 99, 138, 16);
 		frame.getContentPane().add(lblNewLabel);
 		
 		textPane = new JTextPane();
@@ -438,27 +437,33 @@ public class Clustering {
 		chckbxDisplayClusters.setBounds(186, 66, 123, 23);
 		frame.getContentPane().add(chckbxDisplayClusters);
 		
-		lblRun = new JLabel("Run: 0");
-		lblRun.setBounds(226, 99, 46, 16);
-		frame.getContentPane().add(lblRun);
-		
-		btnOptimize = new JButton("");
+		btnOptimize = new JToggleButton("");
 		btnOptimize.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				if (btnOptimize.getText()=="Optimize"){
-					if (runner == null)	
-					synchronized (simul) {
-						simul.update(conf);
-						simul.optimize();
-						}
+				JToggleButton bt = (JToggleButton) arg0.getSource();
+				if (bt.getText()=="Optimize"){
+					if (bt.isSelected()){
+						if (runner == null)	{
+								simul.setOpt(true);
+								simul.setInterrupted(false);
+								runner = new Thread(simul);
+								runner.start();
+							}}
+					else {
+						synchronized (simul){
+							simul.setInterrupted(true);
+							simul.notify();
+							}
+
+					}
 					HashMap<String,Double> h = conf.getParameters();
 					table.setModel(toTableModel(h));
 				}
-
 			}
 		});
+
 		btnOptimize.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btnOptimize.setBounds(183, 130, 82, 29);
+		btnOptimize.setBounds(158, 130, 105, 29);
 		frame.getContentPane().add(btnOptimize);
 	
 	}
@@ -522,13 +527,6 @@ public class Clustering {
 	 */
 	public void setTick(int v){
 		lblNewLabel.setText("Tick : "+ v);
-	}
-	
-	/** Set run value on panel
-	 * @param v the tick value
-	 */
-	public void setRun(int v){
-		lblRun.setText("Run : "+ v);
 	}
 	
 	/**Set text value on window below grid

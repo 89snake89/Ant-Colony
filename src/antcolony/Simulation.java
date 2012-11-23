@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 import javax.swing.JPanel;
@@ -60,12 +61,12 @@ public class Simulation extends JPanel implements Runnable  {
 	private boolean  original = true;
 	private boolean  clusters = false;
 	private double scale;
-	private boolean stop;
 	private boolean interrupted;
 	private int tick;
 	private double[][] record;
 	private PrintWriter out;
 	private boolean rec;
+	private boolean optimize;
 
 		
 /********************** Constructor **************************************************************/
@@ -87,6 +88,7 @@ public class Simulation extends JPanel implements Runnable  {
 		this.clustering = clt;
 		this.record = new double[5][10000];
 		this.rec = false;
+		this.optimize = false;
 	
 	}
 	
@@ -98,7 +100,7 @@ public class Simulation extends JPanel implements Runnable  {
 		this.data = new Data(conf);
 		this.grid = new Grid(conf,this.data);
 		this.antColony = new AntColony(conf, grid);
-		this.clustering.setText(this.grid.printStats());
+//		this.clustering.setText(this.grid.printStats());
 	}
 
 /******************* access functions *************************************************************/
@@ -158,29 +160,38 @@ public class Simulation extends JPanel implements Runnable  {
 	public boolean getRec() {
 		return this.rec;
 	}
+	
+	/** Set optimize flag
+	* @param f the flag
+	*/
+	public void setOpt(boolean f) {
+		this.optimize = f;
+	}
+	
+	/** Return the status of the optimize flag
+	* @return the status of current record flag
+	*/
+	public boolean getOpt() {
+		return this.optimize;
+	}
 
 
 /************ action ..... *********************************************************************/
 	
 
 
-	/** Interrupt ant-based sorting process
-	*/
-	public void stop() {
-		  this.stop = true;
-	}
-
 	/** Start ant-based clustering process
 	*/
 	public void run() {
-		
+		if (this.optimize) optimize();
+		else {
 	   	tick = 0;
 		double pearson;
 		double entropy;
 		double F_m;
 		double rand;
 		double InnVar;
-        while (!stop) {
+        do {
             try {            	
             	this.antColony.sort(tick);
             	this.repaint();
@@ -221,18 +232,30 @@ public class Simulation extends JPanel implements Runnable  {
             catch (InterruptedException e){
             	e.printStackTrace();
             }
-        }
-        stop = false;
-		interrupted = true;
+        } while (!interrupted);
+		}
 
 	}
 
-	/** Start genetic algorithm optimization
-	*/
-	public void optimize(){
+
+	/** Optimization routine
+	 * Uses genetic algorithm to optimize configuration parameters
+	 * 
+	 */
+	public void optimize() {
+		
+        do {
+            try {   
+		
+		Random generator = new Random();
+
 		String[] names = new String[]{"N of ants","Max Carry","Speed","P Load","P Drop","P Destroy","P Direction",
 				"T Create","T Remove","Memory Size"};
+		
+		// Size of the population of genes-individuals
 		int N = 20;
+		
+		// Get the parameters-genes seed and variations
 		HashMap<String,Double> parameters = conf.getParameters();
 		Double[] gene_seed = new Double[names.length];
 		Double[] gene_var = new Double[names.length];
@@ -245,31 +268,152 @@ public class Simulation extends JPanel implements Runnable  {
 		}
 		gene_seed[names.length-1]= parameters.get(names[names.length-1]);
 		gene_var[names.length-1] = 1.0; // memory
-		LinkedList<HashMap<Integer,Double>> population = new LinkedList<HashMap<Integer,Double>>();
+		
+		//generate a starting population
+		LinkedList<HashMap<String,Double>> population = new LinkedList<HashMap<String,Double>>();
+		for (int i=0; i<N;i++){
+			HashMap<String,Double> indv = new HashMap<String,Double>();
+			for (int j=0; j<names.length;j++)
+				indv.put(names[j], gene_seed[j]+ generator.nextDouble()* N * gene_var[j]);
+			population.add(indv);
+		}
+		
 		double fitness = 0;
-		double f_threshold = 1.0;
+		double f_threshold = 0.85 * N; //average fitness given by F_measure should be 0.85
 		int run = 0;
 		while (fitness < f_threshold) {
 			run++;
-			this.clustering.setRun(run);
-			for (HashMap<Integer,Double> indiv : population) {
+			Double[] scores = new Double[N];
+
+			//Configure running from population
+			int n = 0;
+			for (HashMap<String,Double> indiv : population) {
 				conf.setParameters("N of ants", indiv.get("N of ants"));
 				conf.setParameters("Memory Size", indiv.get("Memory Size"));
 				for (int i=1; i<(names.length-1);i++) {
-					conf.setParameters(names[i]+" low",indiv.get(names[i]+" low"));
-					conf.setParameters(names[i]+" range",0);
+					conf.setParameters(names[i]+" low",indiv.get(names[i]));
+					conf.setParameters(names[i]+" range",0.0);
 				}
 				tick=0;
+				this.update(conf);
 				while (tick < conf.getCicle1()){
-					this.clustering.setTick(tick);
 					this.antColony.sort(tick);
 					tick++;
 				}
-				double F_m = computeFMeasure();
+				scores[n] = computeFMeasure();
+				System.out.println(scores[n]);
+				n++;
 			}
+			fitness=0;
+			for (int i=0; i<N; i++) fitness+= scores[i];
+			this.clustering.setText("Run : " + run +"\nAverage Fitness : "+ fitness / N);
+			
+			// generate new population
+			LinkedList<HashMap<String,Double>> population_new = new LinkedList<HashMap<String,Double>>();
+			for (int i=0; i<N ; i+=2){
+				
+				// Crossover
+				
+				// get one individual
+				double p_crossover = generator.nextDouble()*fitness;
+				double sum=scores[0];
+				int idx=0;
+				for (int j=1; sum<p_crossover; j++) {
+					sum+=scores[j];
+					idx=j;
+				}
+				HashMap<String,Double> indv1 = population.get(idx);
+				
+				// get another
+				p_crossover = generator.nextDouble()*fitness;
+				sum=scores[0];
+				idx=0;
+				for (int j=1; sum<p_crossover; j++) {
+					sum+=scores[j];
+					idx=j;
+				}
+				HashMap<String,Double> indv2 = population.get(idx);
+				
+				
+				Double[] genes1 = getGenes(indv1,names);
+				Double[] genes2 = getGenes(indv2,names);
+				
+				//crossover
+				
+				double crossover_rate =0.001;
+				
+				if (generator.nextDouble()< crossover_rate) {
+					
+					int cross_point = generator.nextInt(names.length);
+					for (int j=0; j<cross_point; j++) {
+						Double temp = 0.0;
+						temp = genes2[j];
+						genes2[j] = genes1[j];
+						genes1[j] = temp;
+					}
+				}
+				
+				// Mutation
+				
+				double mutation_rate=0.001;
+				
+				for (int j=0; j<names.length; j++){
+					if (generator.nextDouble()< mutation_rate)
+						genes1[j]=gene_seed[j]+ generator.nextDouble()* N * gene_var[j];
+					if (generator.nextDouble()< mutation_rate)
+						genes2[j]=gene_seed[j]+ generator.nextDouble()* N * gene_var[j];
+					}	
+				
+				indv1 = putGenes(genes1,names);
+				indv2 = putGenes(genes2,names);
+				
+				// add to the population
+				population_new.add(indv1);
+				population_new.add(indv2);
+			}
+			
+			population = population_new;
+        	if (interrupted) {
+        		synchronized(this) {
+        			while (interrupted)
+        				wait();
+        		}
+        	}
 		}
+         }
+        catch (InterruptedException e){
+        	e.printStackTrace();
+        }
+        } while (!interrupted);
 	}
 
+	
+	/**
+	* Get put genes into an individual
+	* @param genes The genes
+	* @param names the names of the genes
+	* @return an individual
+	*/
+	private HashMap<String,Double> putGenes(Double[] genes, String[] names) {
+		HashMap<String,Double> indiv = new HashMap<String,Double>();
+		for (int j=0; j<names.length;j++)
+			indiv.put(names[j], genes[j]);
+		return indiv;	
+	}
+	
+	/**
+	* Get the genes from a individual
+	* @param indiv The individual
+	* @param names the names of the genes
+	* @return a gene as Double[]
+	*/
+	private Double[] getGenes(HashMap<String,Double> indiv, String[] names){
+		Double[] gene = new Double[names.length];
+		for (int j=0; j<names.length;j++)
+			gene[j]= indiv.get(names[j]);
+		return gene;
+	}
+	
 	/**
 	* Change drawing scale
 	* @param f zoom in or out
