@@ -125,8 +125,8 @@ public class Configuration {
 									6684774,13395558,3342438,6750156,13408716,6697983,16751052,6723891,
 									13158,3342591,13395660,3394560,6736896,16751001,13107,13421772,39372,
 									6737151,13369395,3355443,65484,16711782,3368652,3355494,13408665};
-	private int cicle1 = 2000;
-	private int cicle2 = 5000;
+	private int cicle1 = 1000;
+	private int cicle2 = 2000;
 	private double min_f = 0.85;
 	
 	/**
@@ -533,36 +533,36 @@ public class Configuration {
 	 * @param v the value
 	 * */
 	public void setParameters(String k, double v){
-		if (k == "X size") 		this.setxsize((int)v); 
-		if (k == "Y size") 		this.setysize((int)v);
-		if (k == "N of ants") 	this.setnants((int)v);
-		if (k == "N of items")	this.setnitems((int)v);
-		if (k == "N of keys")	this.setnkeys((int)v);
-		if (k == "Sigma")		this.setSigma((int)v);
-		if (k == "Alpha")		this.setAlpha(v);
-		if (k == "Kd")			this.setKd(v);
-		if (k == "Kp")			this.setKp(v);
-		if (k == "Max Speed")	this.setMaxSpeed((int)v);
-		if (k == "Max Carry low") this.setMaxCarryLow(v);
-		if (k == "Max Carry range") this.setMaxCarryRange(v);
-		if (k == "Speed low")	this.setSpeedLow(v);
-		if (k == "Speed range") this.setSpeedRange(v);
-		if (k == "P Load low") this.setPLoadLow(v);
-		if (k == "P Load range") this.setPLoadRange(v);
-		if (k == "P Drop low") this.setPDropLow(v);
-		if (k == "P Drop range") this.setPDropRange(v);
-		if (k == "P Destroy low")this.setPDestroyLow(v);
-		if (k == "P Destroy range") this.setPDestroyRange(v);
-		if (k == "P Direction low") this.setPDirectionLow(v);
-		if (k == "P Direction range") this.setPDirectionRange(v);
-		if (k == "T Create low") this.setTCreateLow(v);
-		if (k == "T Create range") this.setTCreateRange(v);
-		if (k == "T Remove low") this.setTRemoveLow(v);
-		if (k == "T Remove range") this.setTRemoveRange(v);
-		if (k == "Memory Size") this.setMemsize((int)v);
-		if (k == "Cicle 1") this.setCicle1((int)v);
-		if (k == "Cicle 2") this.setCicle2((int)v);
-		if (k == "Minimum F")this.setMinF(v);
+		if (k.equals("X size")) 		this.setxsize((int)v); 
+		if (k.equals("Y size")) 		this.setysize((int)v);
+		if (k.equals("N of ants")) 	this.setnants((int)v);
+		if (k.equals("N of items"))	this.setnitems((int)v);
+		if (k.equals("N of keys"))	this.setnkeys((int)v);
+		if (k.equals("Sigma"))		this.setSigma((int)v);
+		if (k.equals("Alpha"))		this.setAlpha(v);
+		if (k.equals("Kd"))			this.setKd(v);
+		if (k.equals("Kp"))			this.setKp(v);
+		if (k.equals("Max Speed"))	this.setMaxSpeed((int)v);
+		if (k.equals("Max Carry low")) this.setMaxCarryLow((int)v);
+		if (k.equals("Max Carry range")) this.setMaxCarryRange((int)v);
+		if (k.equals("Speed low"))	this.setSpeedLow((int)v);
+		if (k.equals("Speed range")) this.setSpeedRange((int)v);
+		if (k.equals("P Load low")) this.setPLoadLow(v);
+		if (k.equals("P Load range")) this.setPLoadRange(v);
+		if (k.equals("P Drop low")) this.setPDropLow(v);
+		if (k.equals("P Drop range")) this.setPDropRange(v);
+		if (k.equals("P Destroy low"))this.setPDestroyLow(v);
+		if (k.equals("P Destroy range")) this.setPDestroyRange(v);
+		if (k.equals("P Direction low")) this.setPDirectionLow(v);
+		if (k.equals("P Direction range")) this.setPDirectionRange(v);
+		if (k.equals("T Create low")) this.setTCreateLow(v);
+		if (k.equals("T Create range")) this.setTCreateRange(v);
+		if (k.equals("T Remove low")) this.setTRemoveLow(v);
+		if (k.equals("T Remove range")) this.setTRemoveRange(v);
+		if (k.equals("Memory Size")) this.setMemsize((int)v);
+		if (k.equals("Cicle 1")) this.setCicle1((int)v);
+		if (k.equals("Cicle 2")) this.setCicle2((int)v);
+		if (k.equals("Minimum F"))this.setMinF(v);
 	}
 	
 /********** simple access functions ********************************************************************/	

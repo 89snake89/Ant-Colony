@@ -108,8 +108,8 @@ public class AntColony {
 		case ANTCLASS1 		: 	phase = 0;
 								if (tick == conf.getCicle1()) phase = 1;
 								if (tick > conf.getCicle1()) phase = 2;
-								if (tick == conf.getCicle2()) phase = 1;
-								if (tick > conf.getCicle2()) break;
+								if (tick == conf.getCicle2()+conf.getCicle1()) phase = 1;
+								if (tick > conf.getCicle2()+conf.getCicle1()) break;
 								for (int a = 0; a< conf.getnants(); a++) {
 			
 								switch (phase){

@@ -348,7 +348,7 @@ public class Grid {
 		for (Map.Entry<Double,int[]> entry: map.entrySet()){
 			if (!done.contains(entry.getValue()[0]) && !done.contains(entry.getValue()[1]) && done.size() < l-3)
 			if (entry.getKey() < this.heaps.get(entry.getValue()[1]).getMaxDissimilar()){
-				System.out.println("further clustering");
+//				System.out.println("further clustering");
 				this.heaps.get(entry.getValue()[0]).putItems(this.heaps.get(entry.getValue()[1]).getItems());
 				done.add(entry.getValue()[1]);
 				this.heaps.set(entry.getValue()[1], null);

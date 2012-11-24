@@ -221,7 +221,7 @@ public class Simulation extends JPanel implements Runnable  {
 
             	this.clustering.setTick(tick);
             	tick++;
-            	if (tick > conf.getCicle2() || (tick>conf.getCicle1() && conf.getModel()== Configuration.Models.ANTCLASS2) ) this.clustering.stop("\nEnd of Simulation");
+            	if (tick > conf.getCicle1()+conf.getCicle2() || (tick>conf.getCicle1() && conf.getModel()!= Configuration.Models.ANTCLASS1) ) this.clustering.stop("\nEnd of Simulation");
             	if (interrupted) {
             		synchronized(this) {
             			while (interrupted)
@@ -233,6 +233,7 @@ public class Simulation extends JPanel implements Runnable  {
             	e.printStackTrace();
             }
         } while (!interrupted);
+        interrupted = false;
 		}
 
 	}
@@ -245,7 +246,6 @@ public class Simulation extends JPanel implements Runnable  {
 	public void optimize() {
 		
         do {
-            try {   
 		
 		Random generator = new Random();
 
@@ -279,9 +279,9 @@ public class Simulation extends JPanel implements Runnable  {
 		}
 		
 		double fitness = 0;
-		double f_threshold = 0.85 * N; //average fitness given by F_measure should be 0.85
+		double f_threshold = conf.getMinF() * N; //average fitness given by F_measure should be equal to Minimum F
 		int run = 0;
-		while (fitness < f_threshold) {
+		while (fitness < f_threshold && !interrupted) {
 			run++;
 			Double[] scores = new Double[N];
 
@@ -290,18 +290,20 @@ public class Simulation extends JPanel implements Runnable  {
 			for (HashMap<String,Double> indiv : population) {
 				conf.setParameters("N of ants", indiv.get("N of ants"));
 				conf.setParameters("Memory Size", indiv.get("Memory Size"));
-				for (int i=1; i<(names.length-1);i++) {
-					conf.setParameters(names[i]+" low",indiv.get(names[i]));
-					conf.setParameters(names[i]+" range",0.0);
+				for (int i=1; i<names.length-1;i++) {
+					this.conf.setParameters(names[i]+" low",indiv.get(names[i]));
+					this.conf.setParameters(names[i]+" range",0.0);
 				}
 				tick=0;
 				this.update(conf);
-				while (tick < conf.getCicle1()){
+				this.clustering.updateTable();
+				while (tick <= conf.getCicle1()){
 					this.antColony.sort(tick);
 					tick++;
 				}
+				this.antColony.drop();
+				this.grid.calculateClusters();
 				scores[n] = computeFMeasure();
-				System.out.println(scores[n]);
 				n++;
 			}
 			fitness=0;
@@ -373,18 +375,11 @@ public class Simulation extends JPanel implements Runnable  {
 			}
 			
 			population = population_new;
-        	if (interrupted) {
-        		synchronized(this) {
-        			while (interrupted)
-        				wait();
-        		}
-        	}
+
 		}
-         }
-        catch (InterruptedException e){
-        	e.printStackTrace();
-        }
         } while (!interrupted);
+        this.clustering.stopOpt("\n\nEnd of Optimization");
+        optimize = false;
 	}
 
 	

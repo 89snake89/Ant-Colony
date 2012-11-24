@@ -147,37 +147,6 @@ public class Clustering {
 		lblDataset.setBounds(33, 11, 46, 14);
 		frame.getContentPane().add(lblDataset);
 		
-		tglbtnStart = new JToggleButton("Start");
-		tglbtnStart.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				JToggleButton bt = (JToggleButton) e.getSource();
-				if (bt.isSelected()){
-					btnStop.setText("");
-					if (runner == null) {
-						simul.setInterrupted(false);
-						runner = new Thread(simul);
-						runner.start();
-					}
-					else {
-						synchronized (simul){
-						simul.setInterrupted(false);
-						simul.notify();
-						}
-					}
-				}
-				else {
-					synchronized (simul){
-					simul.setInterrupted(true);
-					simul.notify();
-					}
-					btnStop.setText("Restart");
-				}
-			}
-		});
-		tglbtnStart.setFont(new Font("Tahoma", Font.BOLD, 11));
-		tglbtnStart.setBounds(24, 96, 91, 23);
-		frame.getContentPane().add(tglbtnStart);
-		
 		JToggleButton tglbtnRecord = new JToggleButton("Record");
 		tglbtnRecord.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
@@ -298,6 +267,40 @@ public class Clustering {
 		comboBox.setBounds(24, 37, 123, 22);
 		frame.getContentPane().add(comboBox);
 		
+		tglbtnStart = new JToggleButton("Start");
+		tglbtnStart.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				JToggleButton bt = (JToggleButton) e.getSource();
+				if (bt.getText()=="Start"){
+				if (bt.isSelected()){
+					btnStop.setText("");
+					btnOptimize.setText("");
+					if (runner == null) {
+						simul.setInterrupted(false);
+						runner = new Thread(simul);
+						runner.start();
+					}
+					else {
+						synchronized (simul){
+						simul.setInterrupted(false);
+						simul.notify();
+						}
+					}
+				}
+				else {
+					synchronized (simul){
+					simul.setInterrupted(true);
+					simul.notify();
+					}
+					btnStop.setText("Restart");
+				}
+			}
+			}
+		});
+		tglbtnStart.setFont(new Font("Tahoma", Font.BOLD, 11));
+		tglbtnStart.setBounds(24, 96, 91, 23);
+		frame.getContentPane().add(tglbtnStart);
+		
 		btnStop = new JButton("");
 		btnStop.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -320,12 +323,55 @@ public class Clustering {
 				}
 				HashMap<String,Double> h = conf.getParameters();
 				table.setModel(toTableModel(h));
+				tglbtnStart.setText("Start");
+				if (conf.getModel()==Configuration.Models.ANTCLASS2) btnOptimize.setText("Optimize");
 			}
 		});
 		btnStop.setToolTipText("Reset the simulation Conditions");
 		btnStop.setFont(new Font("Tahoma", Font.BOLD, 12));
 		btnStop.setBounds(125, 96, 91, 23);
 		frame.getContentPane().add(btnStop);
+		
+		btnOptimize = new JToggleButton("");
+		btnOptimize.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				JToggleButton bt = (JToggleButton) arg0.getSource();
+				if (bt.getText()=="Optimize"){
+					if (bt.isSelected()){
+						tglbtnStart.setText("");
+						btnStop.setText("");
+						if (runner == null)	{
+								simul.setOpt(true);
+								simul.setInterrupted(false);
+								runner = new Thread(simul);
+								runner.start();
+							}
+						else {
+							synchronized (simul){
+							simul.setInterrupted(false);
+							simul.notify();
+							}
+						}
+					}
+					else {
+						synchronized (simul){
+							simul.setOpt(false);
+							simul.setInterrupted(true);
+							simul.notify();
+							}
+						tglbtnStart.setText("");
+						btnStop.setText("Restart");
+
+					}
+					HashMap<String,Double> h = conf.getParameters();
+					table.setModel(toTableModel(h));
+				}
+			}
+		});
+
+		btnOptimize.setFont(new Font("Tahoma", Font.BOLD, 11));
+		btnOptimize.setBounds(158, 130, 105, 29);
+		frame.getContentPane().add(btnOptimize);
 		
 		JCheckBox chckbxDisplyOriginalSet = new JCheckBox("Display original set");
 		chckbxDisplyOriginalSet.addChangeListener(new ChangeListener() {
@@ -436,35 +482,6 @@ public class Clustering {
 		chckbxDisplayClusters.setSelected(false);
 		chckbxDisplayClusters.setBounds(186, 66, 123, 23);
 		frame.getContentPane().add(chckbxDisplayClusters);
-		
-		btnOptimize = new JToggleButton("");
-		btnOptimize.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				JToggleButton bt = (JToggleButton) arg0.getSource();
-				if (bt.getText()=="Optimize"){
-					if (bt.isSelected()){
-						if (runner == null)	{
-								simul.setOpt(true);
-								simul.setInterrupted(false);
-								runner = new Thread(simul);
-								runner.start();
-							}}
-					else {
-						synchronized (simul){
-							simul.setInterrupted(true);
-							simul.notify();
-							}
-
-					}
-					HashMap<String,Double> h = conf.getParameters();
-					table.setModel(toTableModel(h));
-				}
-			}
-		});
-
-		btnOptimize.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btnOptimize.setBounds(158, 130, 105, 29);
-		frame.getContentPane().add(btnOptimize);
 	
 	}
 	
@@ -536,6 +553,13 @@ public class Clustering {
 		textPane.setText(s);
 	}
 	
+	/**Update the table with current parameter values
+	 */
+	public void updateTable(){
+		HashMap<String,Double> h = conf.getParameters();
+		table.setModel(toTableModel(h));
+	}
+	
 	/** Stop the simulation and update panel
 	 * @param text text to display in window
 	 */
@@ -546,6 +570,20 @@ public class Clustering {
 			simul.notify();
 		}
 		btnStop.setText("Restart");
+		tglbtnStart.setText("");
+		btnOptimize.setText("");
 		tglbtnStart.setSelected(false);
 	}
+	
+	/** Stop the simulation and update panel
+	 * @param text text to display in window
+	 */
+	public void stopOpt(String text){
+		textPane.setText(textPane.getText()+text);
+		btnStop.setText("Restart");
+		btnOptimize.setText("");
+		tglbtnStart.setText("");
+		btnOptimize.setSelected(false);
+	}
+	
 }
