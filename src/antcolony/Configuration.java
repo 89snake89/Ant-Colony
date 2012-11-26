@@ -898,7 +898,8 @@ public class Configuration {
 						   	 r.put("Kp", this.getKp());
 						   	 r.put("Max Speed", new Double(this.getMaxSpeed()));
 						   	 r.put("Minimum F", new Double(this.getMinF()));
-//						   	 r.put("Minimum Density", new Double(this.getMinD()));
+							 r.put("Cicle 1", new Double(this.getCicle1()));
+								
 						   	 break;
 		case LUMERFAIETA_M : r.put("X size", new Double(this.getxsize()));
 		   					 r.put("Y size", new Double(this.getysize()));
@@ -909,6 +910,7 @@ public class Configuration {
 		   					 r.put("Max Speed", new Double(this.getMaxSpeed()));
 		   					 r.put("Memory Size", new Double(this.getmemsize()));
 		   					 r.put("Minimum F", new Double(this.getMinF()));
+							 r.put("Cicle 1", new Double(this.getCicle1()));
 
 		   					 break;
 		case LUMERFAIETA_R : 	r.put("X size", new Double(this.getxsize()));
@@ -918,6 +920,7 @@ public class Configuration {
 		   						r.put("Kd", this.getKd());
 		   						r.put("Kp", this.getKp());
 		   						r.put("Minimum F", new Double(this.getMinF()));
+								r.put("Cicle 1", new Double(this.getCicle1()));
 
 		   					break;
 		case ANTCLASS1 : 	r.put("X size", new Double(this.getxsize()));

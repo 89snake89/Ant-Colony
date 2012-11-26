@@ -505,7 +505,7 @@ private void updateMemoryHeap(Heap hp){
 
 /** Update the memory of items with the current visited item
  * @param  it - the visited item
-* */
+**/
 private void updateMemoryItem(Item it){
 	this.memory_i.addLast(it);
 	if (this.memory_i.size() > conf.getmemsize()) this.memory_i.removeFirst();
