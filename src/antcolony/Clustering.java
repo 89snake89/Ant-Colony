@@ -88,13 +88,14 @@ public class Clustering {
 	private Simulation simul;
 	private JFrame frame;
 	private JTextField textField_1;
-	private JButton btnStop;
+	private JButton btnRestart;
+	private JButton btnOptimize;
 	private Thread runner;
 	private JTable table, table_1;
 	private JLabel lblNewLabel;
 	private JTextPane textPane;
 	private JToggleButton tglbtnStart;
-	private JToggleButton btnOptimize;
+
 
 	/**
 	 * Launch the application.
@@ -225,6 +226,10 @@ public class Clustering {
 				{null, null},
 				{null, null},
 				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
+				{null, null},
 			},
 			new String[] {
 				"Parameter", "Value"
@@ -273,7 +278,7 @@ public class Clustering {
 				JToggleButton bt = (JToggleButton) e.getSource();
 				if (bt.getText()=="Start"){
 				if (bt.isSelected()){
-					btnStop.setText("");
+					btnRestart.setText("");
 					btnOptimize.setText("");
 					if (runner == null) {
 						simul.setInterrupted(false);
@@ -291,8 +296,9 @@ public class Clustering {
 					synchronized (simul){
 					simul.setInterrupted(true);
 					simul.notify();
+					simul.stop();
 					}
-					btnStop.setText("Restart");
+					btnRestart.setText("Restart");
 				}
 			}
 			}
@@ -301,17 +307,20 @@ public class Clustering {
 		tglbtnStart.setBounds(24, 96, 91, 23);
 		frame.getContentPane().add(tglbtnStart);
 		
-		btnStop = new JButton("");
-		btnStop.addActionListener(new ActionListener() {
+		btnRestart = new JButton("");
+		btnRestart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if (btnStop.getText()=="Restart"){
-					if (runner == null){	
+				if (btnRestart.getText()=="Restart"){
+					System.out.println("Restart");
+					if (runner == null){
+						System.out.println("Restart and runner == null");
 					synchronized (simul) {
 						simul.update(conf);
 						simul.repaint();
 						}
 					}
 					else {
+						System.out.println("Restart and runner != null");
 						runner = null;
 						synchronized (simul) {
 							simul.update(conf);
@@ -320,53 +329,51 @@ public class Clustering {
 					}
 					lblNewLabel.setText("Tick : 0");
 					if (simul.getRec()) simul.writeRecord(conf.getFilename());
-				}
-				HashMap<String,Double> h = conf.getParameters();
-				table.setModel(toTableModel(h));
-				tglbtnStart.setText("Start");
-				if (conf.getModel()==Configuration.Models.ANTCLASS2) btnOptimize.setText("Optimize");
+					HashMap<String,Double> h = conf.getParameters();
+					table.setModel(toTableModel(h));
+					tglbtnStart.setText("Start");
+					if (conf.getModel()==Configuration.Models.ANTCLASS2) btnOptimize.setText("Optimize");
+			}
 			}
 		});
-		btnStop.setToolTipText("Reset the simulation Conditions");
-		btnStop.setFont(new Font("Tahoma", Font.BOLD, 12));
-		btnStop.setBounds(125, 96, 91, 23);
-		frame.getContentPane().add(btnStop);
+		btnRestart.setToolTipText("Reset the simulation Conditions");
+		btnRestart.setFont(new Font("Tahoma", Font.BOLD, 12));
+		btnRestart.setBounds(125, 96, 91, 23);
+		frame.getContentPane().add(btnRestart);
 		
-		btnOptimize = new JToggleButton("");
+		btnOptimize = new JButton("");
 		btnOptimize.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				JToggleButton bt = (JToggleButton) arg0.getSource();
+			public void actionPerformed(ActionEvent e) {
+				JButton bt = (JButton) e.getSource();
 				if (bt.getText()=="Optimize"){
-					if (bt.isSelected()){
 						tglbtnStart.setText("");
-						btnStop.setText("");
+						btnRestart.setText("");
+						btnOptimize.setText("Optimizing");
+						System.out.println("Optimize");
 						if (runner == null)	{
 								simul.setOpt(true);
 								simul.setInterrupted(false);
 								runner = new Thread(simul);
 								runner.start();
+						System.out.println("Optimize and runner == null");
 							}
-						else {
-							synchronized (simul){
-							simul.setInterrupted(false);
-							simul.notify();
-							}
-						}
 					}
-					else {
+				else if (bt.getText()=="Optimizing"){
 						synchronized (simul){
 							simul.setOpt(false);
 							simul.setInterrupted(true);
 							simul.notify();
+							simul.stop();
 							}
+						System.out.println("Optimizing");
 						tglbtnStart.setText("");
-						btnStop.setText("Restart");
+						btnOptimize.setText("");
+						btnRestart.setText("Restart");
 
 					}
 					HashMap<String,Double> h = conf.getParameters();
 					table.setModel(toTableModel(h));
 				}
-			}
 		});
 
 		btnOptimize.setFont(new Font("Tahoma", Font.BOLD, 11));
@@ -569,7 +576,7 @@ public class Clustering {
 			simul.setInterrupted(true);
 			simul.notify();
 		}
-		btnStop.setText("Restart");
+		btnRestart.setText("Restart");
 		tglbtnStart.setText("");
 		btnOptimize.setText("");
 		tglbtnStart.setSelected(false);
@@ -580,7 +587,7 @@ public class Clustering {
 	 */
 	public void stopOpt(String text){
 		textPane.setText(textPane.getText()+text);
-		btnStop.setText("Restart");
+		btnRestart.setText("Restart");
 		btnOptimize.setText("");
 		tglbtnStart.setText("");
 		btnOptimize.setSelected(false);

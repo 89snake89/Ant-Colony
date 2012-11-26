@@ -174,6 +174,13 @@ public class Simulation extends JPanel implements Runnable  {
 	public boolean getOpt() {
 		return this.optimize;
 	}
+	
+	/** Interrupt ant-based sorting process
+	*/
+	public void stop() {
+		  Thread thisThread = Thread.currentThread();
+		  thisThread = null;
+	}
 
 
 /************ action ..... *********************************************************************/
