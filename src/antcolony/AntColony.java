@@ -110,51 +110,54 @@ public class AntColony {
 								if (tick > conf.getCicle1()) phase = 2;
 								if (tick == conf.getCicle2()+conf.getCicle1()) phase = 1;
 								if (tick > conf.getCicle2()+conf.getCicle1()) break;
-								for (int a = 0; a< conf.getnants(); a++) {
-			
+
 								switch (phase){
-									case 0: ants[a].move_ant_class();
+									case 0: for (int a = 0; a< conf.getnants(); a++) {
+											ants[a].move_ant_class();
 											if ( ants[a].hasLoad())
 												ants[a].drop_ant_class();
 											else
 												ants[a].pick_ant_class();
+											}
 											break;
 											
 									case 1: this.grid.kmeans_heaps();
 											break;
 										
-									case 2: ants[a].move_ant_class();
+									case 2: for (int a = 0; a< conf.getnants(); a++) {
+											ants[a].move_ant_class();
 									  		this.grid.decPheromone();
 											if ( ants[a].hasHeap())
 												ants[a].drop_ant_class_heap();
 											else
 												ants[a].pick_ant_class_heap();
+											}
 											break;
 								}
-							  }
-							  this.cleanMemories();
-							  break;
+								this.cleanMemories();
+								break;
+							  
 		case ANTCLASS2 		: 	phase = 0;
 								if (tick==conf.getCicle1()) phase=1;
 								if (tick > conf.getCicle1()) break;
-								for (int a = 0; a< conf.getnants(); a++) {
-
-									switch (phase){
-									case 0: ants[a].move_ant_class();
+								switch (phase){
+									case 0: for (int a = 0; a< conf.getnants(); a++) {
+											ants[a].move_ant_class();
 											if ( ants[a].hasLoad())
 												ants[a].drop_ant_class();
 											else
 												ants[a].pick_ant_class();
+											}
 											break;
 					
 									case 1: this.grid.kmeans_heaps();
 											this.grid.cluster_heaps();
 											break;
 
-		}
-	  }
-	  this.cleanMemories();
-	  break;
+									}
+								this.cleanMemories();
+								break;
+
 		}	
 	}
 	

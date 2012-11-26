@@ -251,31 +251,38 @@ public class Simulation extends JPanel implements Runnable  {
 	 * 
 	 */
 	public void optimize() {
-		
-        do {
-		
-		Random generator = new Random();
 
 		String[] names = new String[]{"N of ants","Max Carry","Speed","P Load","P Drop","P Destroy","P Direction",
 				"T Create","T Remove","Memory Size"};
-		
 		// Size of the population of genes-individuals
+		LinkedList<HashMap<String,Double>> population_final;
 		int N = 20;
+		Double[] scores = new Double[N];
 		
+		//Main cycle
+		do {
+		
+		Random generator = new Random();
+
 		// Get the parameters-genes seed and variations
 		HashMap<String,Double> parameters = conf.getParameters();
 		Double[] gene_seed = new Double[names.length];
 		Double[] gene_var = new Double[names.length];
 		
-		gene_seed[0]= parameters.get(names[0]);
-		gene_var[0] = 5.0; //N of ants
-		for (int i=1; i<(names.length-1);i++) {
-			gene_seed[i]= parameters.get(names[i]+" low");
-			gene_var[i]= parameters.get(names[i]+" range")/N;
-		}
+		// get the seeds
+		gene_seed[0]= parameters.get(names[0]);	
+		for (int i=1; i<(names.length-1);i++) gene_seed[i]= parameters.get(names[i]+" low");
 		gene_seed[names.length-1]= parameters.get(names[names.length-1]);
-		gene_var[names.length-1] = 1.0; // memory
 		
+		// get the variances
+		if (conf.getGeneVar()==null) {
+			gene_var[0] = 5.0; //N of ants
+			for (int i=1; i<(names.length-1);i++) gene_var[i]= parameters.get(names[i]+" range")/N;
+			gene_var[names.length-1] = 1.0; // memory
+			conf.setGeneVar(gene_var);
+		}
+		else gene_var = conf.getGeneVar();
+
 		//generate a starting population
 		LinkedList<HashMap<String,Double>> population = new LinkedList<HashMap<String,Double>>();
 		for (int i=0; i<N;i++){
@@ -290,7 +297,6 @@ public class Simulation extends JPanel implements Runnable  {
 		int run = 0;
 		while (fitness < f_threshold && !interrupted) {
 			run++;
-			Double[] scores = new Double[N];
 
 			//Configure running from population
 			int n = 0;
@@ -382,11 +388,14 @@ public class Simulation extends JPanel implements Runnable  {
 			}
 			
 			population = population_new;
-
 		}
+		population_final=population;
+		interrupted = true;
         } while (!interrupted);
         this.clustering.stopOpt("\n\nEnd of Optimization");
+        this.update(conf);
         optimize = false;
+        writeRecordOptimization("Optimization.txt", population_final, names, scores);
 	}
 
 	
@@ -487,6 +496,48 @@ public class Simulation extends JPanel implements Runnable  {
 						  out.print(Double.toString(this.record[j][i])+'\t');
 					  out.println();
 					  }
+				  out.close();
+				  out = null;
+			  }
+			  } catch (IOException e){
+				  e.printStackTrace();
+			  }
+		  }
+	  
+	  /**
+	   * Record the optimization
+	   * @param filename the full path name of the file
+	   * @param population the list of individuals
+	   * @param names the list of names of the parameters
+	   * @param scores the scores of the individuals
+	   */ 
+	  public void writeRecordOptimization(String filename, LinkedList<HashMap<String,Double>> population, String[]names, Double[] scores){
+		  try {
+			  if (out == null) {
+				  FileWriter outFile = new FileWriter(filename);
+				  out = new PrintWriter(outFile);
+				  DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+				  Date date = new Date();
+				  out.println("********************************************************\n");
+				  out.println("Date : " + dateFormat.format(date)+"\n");
+				  out.println("Optimization:\n");
+				  out.println("Model:\n");
+				  out.println(conf.getModel().toString());
+				  out.println("Dataset:\n");
+				  out.println(conf.getDataset().toString());
+				  out.println("********************************************************");
+				  int i=0;
+				  for (HashMap<String,Double> indv : population){
+					  out.println("\n\n******************************");
+					  out.println("Individual: "+(i+1));
+					  out.println("Score [F measure]" + scores[i]);
+					  out.println("******************************\n");
+					  for (Map.Entry<String,Double> entry : indv.entrySet()){
+						  out.print(entry.getKey() + ":" +'\t');
+					  		out.println(entry.getValue());
+					  }
+					  i++;
+				  }
 				  out.close();
 				  out = null;
 			  }

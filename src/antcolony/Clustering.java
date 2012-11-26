@@ -65,7 +65,8 @@ import javax.swing.JTextPane;
  * is started it can be pause by clicking again on this button. When paused, and after
  * being started the application can be restarted clicking on the button <b>Restart</b>.
  * This button should also be used to initialize the simulations once the dataset is changed
- * or the model is changed.
+ * or the model is changed. The <b>Optimize</b> button initiates an optimization and is only active
+ * in the ANTCLASS2 model. 
  * <p>
  * The parameter grid shows all the parameters used in the simulation corresponding to each model.
  * Each parameter can be changed by changing is value in the right cell, pressing Enter. Only after
@@ -79,7 +80,7 @@ import javax.swing.JTextPane;
  * the recording of the measures of the simulations.
  * 
  * @author      António Fonseca
- * @version     1.4
+ * @version     1.5
  * @since       1.0
  * */
 public class Clustering {
@@ -88,13 +89,13 @@ public class Clustering {
 	private Simulation simul;
 	private JFrame frame;
 	private JTextField textField_1;
-	private JButton btnRestart;
-	private JButton btnOptimize;
 	private Thread runner;
 	private JTable table, table_1;
 	private JLabel lblNewLabel;
 	private JTextPane textPane;
 	private JToggleButton tglbtnStart;
+	private JToggleButton btnOptimize;
+	private JButton btnRestart;
 
 
 	/**
@@ -311,16 +312,13 @@ public class Clustering {
 		btnRestart.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if (btnRestart.getText()=="Restart"){
-					System.out.println("Restart");
 					if (runner == null){
-						System.out.println("Restart and runner == null");
 					synchronized (simul) {
 						simul.update(conf);
 						simul.repaint();
 						}
 					}
 					else {
-						System.out.println("Restart and runner != null");
 						runner = null;
 						synchronized (simul) {
 							simul.update(conf);
@@ -341,34 +339,29 @@ public class Clustering {
 		btnRestart.setBounds(125, 96, 91, 23);
 		frame.getContentPane().add(btnRestart);
 		
-		btnOptimize = new JButton("");
+		btnOptimize = new JToggleButton("");
 		btnOptimize.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				JButton bt = (JButton) e.getSource();
-				if (bt.getText()=="Optimize"){
+				JToggleButton bt = (JToggleButton) e.getSource();
+				if (bt.getText()=="Optimize")
+					if (bt.isSelected()){
 						tglbtnStart.setText("");
 						btnRestart.setText("");
-						btnOptimize.setText("Optimizing");
-						System.out.println("Optimize");
 						if (runner == null)	{
 								simul.setOpt(true);
 								simul.setInterrupted(false);
 								runner = new Thread(simul);
 								runner.start();
-						System.out.println("Optimize and runner == null");
 							}
 					}
-				else if (bt.getText()=="Optimizing"){
+					else {
 						synchronized (simul){
 							simul.setOpt(false);
 							simul.setInterrupted(true);
 							simul.notify();
 							simul.stop();
 							}
-						System.out.println("Optimizing");
-						tglbtnStart.setText("");
-						btnOptimize.setText("");
-						btnRestart.setText("Restart");
+						textPane.setText(textPane.getText()+"\n\nWait for the run to complete.");
 
 					}
 					HashMap<String,Double> h = conf.getParameters();
@@ -377,7 +370,7 @@ public class Clustering {
 		});
 
 		btnOptimize.setFont(new Font("Tahoma", Font.BOLD, 11));
-		btnOptimize.setBounds(158, 130, 105, 29);
+		btnOptimize.setBounds(226, 96, 91, 23);
 		frame.getContentPane().add(btnOptimize);
 		
 		JCheckBox chckbxDisplyOriginalSet = new JCheckBox("Display original set");
@@ -464,11 +457,11 @@ public class Clustering {
 			}
 		});
 		btnNewButton_1.setFont(new Font("Lucida Grande", Font.BOLD, 13));
-		btnNewButton_1.setBounds(273, 130, 91, 29);
+		btnNewButton_1.setBounds(288, 133, 76, 23);
 		frame.getContentPane().add(btnNewButton_1);
 		
 		lblNewLabel = new JLabel("Tick: 0");
-		lblNewLabel.setBounds(226, 99, 138, 16);
+		lblNewLabel.setBounds(158, 137, 123, 16);
 		frame.getContentPane().add(lblNewLabel);
 		
 		textPane = new JTextPane();

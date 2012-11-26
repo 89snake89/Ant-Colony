@@ -69,10 +69,14 @@ public Ant(Grid grid, Configuration conf) {
 	this.ysize = this.conf.getysize();
 	this.scatter();
 	this.load = grid.getItemAt(this.x,this.y);
-	this.load.setPicked(true);
-	this.has_load = 1;
-	grid.remove_item(this.x,this.y);
-	this.d_max = Math.sqrt((double)this.load.getData().size());
+	if (this.load!=null) {
+		grid.remove_item(this.x,this.y);
+		this.load.setPicked(true);
+		this.has_load = 1;
+		this.d_max = Math.sqrt((double)this.load.getData().size());
+	}
+	else this.has_load = 0;
+	
 	this.fail = 0;
 	this.max_carry = (int)(conf.getMaxCarryLow() * Math.random()* conf.getMaxCarryRange());
 	this.speed = (int)(conf.getSpeedLow()+ Math.random() * conf.getSpeedRange());
@@ -105,14 +109,14 @@ public Item getLoad() {
 * @return boolean flag
 */
 public boolean hasLoad() {
-	return this.load != null;
+	return this.load!=null;
 }
 
 /** Do I carry an Heap?
 * @return boolean flag
 */
 public boolean hasHeap() {
-	return this.load_heap != null;
+	return this.load_heap!=null;
 }
 
 /** Set the coordinates of this ant
@@ -252,15 +256,16 @@ public void move_random(boolean f){
 *
 */					
 public void scatter() {
-	
+	int count=0;
 	done: while(true) {
 			int x_coor = (int)(Math.random()*conf.getxsize());
 			int	y_coor = (int)(Math.random()*conf.getysize());
-			if (grid.occupied_item(x_coor,y_coor) == true) {
+			if (grid.occupied_item(x_coor,y_coor) == true || count>conf.getnitems()) {
 				this.x = x_coor;
 				this.y = y_coor;
 				break done;
 			}
+			count++;
 	}
 }
 

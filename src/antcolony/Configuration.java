@@ -226,6 +226,9 @@ public class Configuration {
 	// File parameters
 	private String filename = "record_ant_clustering.txt";
 	
+	// Optimization auxiliary variable
+	private Double[] gene_var = null;
+	
 
 /********** Constructor ***************************************************************************/
 	
@@ -525,6 +528,14 @@ public class Configuration {
 	 * */
 	public void setMinF(double value){
 		this.min_f = value;
+	}
+	
+	/**
+	 * Store the gene variances in this configuration object
+	 * @param gv the gene variances to store
+	 * */
+	public void setGeneVar(Double[] gv){
+		this.gene_var = gv;
 	}
 	
 	/**
@@ -861,6 +872,14 @@ public class Configuration {
 	 * */
 	public double getMinF(){
 		return this.min_f;
+	}
+	
+	/**
+	 * Get the gene variances in this configuration object
+	 * @return the gene variances stored
+	 * */
+	public Double[] getGeneVar(){
+		return this.gene_var;
 	}
 
 	
