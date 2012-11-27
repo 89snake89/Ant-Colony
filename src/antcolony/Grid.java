@@ -290,47 +290,61 @@ public class Grid {
 	*/
 	public void kmeans_heaps(){
 		if (this.heaps.size()>0){
+		int count=0;
 		double[][] centers = new double[this.heaps.size()][conf.getnkeys()];
+		double[][] centers_test = new double[this.heaps.size()][conf.getnkeys()];
 		int[][] centers_xy = new int[this.heaps.size()][2];
-		Iterator<Heap> it = this.heaps.iterator();
-		int i=0;
-		while (it.hasNext()){
-			Heap h = it.next();
-			centers[i] = h.getCenterMass();
-			centers_xy[i][0]= h.getX();
-			centers_xy[i][1]= h.getY();
-			i++;
-		}
-		Heap[] heaps_temp = new Heap[i];
-		for (UUID key : this.items.keySet()){
-			double dist_min = Double.MAX_VALUE;
-			int min = 0;
-			for (int l=0; l<i; l++){
-				double dist = this.items.get(key).distance_vector(centers[l]);
-				if (dist <dist_min) {
-					dist_min = dist;
-					min = l;
+		done: while (count < 100){
+				for (int j=0; j<this.heaps.size();j++){
+					for (int k=0; k<conf.getnkeys(); k++)
+						centers_test[j][k]=centers[j][k];
+					}
+				int i=0;
+				for (Heap h : this.heaps){
+					centers[i] = h.getCenterMass();
+					centers_xy[i][0]= h.getX();
+					centers_xy[i][1]= h.getY();
+					i++;
 				}
+				boolean f=true;
+				for (int j=0; j<this.heaps.size();j++){
+					for (int k=0; k<conf.getnkeys(); k++)
+						if (centers[j][k]!=centers_test[j][k]) f=false;
+					}
+				if (f) break done;
+				Heap[] heaps_temp = new Heap[i];
+				for (UUID key : this.items.keySet()){
+					double dist_min = Double.MAX_VALUE;
+					int min = 0;
+					for (int l=0; l<i; l++){
+						double dist = this.items.get(key).distance_vector(centers[l]);
+						if (dist <dist_min) {
+							dist_min = dist;
+							min = l;
+						}
+					}
+					if (heaps_temp[min]== null)
+						heaps_temp[min]= new Heap(this.conf,centers_xy[min][0],centers_xy[min][1], this.items.get(key));
+					else
+						heaps_temp[min].putItem(this.items.get(key));
 				}
-			if (heaps_temp[min]== null)
-				heaps_temp[min]= new Heap(this.conf,centers_xy[min][0],centers_xy[min][1], this.items.get(key));
-			else
-				heaps_temp[min].putItem(this.items.get(key));
-		}
+				clear_heaps();
+				this.heaps = new LinkedList<Heap>();
+				for (int l=0; l<i; l++) 
+					if (heaps_temp[l]!= null){
+						int x, y;
+						while(true){
+							x = (int)Math.floor(this.conf.getxsize() * Math.random());
+							y = (int)Math.floor(this.conf.getysize() * Math.random());
+							if ( this.hcells[x][y]== null) {
+								put_heap(x,y,heaps_temp[l]);
+								break;
+							}
+						}
+					}
+				count++;
+			}
 		clear_cells();
-		clear_heaps();
-		this.heaps = new LinkedList<Heap>();
-		for (int l=0; l<i; l++) 
-			if (heaps_temp[l]!= null){
-				int x, y;
-				while(true){
-						x = (int)Math.floor(this.conf.getxsize() * Math.random());
-						y = (int)Math.floor(this.conf.getysize() * Math.random());
-						if ( this.hcells[x][y]== null) {
-							put_heap(x,y,heaps_temp[l]);
-							break;
-						}}
-			}		
 		}
 	}
 	

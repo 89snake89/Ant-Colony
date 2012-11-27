@@ -400,7 +400,9 @@ public void drop_ant_class(){
 						grid.remove_item(x_coor, y_coor);
 						this.load.setPicked(false);
 						it.setPicked(false);
-						grid.put_heap(x_coor, y_coor, new Heap(conf,x_coor,y_coor,it,this.load));
+						Heap h = new Heap(conf,x_coor,y_coor,it,this.load);
+						grid.put_heap(x_coor, y_coor, h);
+						this.updateMemoryHeap(h);
 						this.load=null;
 						this.has_load = 0;
 						break done;
@@ -439,6 +441,7 @@ public void drop_ant_class_heap(){
 						grid.remove_heap(x_coor, y_coor);
 						h.putItems(this.load_heap.getItems());
 						grid.put_heap(x_coor, y_coor, h);
+						this.updateMemoryHeap(h);
 						this.load_heap=null;
 						break done;
 					}
@@ -448,6 +451,7 @@ public void drop_ant_class_heap(){
 					this.load_heap.setPicked(false);
 					this.load_heap.setPheromone(500);
 					grid.put_heap(x_coor, y_coor, this.load_heap);
+					this.updateMemoryHeap(this.load_heap);
 					this.load_heap=null;
 					break done;
 				}
