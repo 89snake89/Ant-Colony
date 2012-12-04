@@ -1,5 +1,6 @@
 package antcolony;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -362,7 +363,6 @@ public class Grid {
 		for (Map.Entry<Double,int[]> entry: map.entrySet()){
 			if (!done.contains(entry.getValue()[0]) && !done.contains(entry.getValue()[1]) && done.size() < l-3)
 			if (entry.getKey() < this.heaps.get(entry.getValue()[1]).getMaxDissimilar()){
-//				System.out.println("further clustering");
 				this.heaps.get(entry.getValue()[0]).putItems(this.heaps.get(entry.getValue()[1]).getItems());
 				done.add(entry.getValue()[1]);
 				this.heaps.set(entry.getValue()[1], null);
@@ -374,6 +374,71 @@ public class Grid {
 		}
 
 		}
+	
+	/** Cluster the heaps for ANTCLASS3, try to eliminate clusters
+	*/
+	public void cluster_3_heaps(){
+			if (this.heaps.size()> 2){
+				double count = 0;
+				do{
+					double[] sc = this.getSilhouettes(this.heaps);
+					double min = Double.MAX_VALUE;
+					int idx=0;
+					double sum = 0.0;
+					for (int i=0; i< sc.length;i++)
+						if (sc[i] < min){
+							min = sc[i];
+							idx=i;
+							sum += sc[i];
+						}
+					sum = sum / (double)sc.length;
+					if (sum > 0.99) count++;
+					this.heaps.remove(idx);
+					this.kmeans_heaps();				
+				}while (count < 2);
+				
+			}
+
+		}
+	
+	/**
+	 * Calculate the silhouette index for a given list of heaps
+	 * @param heaps a list of heaps
+	 * @return a HashMap of item ids and corresponding silhouette index
+	 */
+	public double[] getSilhouettes(LinkedList<Heap> heaps) {
+		HashMap<UUID,Double> silhouettes = new HashMap<UUID,Double>();
+		double[] scores = new double[heaps.size()];
+		for (Map.Entry<UUID, Item> entry: items.entrySet()){
+			double a=0.0;
+			double b=Double.MAX_VALUE;
+			for (int c=0; c<heaps.size();c++){
+				Heap h = heaps.get(c);
+				LinkedList<Item> list = h.getItems();
+				boolean f = false;
+				double sum = 0.0;
+				double count = 0.0;
+				for (Item i : list) {
+					if (i.getID().equals(entry.getKey())) {
+						f=true;
+						i.setCluster(c);
+					}
+					sum += entry.getValue().distance(i, 2);
+					count++;
+					}
+				if (f) a = sum /count; 
+				else if ((sum / count) < b) b = sum / count;	
+			}
+		silhouettes.put(entry.getKey(), (b - a)/Math.max(a, b));
+		}
+		for (int c=0; c<heaps.size();c++){
+			scores[c]=0.0;
+			Heap h = heaps.get(c);
+			LinkedList<Item> list = h.getItems();
+			for (Item i : list) scores[c] += silhouettes.get(i.getID());
+		}
+		return scores;
+	}
 	
 	/**** simple manipulation *******************************************************/
 	

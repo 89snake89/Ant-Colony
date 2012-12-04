@@ -157,6 +157,25 @@ public class AntColony {
 									}
 								this.cleanMemories();
 								break;
+		case ANTCLASS3 		: 	phase = 0;
+								if (tick==conf.getCicle1()) phase=1;
+								if (tick > conf.getCicle1()) break;
+								switch (phase){
+								case 0: for (int a = 0; a< conf.getnants(); a++) {
+									ants[a].move_ant_class();
+									if ( ants[a].hasLoad())
+										ants[a].drop_ant_class();
+									else
+										ants[a].pick_ant_class();
+								}
+								break;
+
+								case 1: this.grid.cluster_3_heaps();
+										break;
+
+			}
+		this.cleanMemories();
+		break;
 
 		}	
 	}
