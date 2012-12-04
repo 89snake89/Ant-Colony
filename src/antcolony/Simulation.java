@@ -198,6 +198,7 @@ public class Simulation extends JPanel implements Runnable  {
 		double F_m;
 		double rand;
 		double InnVar;
+		double Silhout;
         do {
             try {            	
             	this.antColony.sort(tick);
@@ -216,6 +217,8 @@ public class Simulation extends JPanel implements Runnable  {
             		this.clustering.setRand(rand);
             		InnVar = computeInnerClusterVariance();
             		this.clustering.setInnerCV(InnVar);
+            		Silhout = computeSilhouetteIndex();
+            		this.clustering.setSilhouette(Silhout);
                 	if (this.rec && tick < 10000){
                 		this.record[0][tick]=pearson;
                 		this.record[1][tick]=entropy;
@@ -738,7 +741,36 @@ public class Simulation extends JPanel implements Runnable  {
 			}
 		return sum/inc;
 	}
-
+	
+	/** Compute Silhouette Index
+	* @return The Silhouette index of the cluster set
+	*/
+	public double computeSilhouetteIndex() {
+		Cluster[] p = this.grid.getClusters();
+		HashMap<UUID,Item>	  items = this.grid.getItems();
+		HashMap<UUID,Double> silhouettes = new HashMap<UUID,Double>();
+		for (Map.Entry<UUID, Item> entry: items.entrySet()){
+			double a=0.0;
+			double b=Double.MAX_VALUE;
+			for (Cluster c: p){
+				LinkedList<Item> list = c.getItems();
+				boolean f = false;
+				double sum = 0.0;
+				double count = 0.0;
+				for (Item i : list) {
+					if (i.getID().equals(entry.getKey())) f=true;
+					sum += entry.getValue().distance(i, 2);
+					count++;
+					}
+				if (f) a = sum /count; 
+				else if ((sum / count) < b) b = sum / count;	
+			}
+		silhouettes.put(entry.getKey(), (b - a)/Math.max(a, b));
+		}
+		double sum = 0.0;
+		for (double d : silhouettes.values()) sum += d;
+		return sum /(double)silhouettes.size();
+	}
 }
 
 

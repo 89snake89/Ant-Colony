@@ -192,7 +192,7 @@ public class Clustering {
 		
 		JLabel lblVariables = new JLabel("Measures");
 		lblVariables.setFont(new Font("Tahoma", Font.BOLD, 14));
-		lblVariables.setBounds(24, 624, 76, 14);
+		lblVariables.setBounds(24, 607, 76, 14);
 		frame.getContentPane().add(lblVariables);
 		
 		JLabel lblParameters = new JLabel("Model Parameters");
@@ -236,7 +236,7 @@ public class Clustering {
 				"Parameter", "Value"
 			}
 		) );
-		table.setBounds(25, 170, 340, 443);
+		table.setBounds(25, 170, 340, 426);
 		frame.getContentPane().add(table);
 		
 		JComboBox comboBox_1 = new JComboBox();
@@ -428,6 +428,7 @@ public class Clustering {
 				{null, null},
 				{null, null},
 				{null, null},
+				{null, null},
 			},
 			new String[] {
 				"Measure", "Value"
@@ -437,10 +438,11 @@ public class Clustering {
 		table_1.setValueAt("Pearson's Correlation", 0, 0);
 		table_1.setValueAt("Entropy", 1, 0);
 		table_1.setValueAt("F measure", 2, 0);
-		table_1.setValueAt("Rand", 3, 0);
+		table_1.setValueAt("Rand Index", 3, 0);
 		table_1.setValueAt("Inner Cluster Variance", 4, 0);
+		table_1.setValueAt("Silhouette Index", 5, 0);
 		
-		table_1.setBounds(24, 649, 341, 80);
+		table_1.setBounds(24, 632, 341, 97);
 		frame.getContentPane().add(table_1);
 		
 		JButton btnNewButton_1 = new JButton("Apply");
@@ -537,6 +539,13 @@ public class Clustering {
 	 */
 	public void setInnerCV(double v){
 		table_1.setValueAt(v, 4, 1);
+	}
+	
+	/** Set the silhoutett index value on measure table
+	 * @param v the silhouett index value
+	 */
+	public void setSilhouette(double v){
+		table_1.setValueAt(v, 5, 1);
 	}
 	
 	/** Set tick value on panel
