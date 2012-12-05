@@ -170,7 +170,7 @@ public class AntColony {
 								}
 								break;
 
-								case 1: this.grid.cluster_3_heaps();
+								case 1: //this.grid.cluster_3_heaps();
 										break;
 
 			}

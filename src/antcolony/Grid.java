@@ -259,7 +259,9 @@ public class Grid {
 	 *  in the case LUMERFAIETA apply K-Means to group items by clusters.
 	 */
 	public void calculateClusters(){
-		if (conf.getModel()== Configuration.Models.ANTCLASS1 || conf.getModel()== Configuration.Models.ANTCLASS2){
+		if (conf.getModel()== Configuration.Models.ANTCLASS1 ||
+			conf.getModel()== Configuration.Models.ANTCLASS2 ||
+			conf.getModel()== Configuration.Models.ANTCLASS3 ){
 			this.partition = new Cluster[heaps.size()];
 			int j=0;
 			for (Heap h : this.heaps){
@@ -378,13 +380,14 @@ public class Grid {
 	/** Cluster the heaps for ANTCLASS3, try to eliminate clusters
 	*/
 	public void cluster_3_heaps(){
+			System.out.println("started cluster_3_heaps");
 			if (this.heaps.size()> 2){
-				double count = 0;
+				double sum = 0.0;
 				do{
 					double[] sc = this.getSilhouettes(this.heaps);
 					double min = Double.MAX_VALUE;
 					int idx=0;
-					double sum = 0.0;
+					sum = 0.0;
 					for (int i=0; i< sc.length;i++)
 						if (sc[i] < min){
 							min = sc[i];
@@ -392,10 +395,9 @@ public class Grid {
 							sum += sc[i];
 						}
 					sum = sum / (double)sc.length;
-					if (sum > 0.99) count++;
 					this.heaps.remove(idx);
 					this.kmeans_heaps();				
-				}while (count < 2);
+				}while (sum != 1.0 && this.heaps.size()>2);
 				
 			}
 
@@ -436,6 +438,7 @@ public class Grid {
 			Heap h = heaps.get(c);
 			LinkedList<Item> list = h.getItems();
 			for (Item i : list) scores[c] += silhouettes.get(i.getID());
+			scores[c]= scores[c]/(double)list.size();
 		}
 		return scores;
 	}
