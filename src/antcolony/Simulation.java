@@ -199,18 +199,23 @@ public class Simulation extends JPanel implements Runnable  {
 		double rand;
 		double InnVar;
 		double Silhout;
+		String text="";
+		String print="";
+		String text_old="";
         do {
             try {            	
-            	this.antColony.sort(tick);
+            	text = this.antColony.sort(tick);
             	this.repaint();
             	if (this.tick%100==0 && this.tick > 0) {
+            		if (!text_old.equals(text)) print = print +"\n"+ text;
+            		text_old = text;
             		this.antColony.drop();
                 	pearson = computePearson(true);
                 	this.clustering.setPearsons(pearson);
                 	entropy = computeEntropy(true);
                 	this.clustering.setEntropy(entropy);
             		this.grid.calculateClusters();
-                	this.clustering.setText(this.grid.printStats());
+                	this.clustering.setText(this.grid.printStats()+print);
             		F_m = computeFMeasure();
             		this.clustering.setF(F_m);
             		rand = computeRand();
@@ -704,20 +709,15 @@ public class Simulation extends JPanel implements Runnable  {
 		Item[] centroids = new Item[p.length];
 		for (int i=0; i< p.length; i++)
 			if (p[i]!= null){
+				for (int j=0; j<conf.getnkeys(); j++)centers[i][j]=0.0;
+				centers_xy[i][0] = 0.0;
+				centers_xy[i][1] = 0.0;
 				LinkedList<Item> items = p[i].getItems();
-				Iterator<Item> it = items.iterator();
-				while (it.hasNext()){
-					Item itm = it.next();
+				for (Item itm : items){
 					List<Double> list = itm.getData();
-					Iterator<Double> it1 = list.iterator();
 					centers_xy[i][0]+=(double)itm.getX();
 					centers_xy[i][1]+=(double)itm.getY();
-					for (int j=0; j<conf.getnkeys(); j++)centers[i][j]=0.0;
-					int j=0;
-					while (it1.hasNext()){
-						centers[i][j] += it1.next();
-						j++;
-					}
+					for (int j=0; j<conf.getnkeys(); j++) centers[i][j]+= list.get(j);
 				}
 				for (int j=0; j<conf.getnkeys();j++) centers[i][j]= centers[i][j]/(double)items.size();
 				centers_xy[i][0]= centers_xy[i][0]/(double)items.size();
@@ -725,17 +725,15 @@ public class Simulation extends JPanel implements Runnable  {
 			}
 		for (int i=0; i< p.length; i++) 
 			if (p[i]!= null) {
-				Double[] c = centers[i];
-				centroids[i]= new Item(UUID.randomUUID(), this.conf,(int)centers_xy[i][0],(int)centers_xy[i][1],"",0, Arrays.asList(c));
+				centroids[i]= new Item(UUID.randomUUID(), this.conf,(int)centers_xy[i][0],(int)centers_xy[i][1],"",0, Arrays.asList(centers[i]));
 			}
 		double sum = 0;
 		double inc = 0.0;
 		for (int i=0; i< p.length; i++)
 			if (p[i]!= null){
 				LinkedList<Item> items = p[i].getItems();
-				Iterator<Item> it = items.iterator();
-				while (it.hasNext()){
-					sum+= it.next().distance(centroids[i], 2);
+				for (Item itm :items){
+					sum+= itm.distance(centroids[i], 2);
 					inc++;
 				}
 			}

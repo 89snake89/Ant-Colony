@@ -130,7 +130,7 @@ public class Clustering {
 		simul = new Simulation(conf,this);
 		simul.setBorder(new BevelBorder(BevelBorder.LOWERED, null, null, null, null));
 		frame = new JFrame();
-		frame.setBounds(100, 100, 980, 857);
+		frame.setBounds(100, 100, 980, 920);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.getContentPane().setLayout(null);
 		
@@ -166,7 +166,7 @@ public class Clustering {
 			}
 		});
 		tglbtnRecord.setFont(new Font("Tahoma", Font.BOLD, 11));
-		tglbtnRecord.setBounds(24, 796, 76, 23);
+		tglbtnRecord.setBounds(24, 846, 76, 23);
 		frame.getContentPane().add(tglbtnRecord);
 		
 		textField_1 = new JTextField();
@@ -181,13 +181,13 @@ public class Clustering {
 				else txt.setForeground(Color.BLACK);
 			}
 		});
-		textField_1.setBounds(24, 765, 340, 20);
+		textField_1.setBounds(24, 815, 340, 20);
 		frame.getContentPane().add(textField_1);
 		textField_1.setColumns(10);
 		
 		JLabel lblFilename = new JLabel("Filename (without extension, press ENTER to check)");
 		lblFilename.setFont(new Font("Tahoma", Font.BOLD, 11));
-		lblFilename.setBounds(24, 740, 340, 14);
+		lblFilename.setBounds(24, 790, 340, 14);
 		frame.getContentPane().add(lblFilename);
 		
 		JLabel lblVariables = new JLabel("Measures");
@@ -442,7 +442,7 @@ public class Clustering {
 		table_1.setValueAt("Inner Cluster Variance", 4, 0);
 		table_1.setValueAt("Silhouette Index", 5, 0);
 		
-		table_1.setBounds(24, 632, 341, 97);
+		table_1.setBounds(24, 632, 341, 147);
 		frame.getContentPane().add(table_1);
 		
 		JButton btnNewButton_1 = new JButton("Apply");
@@ -467,7 +467,7 @@ public class Clustering {
 		frame.getContentPane().add(lblNewLabel);
 		
 		textPane = new JTextPane();
-		textPane.setBounds(406, 599, 557, 220);
+		textPane.setBounds(406, 599, 557, 283);
 		frame.getContentPane().add(textPane);
 		
 		HashMap<String,Double> h = conf.getParameters();

@@ -6,6 +6,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
@@ -290,9 +291,11 @@ public class Grid {
 
 	/** Perform K-Means using heaps centers as seed for K-means clustering, 
 	 * remove all the object from the heaps and cluster in new heaps.
+	 * @return a String with a diagnostics
 	*/
-	public void kmeans_heaps(){
-		if (this.heaps.size()>0){
+	public String kmeans_heaps(){
+		String diag = "(heaps < 3)";
+		if (this.heaps.size()>2){
 		int count=0;
 		double[][] centers = new double[this.heaps.size()][conf.getnkeys()];
 		double[][] centers_test = new double[this.heaps.size()][conf.getnkeys()];
@@ -348,12 +351,15 @@ public class Grid {
 				count++;
 			}
 		clear_cells();
+		diag="Complete";
 		}
+		return diag;
 	}
 	
 	/** Cluster the heaps for ANTCLASS2, try to merge heaps that have close centers.
 	*/
-	public void cluster_heaps(){
+	public String cluster_heaps(){
+		String diag = "(heaps < 3)";
 		int l = this.heaps.size();
 		if (l>2){
 		TreeMap<Double,int[]> map = new TreeMap<Double,int[]>();
@@ -373,18 +379,23 @@ public class Grid {
 		this.heaps.removeAll(Collections.singletonList(null));
 		clear_heaps();
 		for (Heap h : this.heaps) this.hcells[h.getX()][h.getY()]= h.getID();
+		diag="Complete";
 		}
-
+		return diag;
 		}
 	
 	/** Cluster the heaps for ANTCLASS3, try to eliminate clusters
+	 * @return A string with the a diagnotics
 	*/
-	public void cluster_3_heaps(){
+	public String cluster_3_heaps(){
+			String diag = "(heaps < 3)";
 			if (this.heaps.size()> 2){
 				double sum = 0.0;
+				double sum_old = Double.MAX_VALUE;
 				while(true){
+					System.out.println("reduce");
 					this.kmeans_heaps();
-					double[] sc = this.getSilhouettes(this.heaps);
+					double[] sc = this.getDunnIndex(this.heaps);
 					double min = Double.MAX_VALUE;
 					int idx=0;
 					sum = 0.0;
@@ -395,12 +406,15 @@ public class Grid {
 							sum += sc[i];
 						}
 					sum = sum / (double)sc.length;
-					if (sum > 0.95 || this.heaps.size()== 2 ) break;
-					else this.heaps.remove(idx);				
+					if (sum < sum_old || this.heaps.size()== 2 ) break;
+					else {
+						sum_old = sum;
+						this.heaps.remove(idx);				
+					}
 				}
-				
+			diag = "Complete";	
 			}
-
+			return diag;
 		}
 	
 	/**
@@ -443,6 +457,45 @@ public class Grid {
 		return scores;
 	}
 	
+	/** Compute Inner Cluster Variance based on mean distance to center of mass for each hepa
+	* @param heaps the list of the heaps
+	* @return mean distance to center of mass
+	*/
+	public double[] getInnerClusterVariance(LinkedList<Heap> heaps) {
+		double[] scores = new double[heaps.size()];
+		for (int i=0; i<heaps.size();i++) scores[i]=heaps.get(i).getMeanDistance();
+		return scores;
+	}
+	
+	/** Compute Inner Cluster Variance based on mean distance to center of mass for each hepa
+	* @param heaps the list of the heaps
+	* @return mean distance to center of mass
+	*/
+	public double[] getDunnIndex(LinkedList<Heap> heaps) {
+		double[] scores = new double[heaps.size()];
+		double[][] centers = new double[heaps.size()][conf.getnkeys()];
+		double max_diam=0.0;
+		for (int i=0; i<heaps.size(); i++){ 
+			if (heaps.get(i).getMaxDissimilar() > max_diam)
+				max_diam = heaps.get(i).getMaxDissimilar();
+		}
+		for (int i=0; i<heaps.size(); i++)centers[i]=heaps.get(i).getCenterMass();
+		for (int i=0; i<heaps.size(); i++){
+			scores[i] = Double.MAX_VALUE;
+			for (int j=0; j<heaps.size(); j++){
+				double dist = heaps.get(i).computeDistanceCenterMassVector(centers[j]);
+				if (j!=i && dist < scores[i]) scores[i] = dist;
+				}
+		}
+		for (int i=0; i<heaps.size(); i++) {
+			scores[i]= scores[i] / max_diam;
+			System.out.println(scores[i]);
+		}
+		return scores;
+	}
+	
+	
+
 	/**** simple manipulation *******************************************************/
 	
 	

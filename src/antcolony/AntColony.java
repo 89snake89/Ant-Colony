@@ -53,8 +53,11 @@ public class AntColony {
 	/** The ant-algorithm used by this colony
 	 * @param tick - the tick number of the simulation in order to implement clustering
 	 * strategy change in the AntClass model
+	 * @return a String with the model and phase executed
 	 */
-	public void sort(int tick) {
+	public String sort(int tick) {
+		String out= "";
+		String diag="";
 		switch (model){
 		
 		case LUMERFAIETA_S : for (int a = 0; a< conf.getnants(); a++) {
@@ -71,6 +74,7 @@ public class AntColony {
 									ants[a].move_lumer_faieta(false,Configuration.Models.LUMERFAIETA_S);
 									}
 								}
+								out = "LUMERFAIETA_S phase 1 Complete";
 								break;
 								
 		case LUMERFAIETA_M : for (int a = 0; a< conf.getnants(); a++) {
@@ -87,6 +91,7 @@ public class AntColony {
 									ants[a].move_lumer_faieta(false,Configuration.Models.LUMERFAIETA_M);
 									}
 								}
+								out = "LUMERFAIETA_M phase 1 Complete";
 								break;
 								
 		case LUMERFAIETA_R : for (int a = 0; a< conf.getnants(); a++) {
@@ -103,6 +108,7 @@ public class AntColony {
 									ants[a].move_random(false);
 								}
 								}
+								out = "LUMERFAIETA_R phase 1 Complete";
 								break;
 								
 		case ANTCLASS1 		: 	phase = 0;
@@ -119,9 +125,11 @@ public class AntColony {
 											else
 												ants[a].pick_ant_class();
 											}
+											out = "ANTCLASS1 phase 1 Complete";
 											break;
 											
-									case 1: this.grid.kmeans_heaps();
+									case 1: diag = this.grid.kmeans_heaps();
+											out = "ANTCLASS1 phase 2 and 4 "+ diag;
 											break;
 										
 									case 2: for (int a = 0; a< conf.getnants(); a++) {
@@ -132,6 +140,7 @@ public class AntColony {
 											else
 												ants[a].pick_ant_class_heap();
 											}
+											out = "ANTCLASS1 phase 3 Complete";
 											break;
 								}
 								this.cleanMemories();
@@ -148,15 +157,17 @@ public class AntColony {
 											else
 												ants[a].pick_ant_class();
 											}
+											out = "ANTCLASS2 phase 1";
 											break;
 					
-									case 1: this.grid.kmeans_heaps();
-											this.grid.cluster_heaps();
+									case 1: diag = this.grid.kmeans_heaps();
+											out = "ANTCLASS2 phase 2 " + diag + this.grid.cluster_heaps();
 											break;
 
 									}
 								this.cleanMemories();
 								break;
+								
 		case ANTCLASS3 		: 	phase = 0;
 								if (tick==conf.getCicle1()) phase=1;
 								if (tick > conf.getCicle1()) break;
@@ -168,16 +179,19 @@ public class AntColony {
 									else
 										ants[a].pick_ant_class();
 								}
+								out = "ANTCLASS3 phase 1";
 								break;
 
-								case 1: this.grid.cluster_3_heaps();
+								case 1: diag = this.grid.cluster_3_heaps();
+										out = "ANTCLASS3 phase 2 "+ diag;
 										break;
 
 			}
 		this.cleanMemories();
 		break;
 
-		}	
+		}
+		return out;
 	}
 	
 	
