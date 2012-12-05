@@ -382,7 +382,8 @@ public class Grid {
 	public void cluster_3_heaps(){
 			if (this.heaps.size()> 2){
 				double sum = 0.0;
-				do{
+				while(true){
+					this.kmeans_heaps();
 					double[] sc = this.getSilhouettes(this.heaps);
 					double min = Double.MAX_VALUE;
 					int idx=0;
@@ -394,9 +395,9 @@ public class Grid {
 							sum += sc[i];
 						}
 					sum = sum / (double)sc.length;
-					this.heaps.remove(idx);
-					this.kmeans_heaps();				
-				}while (sum != 1.0 && this.heaps.size()>2);
+					if (sum > 0.95 || this.heaps.size()== 2 ) break;
+					else this.heaps.remove(idx);				
+				}
 				
 			}
 
