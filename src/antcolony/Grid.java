@@ -406,7 +406,7 @@ public class Grid {
 	/**
 	 * Calculate the silhouette index for a given list of heaps
 	 * @param heaps a list of heaps
-	 * @return a HashMap of item ids and corresponding silhouette index
+	 * @return the scores of average silhouettes index for each heap
 	 */
 	public double[] getSilhouettes(LinkedList<Heap> heaps) {
 		HashMap<UUID,Double> silhouettes = new HashMap<UUID,Double>();
