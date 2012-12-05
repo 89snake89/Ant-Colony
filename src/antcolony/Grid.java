@@ -380,7 +380,6 @@ public class Grid {
 	/** Cluster the heaps for ANTCLASS3, try to eliminate clusters
 	*/
 	public void cluster_3_heaps(){
-			System.out.println("started cluster_3_heaps");
 			if (this.heaps.size()> 2){
 				double sum = 0.0;
 				do{
