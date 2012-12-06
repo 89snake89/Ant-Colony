@@ -82,7 +82,56 @@ public class Configuration {
 		 *  
 		 * @since       1.0
 		 * */
-		BREAST
+		BREAST,
+		/**
+		 * This dataset corresponds to the two following papers: "Expert Sytem for Predicting Protein Localization Sites in Gram-Negative Bacteria",
+		 * Kenta Nakai & Minoru Kanehisa, PROTEINS: Structure, Function, and Genetics 11:95-110, 1991. and "A Knowledge Base for Predicting Protein
+		 * Localization Sites in Eukaryotic Cells", Kenta Nakai & Minoru Kanehisa, Genomics 14:897-911, 1992.
+		 * <p>
+		 * @see <a href="http://archive.ics.uci.edu/ml/datasets/Yeast">Yeast Data Set - UCI Machine Learning Repository</a>
+		 *  
+		 * @since       1.0
+		 * */
+		YEAST,
+		/**
+		 * This dataset is a subset of the 1987 National Indonesia Contraceptive Prevalence Survey. The samples are married women who were either not
+		 * pregnant or do not know if they were at the time of interview. The problem is to predict the current contraceptive method choice (no use,
+		 * long-term methods, or short-term methods) of a woman based on her demographic and socio-economic characteristics. All the categorical data
+		 * was converted to binary.
+		 * <p>
+		 * @see <a href="http://archive.ics.uci.edu/ml/datasets/Contraceptive+Method+Choice">Contraceptive Method Choice Data Set - UCI Machine Learning Repository</a>
+		 *  
+		 * @since       1.0
+		 * */
+		CMC,
+		/**
+		 * This dataset is constituted by radar data that was collected by a system in Goose Bay, Labrador. This system consists of a phased
+		 * array of 16 high-frequency antennas with a total transmitted power on the order of 6.4 kilowatts. The targets were free electrons
+		 * in the ionosphere. "Good" radar returns are those showing evidence of some type of structure in the ionosphere. "Bad" returns
+		 *  are those that do not; their signals pass through the ionosphere. 
+		 * <p>
+		 * @see <a href="http://archive.ics.uci.edu/ml/datasets/Ionosphere">Ionosphere Data Set - UCI Machine Learning Repository</a>
+		 *  
+		 * @since       1.0
+		 * */
+		IONOSPHERE,
+		/**
+		 * A simple database containing 17 Boolean-valued attributes. The "type" attribute appears to be the class attribute.
+		 * <p>
+		 * @see <a href="http://archive.ics.uci.edu/ml/datasets/Zoo">Zoo Data Set - UCI Machine Learning Repository</a>
+		 *  
+		 * @since       1.0
+		 * */
+		ZOO,
+		/**
+		 * This database contains 76 attributes, but all published experiments refer to using a subset of 14 of them. It only contains
+		 * in fact 14 attributes. Some of them are categorical converted into binary.
+		 * <p>
+		 * @see <a href="http://archive.ics.uci.edu/ml/datasets/Heart+Disease">Heart Disease Data Set - UCI Machine Learning Repository</a>
+		 *  
+		 * @since       1.0
+		 * */
+		HEART
 		};
 	
 	private Datasets dataset = Datasets.UNIFORM9;

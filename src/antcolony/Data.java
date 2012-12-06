@@ -201,8 +201,8 @@ private void generate_items() {
 								y += Double.parseDouble(list.get(j));
 								j++;
 								}
-							x = (x-2) * this.conf.getxsize()/6 + mapx.get(type);
-							y = (y-2) * this.conf.getxsize()/6 + mapy.get(type);
+							x = (x-1.5) * this.conf.getxsize()/6 + mapx.get(type);
+							y = (y-1.5) * this.conf.getxsize()/6 + mapy.get(type);
 							UUID key = UUID.randomUUID();
 							items.put(key,new Item(key,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out));
 						}
@@ -227,7 +227,7 @@ private void generate_items() {
 						mapx.put("1", this.conf.getxsize()/6);
 						mapy.put("1", this.conf.getysize()/6);
 						mapx.put("2", this.conf.getxsize()/6); 
-						mapy.put("2", this.conf.getysize()/6 * 2);
+						mapy.put("2", this.conf.getysize()/6 * 4);
 						mapx.put("3", this.conf.getxsize()/6 );
 						mapy.put("3", this.conf.getysize()/6 * 4);
 						mapx.put("5", this.conf.getxsize()/6 * 4);
@@ -252,8 +252,8 @@ private void generate_items() {
 								y += Double.parseDouble(list.get(j));
 								j++;
 							}
-							x = (x-1) * this.conf.getxsize()/4 + mapx.get(type);
-							y = (y-1) * this.conf.getysize()/4 + mapy.get(type);
+							x = (x-1.5) * this.conf.getxsize()/6 + mapx.get(type);
+							y = y * this.conf.getysize()/6 + mapy.get(type);
 							UUID key = UUID.randomUUID();
 							items.put(key,new Item(key,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out));
 						}
@@ -275,10 +275,10 @@ private void generate_items() {
 						items = new HashMap<UUID,Item>();
 						HashMap<String,Integer> mapx = new HashMap<String,Integer>();
 						HashMap<String,Integer> mapy = new HashMap<String,Integer>();
-						mapx.put("2", this.conf.getxsize()/4);
+						mapx.put("2", this.conf.getxsize()/ 2);
 						mapy.put("2", this.conf.getysize()/ 2);
 						mapx.put("4", this.conf.getxsize()/ 4 * 3); 
-						mapy.put("4", this.conf.getysize()/2);
+						mapy.put("4", this.conf.getysize()/ 2);
 						for (int i=0; i<n; i++){
 							List<String> list = this.csvData.get(i);
 							String type = list.get(list.size()-1);
@@ -289,16 +289,14 @@ private void generate_items() {
 							double x = 0;
 							double y = 0;
 							int j=0;
-							while (j<8){
+							while (j<7){
 								x += Double.parseDouble(list.get(j));
 								j++;
 								y += Double.parseDouble(list.get(j));
 								j++;
 							}
-							x = (x-3)/2;
-							y = (y-3)/2;
-							x = x * this.conf.getxsize()/8 + mapx.get(type);
-							y = y * this.conf.getysize()/8 + mapy.get(type);
+							x = (x/4-2) * this.conf.getxsize()/ 6 + mapx.get(type);
+							y = (y/4-2) * this.conf.getysize()/ 6 + mapy.get(type);
 							UUID key = UUID.randomUUID();
 							items.put(key,new Item(key,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out));
 						}
@@ -308,6 +306,256 @@ private void generate_items() {
 							e.printStackTrace();
 						}
 						break;
+						
+		// Hard-coded Glass Identification dataset from http://archive.ics.uci.edu/ml/datasets.html					
+		case YEAST :	try {
+							n = this.readCsvFile("Yeast.csv");
+							conf.setTypes(new String[]{"CYT","NUC","MIT","ME3","ME2","ME1","EXC","VAC","POX","ERL" });
+							conf.setntypes(10);
+							conf.setnitems(n);
+							conf.setnkeys(8);
+							items = new HashMap<UUID,Item>();
+							HashMap<String,Integer> mapx = new HashMap<String,Integer>();
+							HashMap<String,Integer> mapy = new HashMap<String,Integer>();
+							mapx.put("CYT", this.conf.getxsize()/6);
+							mapy.put("CYT", this.conf.getysize()/6);
+							mapx.put("NUC", this.conf.getxsize()/6); 
+							mapy.put("NUC", this.conf.getysize()/6 * 3);
+							mapx.put("MIT", this.conf.getxsize()/6);
+							mapy.put("MIT", this.conf.getysize()/6 * 5);
+							mapx.put("ME3", this.conf.getxsize()/6 * 3);
+							mapy.put("ME3", this.conf.getysize()/6);
+							mapx.put("ME2", this.conf.getxsize()/6 * 3); 
+							mapy.put("ME2", this.conf.getysize()/6 * 3);
+							mapx.put("ME1", this.conf.getxsize()/6 * 3);
+							mapy.put("ME1", this.conf.getysize()/6 * 5);
+							mapx.put("EXC", this.conf.getxsize()/6 * 5); 
+							mapy.put("EXC", this.conf.getysize()/6);
+							mapx.put("VAC", this.conf.getxsize()/6 * 5);
+							mapy.put("VAC", this.conf.getysize()/6 * 3);
+							mapx.put("POX", this.conf.getxsize()/6 * 5); 
+							mapy.put("POX", this.conf.getysize()/6 * 5);
+							mapx.put("ERL", this.conf.getxsize()/6 * 7);
+							mapy.put("ERL", this.conf.getysize()/6);
+							int cl=0;
+							for (int i=0; i<n; i++){
+								List<String> list = this.csvData.get(i);
+								String type = list.get(list.size()-1);
+								if (type.equals("CYT")) cl=1;
+								if (type.equals("NUC")) cl=2;
+								if (type.equals("MIT")) cl=3;
+								if (type.equals("ME3")) cl=4;
+								if (type.equals("ME2")) cl=5;
+								if (type.equals("ME1")) cl=6;
+								if (type.equals("EXC")) cl=7;
+								if (type.equals("VAC")) cl=8;
+								if (type.equals("POX")) cl=9;
+								if (type.equals("ERL")) cl=10;
+								list=list.subList(0, list.size()-1);
+								List<Double> l_out = new ArrayList<Double>();
+								Iterator<String> it = list.iterator();
+								while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
+								double x = 0;
+								double y = 0;
+								int j=0;
+								while (j<7){
+									x += Double.parseDouble(list.get(j));
+									j++;
+									y += Double.parseDouble(list.get(j));
+									j++;
+								}
+								x = (x-2) * this.conf.getxsize()/6 + mapx.get(type);
+								y = (y) * this.conf.getysize()/6 + mapy.get(type);
+								UUID key = UUID.randomUUID();
+								items.put(key,new Item(key,this.conf,(int)x,(int)y,type,cl,l_out));
+							}
+							}
+							catch (Exception e) {
+								System.out.println("Could not build dataset YEAST");
+								e.printStackTrace();
+							}
+							break;
+		case CMC :		try {
+								n = this.readCsvFile("CMC.csv");
+								conf.setTypes(new String[]{"1","2","3"});
+								conf.setntypes(3);
+								conf.setnitems(n);
+								conf.setnkeys(21);
+								items = new HashMap<UUID,Item>();
+								HashMap<String,Integer> mapx = new HashMap<String,Integer>();
+								HashMap<String,Integer> mapy = new HashMap<String,Integer>();
+								mapx.put("1", this.conf.getxsize()/5);
+								mapy.put("1", this.conf.getysize()/5);
+								mapx.put("2", this.conf.getxsize()/5 * 3); 
+								mapy.put("2", this.conf.getysize()/5);
+								mapx.put("3", this.conf.getxsize()/5 * 2);
+								mapy.put("3", this.conf.getysize()/5 * 2);
+								for (int i=0; i<n; i++){
+									List<String> list = this.csvData.get(i);
+									String type = list.get(list.size()-1);
+									list=list.subList(0, list.size()-1);
+									List<Double> l_out = new ArrayList<Double>();
+									Iterator<String> it = list.iterator();
+									while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
+									double x = 0;
+									double y = 0;
+									int j=0;
+									while (j<20){
+										x += Double.parseDouble(list.get(j));
+										j++;
+										y += Double.parseDouble(list.get(j));
+										j++;
+									}
+									x = (x-1.5) * this.conf.getxsize()/6 + mapx.get(type);
+									y = (y-1.5) * this.conf.getxsize()/6 + mapy.get(type);
+									UUID key = UUID.randomUUID();
+									items.put(key,new Item(key,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out));
+								}
+								}
+								catch (Exception e) {
+									System.out.println("Could not build dataset CMC");
+									e.printStackTrace();
+								}
+								break;
+		case IONOSPHERE :	try {
+								n = this.readCsvFile("Ionosphere.csv");
+								conf.setTypes(new String[]{"g","b"});
+								conf.setntypes(2);
+								conf.setnitems(n);
+								conf.setnkeys(33);
+								items = new HashMap<UUID,Item>();
+								HashMap<String,Integer> mapx = new HashMap<String,Integer>();
+								HashMap<String,Integer> mapy = new HashMap<String,Integer>();
+								mapx.put("g", this.conf.getxsize()/ 2);
+								mapy.put("g", this.conf.getysize()/ 2);
+								mapx.put("b", this.conf.getxsize()/ 4 * 3); 
+								mapy.put("b", this.conf.getysize()/ 2);
+								int cl=0;
+								for (int i=0; i<n; i++){
+									List<String> list = this.csvData.get(i);
+									String type = list.get(list.size()-1);
+									if (type.equals("g")) cl=1;
+									if (type.equals("b")) cl=2;
+									list=list.subList(0, list.size()-1);
+									List<Double> l_out = new ArrayList<Double>();
+									Iterator<String> it = list.iterator();
+									while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
+									double x = 0;
+									double y = 0;
+									int j=0;
+									while (j<30){
+										x += Double.parseDouble(list.get(j));
+										j++;
+										y += Double.parseDouble(list.get(j));
+										j++;
+									}
+									x = (x/4-2) * this.conf.getxsize()/ 6 + mapx.get(type);
+									y = (y/4-2) * this.conf.getysize()/ 6 + mapy.get(type);
+									UUID key = UUID.randomUUID();
+									items.put(key,new Item(key,this.conf,(int)x,(int)y,type,cl,l_out));
+								}
+								}
+								catch (Exception e) {
+									System.out.println("Could not build dataset IONOSPHERE");
+									e.printStackTrace();
+								}
+								break;
+		case ZOO:	try {
+			n = this.readCsvFile("ZOO.csv");
+								conf.setTypes(new String[]{"1","2","3","4","5","6","7"});
+								conf.setntypes(7);
+								conf.setnitems(n);
+								conf.setnkeys(16);
+								items = new HashMap<UUID,Item>();
+								HashMap<String,Integer> mapx = new HashMap<String,Integer>();
+								HashMap<String,Integer> mapy = new HashMap<String,Integer>();
+								mapx.put("1", this.conf.getxsize()/6);
+								mapy.put("1", this.conf.getysize()/6);
+								mapx.put("2", this.conf.getxsize()/6); 
+								mapy.put("2", this.conf.getysize()/6 * 3);
+								mapx.put("3", this.conf.getxsize()/6 );
+								mapy.put("3", this.conf.getysize()/6 * 5);
+								mapx.put("4", this.conf.getxsize()/6 * 3);
+								mapy.put("4", this.conf.getysize()/6 );
+								mapx.put("5", this.conf.getxsize()/6 * 3);
+								mapy.put("5", this.conf.getysize()/6 * 3);
+								mapx.put("6", this.conf.getxsize()/6 * 3); 
+								mapy.put("6", this.conf.getysize()/6 * 5);
+								mapx.put("7", this.conf.getxsize()/6 * 5);
+								mapy.put("7", this.conf.getysize()/6 );
+								for (int i=0; i<n; i++){
+									List<String> list = this.csvData.get(i);
+									String type = list.get(list.size()-1);
+									list=list.subList(0, list.size()-1);
+									List<Double> l_out = new ArrayList<Double>();
+									Iterator<String> it = list.iterator();
+									while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
+									double x = 0;
+									double y = 0;
+									int j=0;
+									while (j<14){
+										x += Double.parseDouble(list.get(j));
+										j++;
+										y += Double.parseDouble(list.get(j));
+										j++;
+									}
+									x = (x-1) * this.conf.getxsize()/8 + mapx.get(type);
+									y = y * this.conf.getysize()/8 + mapy.get(type);
+									UUID key = UUID.randomUUID();
+									items.put(key,new Item(key,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out));
+								}
+								}
+								catch (Exception e) {
+									System.out.println("Could not build dataset ZOO");
+									e.printStackTrace();
+								}
+								break;
+		case HEART :	try {
+			n = this.readCsvFile("Heart.csv");
+								conf.setTypes(new String[]{"0","1","2","3","4"});
+								conf.setntypes(5);
+								conf.setnitems(n);
+								conf.setnkeys(20);
+								items = new HashMap<UUID,Item>();
+								HashMap<String,Integer> mapx = new HashMap<String,Integer>();
+								HashMap<String,Integer> mapy = new HashMap<String,Integer>();
+								mapx.put("0", this.conf.getxsize()/5);
+								mapy.put("0", this.conf.getysize()/5);
+								mapx.put("1", this.conf.getxsize()/5);
+								mapy.put("1", this.conf.getysize()/5 * 2);
+								mapx.put("2", this.conf.getxsize()/5 * 2); 
+								mapy.put("2", this.conf.getysize()/5 );
+								mapx.put("3", this.conf.getxsize()/5 * 2 );
+								mapy.put("3", this.conf.getysize()/5 * 2);
+								mapx.put("4", this.conf.getxsize()/5 * 4);
+								mapy.put("4", this.conf.getysize()/5);
+								for (int i=0; i<n; i++){
+									List<String> list = this.csvData.get(i);
+									String type = list.get(list.size()-1);
+									list=list.subList(0, list.size()-1);
+									List<Double> l_out = new ArrayList<Double>();
+									Iterator<String> it = list.iterator();
+									while (it.hasNext()) l_out.add(Double.parseDouble(it.next()));
+									double x = 0;
+									double y = 0;
+									int j=0;
+									while (j<18){
+										x += Double.parseDouble(list.get(j));
+										j++;
+										y += Double.parseDouble(list.get(j));
+										j++;
+									}
+									x = (x-2) * this.conf.getxsize()/6 + mapx.get(type);
+									y = (y-2) * this.conf.getysize()/6 + mapy.get(type);
+									UUID key = UUID.randomUUID();
+									items.put(key,new Item(key,this.conf,(int)x,(int)y,type,Integer.parseInt(type),l_out));
+								}
+								}
+								catch (Exception e) {
+									System.out.println("Could not build dataset HEART");
+									e.printStackTrace();
+								}
+								break;
 		}
 }
 
