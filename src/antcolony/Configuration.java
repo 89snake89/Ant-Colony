@@ -222,7 +222,7 @@ public class Configuration {
 		ANTCLASS2 ,
 		/**
 		 * This model is modification of the previous AntClass2 algorithm using a modified
-		 * version of steps 3 it tries to reduce clusters by a proprietary algorithm
+		 * version of step 3 it tries to reduce clusters by a proprietary algorithm
 		 * <ul>
 		 * 
 		 * </ul>
@@ -230,6 +230,16 @@ public class Configuration {
 		 * @since       1.9
 		 * */
 		ANTCLASS3 ,
+		/**
+		 * This model is modification of the previous AntClass2 algorithm using a modified
+		 * version of step 3 it tries to reduce clusters by merging heaps
+		 * <ul>
+		 * 
+		 * </ul>
+		 * 
+		 * @since       1.9
+		 * */
+		ANTCLASS4 ,
 		/**
 		 * This is the classic Lumer and Faieta model as explained in the original paper.
 		 * "E. Lumer and B. Faieta. Diversity and adaptation in populations of clustering ants.
@@ -1034,6 +1044,31 @@ public class Configuration {
 							r.put("Minimum F", new Double(this.getMinF()));	   					
 							break;
 		case ANTCLASS3 : 	r.put("X size", new Double(this.getxsize()));
+							r.put("Y size", new Double(this.getysize()));
+							r.put("N of ants", new Double(this.getnants()));
+							r.put("N of items", new Double(this.getnitems()));
+							r.put("N of keys", new Double(this.getnkeys()));
+							r.put("Max Carry low", new Double(this.getMaxCarryLow()));
+							r.put("Max Carry range", new Double(this.getMaxCarryRange()));
+							r.put("Speed low", new Double(this.getSpeedLow()));
+							r.put("Speed range", new Double(this.getSpeedRange()));
+							r.put("P Load low", new Double(this.getPLoadLow()));
+							r.put("P Load range", new Double(this.getPLoadRange()));
+							r.put("P Drop low", new Double(this.getPDropLow()));
+							r.put("P Drop range", new Double(this.getPDropRange()));
+							r.put("P Destroy low", new Double(this.getPDestroyLow()));
+							r.put("P Destroy range", new Double(this.getPDestroyRange()));
+							r.put("P Direction low", new Double(this.getPDirectionLow()));
+							r.put("P Direction range", new Double(this.getPDirectionRange()));
+							r.put("T Create low", new Double(this.getTCreateLow()));
+							r.put("T Create range", new Double(this.getTCreateRange()));
+							r.put("T Remove low", new Double(this.getTRemoveLow()));
+							r.put("T Remove range", new Double(this.getTRemoveRange()));
+							r.put("Memory Size", new Double(this.getmemsize()));
+							r.put("Cicle 1", new Double(this.getCicle1()));
+							r.put("Minimum F", new Double(this.getMinF()));	   					
+							break;
+		case ANTCLASS4 : 	r.put("X size", new Double(this.getxsize()));
 							r.put("Y size", new Double(this.getysize()));
 							r.put("N of ants", new Double(this.getnants()));
 							r.put("N of items", new Double(this.getnitems()));

@@ -262,7 +262,8 @@ public class Grid {
 	public void calculateClusters(){
 		if (conf.getModel()== Configuration.Models.ANTCLASS1 ||
 			conf.getModel()== Configuration.Models.ANTCLASS2 ||
-			conf.getModel()== Configuration.Models.ANTCLASS3 ){
+			conf.getModel()== Configuration.Models.ANTCLASS3 ||
+			conf.getModel()== Configuration.Models.ANTCLASS4 ){
 			this.partition = new Cluster[heaps.size()];
 			int j=0;
 			for (Heap h : this.heaps){
@@ -357,6 +358,7 @@ public class Grid {
 	}
 	
 	/** Cluster the heaps for ANTCLASS2, try to merge heaps that have close centers.
+	 * @return a String with diagnostics of the clustering
 	*/
 	public String cluster_heaps(){
 		String diag = "(heaps < 3)";
@@ -385,7 +387,7 @@ public class Grid {
 		}
 	
 	/** Cluster the heaps for ANTCLASS3, try to eliminate clusters
-	 * @return A string with the a diagnotics
+	 * @return A string with the a diagnostics
 	*/
 	public String cluster_3_heaps(){
 			String diag = "(heaps < 3)";
@@ -413,6 +415,44 @@ public class Grid {
 					}
 				}
 			diag = "Complete";	
+			}
+			return diag;
+		}
+	
+	/** Cluster the heaps for ANTCLASS4, try to eliminate clusters
+	 * @return A string with diagnostics of the clustering
+	*/
+	public String cluster_4_heaps(){
+			String diag = "(heaps < 3)";
+			redo:
+			while (this.heaps.size()>2){
+				HashMap<UUID,double[]> centers = new HashMap<UUID,double[]>();
+				for(Heap h : this.heaps)centers.put(h.getID(),h.getCenterMass());
+				for(Heap h1 : this.heaps){
+					LinkedList<Item> list = h1.getItems();
+					Collections.shuffle(list);
+					Item it = list.get(0);
+					double min_dist = Double.MAX_VALUE;
+					Heap hp = null;
+					for (Heap h2 : this.heaps){
+						if (!h1.getID().equals(h2.getID())){
+							double dist = it.distance_vector(centers.get(h2.getID()));
+							if (dist < min_dist) {
+								min_dist = dist;
+								hp = h2;
+							}
+						}	
+					}
+					if (min_dist < h1.computeDistanceCenterMass(it)){
+						list = hp.getItems();
+						for (Item itm : list) h1.putItem(itm);
+						this.heaps.remove(hp);
+						System.out.println(this.heaps.size());
+						break redo;
+					}		
+				}
+				diag ="Complete";
+				break;
 			}
 			return diag;
 		}

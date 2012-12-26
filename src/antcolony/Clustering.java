@@ -541,8 +541,8 @@ public class Clustering {
 		table_1.setValueAt(v, 4, 1);
 	}
 	
-	/** Set the silhoutett index value on measure table
-	 * @param v the silhouett index value
+	/** Set the silhoutette index value on measure table
+	 * @param v the silhouette index value
 	 */
 	public void setSilhouette(double v){
 		table_1.setValueAt(v, 5, 1);

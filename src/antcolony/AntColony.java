@@ -186,9 +186,30 @@ public class AntColony {
 										out = "ANTCLASS3 phase 2 "+ diag;
 										break;
 
-			}
-		this.cleanMemories();
-		break;
+								}
+								this.cleanMemories();
+								break;
+		case ANTCLASS4 		: 	phase = 0;
+								if (tick==conf.getCicle1()) phase=1;
+								if (tick > conf.getCicle1()) break;
+								switch (phase){
+								case 0: for (int a = 0; a< conf.getnants(); a++) {
+									ants[a].move_ant_class();
+									if ( ants[a].hasLoad())
+										ants[a].drop_ant_class();
+									else
+										ants[a].pick_ant_class();
+								}
+								out = "ANTCLASS4 phase 1";
+								break;
+
+								case 1: diag = this.grid.cluster_4_heaps();
+								out = "ANTCLASS4 phase 2 "+ diag;
+								break;
+
+								}
+								this.cleanMemories();
+								break;
 
 		}
 		return out;
